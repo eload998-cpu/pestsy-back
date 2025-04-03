@@ -15,6 +15,7 @@ class LocationController extends Controller
 {
 
     private $location;
+    private $paginate_size=6;
 
     public function __construct(Location $location)
     {
@@ -35,6 +36,7 @@ class LocationController extends Controller
         if( $request->search )
         {
             $search_value=$request->search;
+            $locations=$locations->whereRaw("LOWER(locations.name) ILIKE '%{$search_value}%'");
 
         }
     
@@ -54,7 +56,8 @@ class LocationController extends Controller
 
         }
         
-        $locations=$locations->paginate(15);
+        $locations=$locations->paginate($this->paginate_size);
+        $locations=parsePaginator($locations);
 
         return response()->json($locations);
     }

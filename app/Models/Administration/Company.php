@@ -13,7 +13,25 @@ class Company extends Model
 
     protected $fillable=[
         "name",
+        "logo",
+        "phone",
+        "email",
+        "direction",
         "user_id"
     ];
 
+    protected $appends = [
+        "logo_src",
+    ];
+
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = strtolower($value);
+    }
+
+    
+    public function getLogoSrcAttribute()
+    {
+        return $this->logo ? config("app.url") . "/" . $this->logo : null;
+    }
 }

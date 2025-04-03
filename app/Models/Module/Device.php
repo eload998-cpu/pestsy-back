@@ -9,13 +9,19 @@ class Device extends Model
 {
     use HasFactory;
 
-    protected $table="devices";
+    protected $table = "devices";
 
-    protected $fillable=[
+    protected $fillable = [
         "name",
     ];
 
     //getters
 
+    //setters
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes["name"] = stripAccents($value);
+    }
 
 }

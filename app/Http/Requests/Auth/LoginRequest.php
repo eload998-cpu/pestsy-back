@@ -6,6 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
+
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *

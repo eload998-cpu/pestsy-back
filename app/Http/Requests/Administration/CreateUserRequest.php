@@ -20,6 +20,13 @@ class CreateUserRequest extends FormRequest
         return true;
     }
 
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -43,9 +50,9 @@ class CreateUserRequest extends FormRequest
             new ValidPassword,
             new ValidUpperCasePassword
         ],
-            //'country_id'=>'required',
-            //'state_id'  =>'required',
-           // 'city_id'  =>'required',
+            'country_id'=>'required',
+            'state_id'  =>'required',
+            'city_id'  =>'required',
             'password_confirmation'=>'required',
             'cellphone' => 'sometimes|nullable'
         ];
@@ -63,6 +70,16 @@ class CreateUserRequest extends FormRequest
             'country_id' => 'Pais',
             'state_id' => 'Estado',
             'city_id' => 'Ciudad',
+
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+
+            'email.unique' => 'El correo ya se encuentra registrado',
+       
 
         ];
     }

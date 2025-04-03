@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Models\GlobalError;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Database\QueryException;
 
 class Handler extends ExceptionHandler
 {
@@ -36,6 +38,7 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -43,8 +46,26 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+
+        $this->renderable(function (Throwable $exception, $request) {
+            if ($exception instanceof QueryException && $exception->getCode() === '23503') {
+
+                $validator = \Validator::make([], []);
+                $validator->errors()->add('error', 'El registro no puede ser eliminado, verifique que no este siendo utilizado por alguna orden de servicio');
+                throw new \Illuminate\Validation\ValidationException($validator);
+            }
+        });
+
         $this->reportable(function (Throwable $e) {
-            //
+
+            $error = [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ];
+
+            GlobalError::create(["error" => json_encode($error)]);
         });
     }
 }

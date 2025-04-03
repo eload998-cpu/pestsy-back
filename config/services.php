@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\App;
 
 return [
 
@@ -30,5 +31,19 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' =>  config(config('env').'.GOOGLE_REDIRECT_URL').'/auth/google/callback',
+    ],
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' =>  config(config('env').'.FACEBOOK_REDIRECT_URL').'/auth/facebook/callback',
+        'scopes' => ['email', 'user_location']
+    ],
+    'paypal'=>[
+        'webhook_id'=> env('PAYPAL_WEBHOOK_ID','')
+    ]
 
 ];

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -16,6 +18,14 @@ class UpdateProfileRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+            'company_email' => strtolower($this->company_email),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,11 +33,30 @@ class UpdateProfileRequest extends FormRequest
      */
     public function rules()
     {
+
+        updateConnectionSchema("administration");
+
         return [
             'first_name' => 'required',
-            'last_name'=>'required',
-            'email'=>'required',
-            'cellphone'=>'required',
+            'last_name' => 'required',
+            'email' => [
+                'required',
+                'email:filter',
+                'unique:users,email,' . Auth::user()->id,
+            ],
+            'cellphone' => 'required',
+            'password' => 'nullable',
+            'company_name' => 'required',
+            'company_email' => [
+                'required',
+                'email:filter',
+                'unique:companies,email,' . Auth::user()->company->id,
+            ],
+            'password_confirmation' => [
+                Rule::requiredIf(function () {
+                    return !empty($this->request->get('password'));
+                }),
+            ],
         ];
     }
 }

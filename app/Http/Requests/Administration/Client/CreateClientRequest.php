@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Administration\Client;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\ValidClientEmails;
 
 class CreateClientRequest extends FormRequest
 {
@@ -16,6 +17,13 @@ class CreateClientRequest extends FormRequest
         return true;
     }
 
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,9 +39,41 @@ class CreateClientRequest extends FormRequest
                 'email:filter',
                 'unique:clients,email'
             ],
+            'date'=>'required',
+            'identification_type'=>'required',
             'identification_number' =>'required',
             'cellphone'=>'required',
-            'direction'=>'required'
+            'direction'=>'required',
+            'emails.*'=>'required',
+            'emails'=>[
+                new ValidClientEmails($this->all(),false,null)
+            ]
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'first_name' => 'Nombre',
+            'last_name' => 'Apellido',
+            'date'=>'Fecha de ingreso',
+            'identification_type'=>'Tipo de idenficiacion',
+            'email' => 'Correo',
+            'celphone' => 'Telefono',
+            'identification_number' => 'Numero de identificacion',
+            'direction' => 'Dirección'
+
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+
+            'email.unique' => 'El correo ya se encuentra registrado',
+            'email.email' => 'La direccion de correo no es valida',
+
+
         ];
     }
 }

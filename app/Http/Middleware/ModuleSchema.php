@@ -18,11 +18,14 @@ class ModuleSchema
     public function handle(Request $request, Closure $next)
     {
 
-        $user= Auth::user();
+        $user = Auth::user();
 
-        $module_name="module_{$user->company->id}";
-        $user->setSchemaConnection($module_name);
+        $user_role = $user->roles()->first()->name;
+
+        $module_name = $user->module_name;
+        updateConnectionSchema($module_name);
 
         return $next($request);
+
     }
 }

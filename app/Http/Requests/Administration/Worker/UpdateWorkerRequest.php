@@ -16,6 +16,13 @@ class UpdateWorkerRequest extends FormRequest
         return true;
     }
 
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,6 +38,8 @@ class UpdateWorkerRequest extends FormRequest
                 'email:filter',
                 'unique:workers,email,'.$this->route('obrero'),
             ],
+            'date'=>'required',
+            'identification_type'=>'required',
             'identification_number' =>'required',
             'cellphone'=>'required',
             'direction'=>'required'

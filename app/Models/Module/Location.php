@@ -17,5 +17,12 @@ class Location extends Model
 
     //getters
 
+     //setters
+
+     public function setNameAttribute($value)
+     {
+         $this->attributes["name"] = stripAccents($value);
+     }
+
 
 }

@@ -3,25 +3,25 @@
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
-use App\Http\Requests\Administration\Device\{CreateDeviceRequest,UpdateDeviceRequest};
+use App\Http\Requests\Administration\Device\CreateDeviceRequest;
 
-use App\Models\Module\{Device};
+use App\Http\Requests\Administration\Device\UpdateDeviceRequest;
+use App\Models\Module\Device;
 use DB;
-
+use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
 
     private $device;
+    private $paginate_size = 6;
 
     public function __construct(Device $device)
     {
-        $this->device=$device;
+        $this->device = $device;
 
     }
-
 
     /**
      * Display a listing of the resource.
@@ -31,30 +31,28 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $devices = $this->device;
-        
-        if( $request->search )
-        {
-            $search_value=$request->search;
+
+        if ($request->search) {
+            $search_value = $request->search;
+            $devices = $devices->whereRaw("LOWER(devices.name) ILIKE '%{$search_value}%'");
 
         }
-    
-        if( $request->sort )
-        {
+
+        if ($request->sort) {
             switch ($request->sortBy) {
-         
+
                 case 'name':
-                    $devices= $devices->orderBy("name",$request->sort);
-                break;
+                    $devices = $devices->orderBy("name", $request->sort);
+                    break;
             }
 
-
-        }else
-        {
-            $devices= $devices->orderBy("clients.created_at","desc");
+        } else {
+            $devices = $devices->orderBy("devices.created_at", "desc");
 
         }
-        
-        $devices=$devices->paginate(15);
+
+        $devices = $devices->paginate($this->paginate_size);
+        $devices = parsePaginator($devices);
 
         return response()->json($devices);
     }
@@ -79,11 +77,11 @@ class DeviceController extends Controller
     {
         DB::transaction(function () use ($request) {
 
-        $device=Device::create($request->all());
+            $device = Device::create($request->all());
 
         });
 
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        return response()->json(['success' => true, 'message' => 'Exito']);
     }
 
     /**
@@ -94,9 +92,9 @@ class DeviceController extends Controller
      */
     public function show($id)
     {
-        $device=Device::find($id);
+        $device = Device::find($id);
 
-        return response()->json(['success'=>true,'data'=>$device]);
+        return response()->json(['success' => true, 'data' => $device]);
 
     }
 
@@ -121,17 +119,16 @@ class DeviceController extends Controller
     public function update(UpdateDeviceRequest $request, $id)
     {
 
-        DB::transaction(function () use ($request,$id) {
+        DB::transaction(function () use ($request, $id) {
 
-        $data=$request->all();
-        unset($data["_method"]); 
+            $data = $request->all();
+            unset($data["_method"]);
 
-
-        $device=Device::where('id',$id)->update($data);
+            $device = Device::where('id', $id)->update($data);
 
         });
 
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
@@ -143,8 +140,8 @@ class DeviceController extends Controller
      */
     public function destroy($id)
     {
-        $device=Device::destroy($id);
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        $device = Device::destroy($id);
+        return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 }

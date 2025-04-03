@@ -16,6 +16,19 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'front_app_url' =>env('FRONT_APP_URL', 'http://localhost:4200'),
+    'front_app_base_url' =>env('FRONT_APP_BASE_URL', 'http://localhost:4200'),
+    'paypal_premium_plan_id' =>env('PAYPAL_PREMIUM_PLAN_ID', 'P-8PX445590P8288912M43HB2A'),
+    'paypal_standard_plan_id' =>env('PAYPAL_STANDARD_PLAN_ID', 'P-4J9206609R621161BM43HCYI'),
+    'backend_app_base_url' =>env('BACKEND_APP_BASE_URL', 'https://backend.castilloapp.com'),
+    'client_id' => env('CLIENT_ID',2),
+    'client_secret'=>env('CLIENT_SECRET','bT61imAIZpNzRAgG0zetszyx3N7OXBbyBx2cVkcF'),
+    'oauth_url' => env('OAUTH_URL','http://localhost:8080'),
+    'ip_stack'=> env('IP_STACK',''),
+    'PAYPAL_SANDBOX_CLIENT_ID'=> env('PAYPAL_SANDBOX_CLIENT_ID',''),
+    'PAYPAL_SANDBOX_CLIENT_SECRET'=> env('PAYPAL_SANDBOX_CLIENT_SECRET',''),
+    'PAYPAL_LIVE_CLIENT_ID' =>env('PAYPAL_LIVE_CLIENT_ID',''),
+    'PAYPAL_LIVE_CLIENT_SECRET' =>env('PAYPAL_LIVE_CLIENT_SECRET',''),
 
     /*
     |--------------------------------------------------------------------------
@@ -54,7 +67,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://localhost:8000'),
+    'front_end_url' => env('FRONT_END_URL', 'http://localhost:4200'),
+
 
     'asset_url' => env('ASSET_URL'),
 
@@ -82,7 +97,7 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' => 'es',
 
     /*
     |--------------------------------------------------------------------------
@@ -194,6 +209,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
 
     ],
 
@@ -210,6 +227,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'Image' => Intervention\Image\Facades\Image::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+
     ])->toArray(),
 
 ];

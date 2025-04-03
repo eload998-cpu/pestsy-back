@@ -16,6 +16,13 @@ class CreateWorkerRequest extends FormRequest
         return true;
     }
 
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'email' => strtolower($this->email),
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,6 +38,8 @@ class CreateWorkerRequest extends FormRequest
                 'email:filter',
                 'unique:workers,email'
             ],
+            'date'=>'required',
+            'identification_type'=>'required',
             'identification_number' =>'required',
             'cellphone'=>'required',
             'direction'=>'required'
