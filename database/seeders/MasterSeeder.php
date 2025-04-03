@@ -1,0 +1,110 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Module\Aplication;
+use App\Models\Module\AplicationPlace;
+use App\Models\Module\Device;
+use App\Models\Module\Location;
+use App\Models\Module\Pest;
+use App\Models\Module\Product;
+use Illuminate\Database\Seeder;
+
+class MasterSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        Aplication::truncate();
+        AplicationPlace::truncate();
+        Device::truncate();
+        Location::truncate();
+        Pest::truncate();
+        Product::truncate();
+
+        $directoryPath = storage_path() . "/app/storage/masters/"; // replace with your directory path
+
+        $files_url = [
+            $directoryPath . "aplicaciones.php",
+            $directoryPath . "dispositivos.php",
+            $directoryPath . "lugar_aplicaciones.php",
+            $directoryPath . "plagas.php",
+            $directoryPath . "productos.php",
+            $directoryPath . "ubicaciones.php",
+
+        ];
+
+        foreach ($files_url as $f) {
+            include $f;
+            $arrayName = basename($f, '.php'); // For example: 'aplicaciones'
+
+            if (isset($$arrayName)) { // Using variable variables to dynamically access array
+
+                foreach ($$arrayName as $row) {
+
+                    switch ($arrayName) {
+                        case 'aplicaciones':
+
+                            Aplication::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+
+                        case 'lugar_aplicaciones':
+
+                            AplicationPlace::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+
+                        case 'dispositivos':
+
+                            Device::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+
+                        case 'plagas':
+
+                            Pest::create([
+                                "scientific_name" => $row["nombre_cientifico"],
+                                "common_name" => $row["nombre_comun"],
+
+                            ]);
+
+                            break;
+
+                        case 'productos':
+
+                            Product::create([
+                                "name" => $row["nombre"],
+                                "code" => $row["numero_de_registro"],
+                                "active_ingredient" => $row["ingrediente_activo"],
+                            ]);
+
+                            break;
+
+                        case 'ubicaciones':
+
+                            Location::create([
+                                "name" => $row["ubicacion"],
+                            ]);
+
+                            break;
+
+                    }
+
+                }
+            }
+
+        }
+
+    }
+}
