@@ -108,6 +108,7 @@ Route::group([
     Route::resource('/ubicaciones', 'LocationController');
     Route::resource('/aplicaciones', 'AplicationController');
     Route::resource('/transacciones', 'TransactionController');
+    Route::resource('/usuarios', 'UserController');
 
     Route::resource('/lugares-de-aplicacion', 'AplicationPlaceController');
     Route::resource('/productos', 'ProductController');
