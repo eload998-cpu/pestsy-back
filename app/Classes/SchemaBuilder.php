@@ -29,10 +29,14 @@ class SchemaBuilder
         DB::statement($statement);
     }
 
-    public function down(string $name): void
+    public function destroySchema(string $name): void
     {
         $statement = "DROP SCHEMA {$name} CASCADE";
         DB::statement($statement);
+    }
+
+    public function down(string $name): void
+    {
 
         //drop modules
         $schemas = DB::table('information_schema.schemata')->where('schema_name', 'like', '%module%')->get();

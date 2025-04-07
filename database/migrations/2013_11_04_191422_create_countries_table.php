@@ -39,7 +39,7 @@ return new class extends Migration
     public function down()
     {
 
-        $this->schema->down('administration');
+        $this->schema->destroySchema('administration');
 
         Schema::dropIfExists('countries');
     }

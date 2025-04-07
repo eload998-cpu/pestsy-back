@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
             //CountryLocationSeeder::class,
             //StatusSeeder::class,
             //PlanSeeder::class,
-            //RoleSeeder::class,
-            //PermissionSeeder::class,
+            RoleSeeder::class,
+            PermissionSeeder::class,
             //PlanPaypalIdSeeder::class
             //ClientSeeder::class,
             //WorkerSeeder::class
