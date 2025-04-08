@@ -89,7 +89,7 @@ class ResourceController extends Controller
         try {
             $response = Http::get("https://pydolarve.org/api/v1/dollar?page=criptodolar")->json();
 
-            return response()->json($response["monitors"]["bcv"]);
+            return response()->json($response["monitors"]["promedio"]);
         } catch (\Exception $e) {
 
             \Log::info($e);
