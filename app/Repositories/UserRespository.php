@@ -1,9 +1,9 @@
 <?php
 namespace App\Repositories;
 
-use App\Models\Status;
-use App\Models\StatusType;
 use App\Models\User;
+use App\Repositories\StatusRespository;
+use App\Repositories\StatusTypeRespository;
 use Illuminate\Http\Request;
 
 class UserRespository
@@ -13,7 +13,7 @@ class UserRespository
     private $paginate_size = 6;
     private $status;
     private $statusType;
-    public function __construct(User $user, Status $status, StatusType $statusType)
+    public function __construct(User $user, StatusRespository $status, StatusTypeRespository $statusType)
     {
         $this->user       = $user;
         $this->status     = $status;
@@ -76,8 +76,8 @@ class UserRespository
 
             }
 
-            $status_type = $this->statusType->where('name', 'plan')->first();
-            $status      = $this->status->where('status_type_id', $status_type->id)->where('name', 'active')->first();
+            $status_type = $this->statusType->findByCriteria(['name' => 'plan']);
+            $status      = $this->status->findByCriteria(['status_type_id' => $status_type->id, 'name' => 'active']);
 
             $users = $users
                 ->with(['subscriptions' => function ($query) use ($status) {
