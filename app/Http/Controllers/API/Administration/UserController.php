@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Services\V1\User\DeleteService;
 use App\Services\V1\User\DeleteValidation;
 use App\Services\V1\User\IndexService;
+use App\Services\V1\User\ShowService;
+use App\Services\V1\User\ShowValidation;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -21,6 +23,31 @@ class UserController extends Controller
         try {
             return response()->json($indexService->handle($request));
         } catch (\Exception $e) {
+            \Log::error($e);
+            return [
+                'success'       => false,
+                'titleResponse' => 'error',
+                'textResponse'  => 'There was an unexpected error',
+                'data'          => [],
+            ];
+        }
+
+    }
+
+    public function show($id, Request $request, ShowValidation $showValidation, ShowService $showService)
+    {
+
+        try {
+
+            $request->merge(['id' => $id]);
+            $showValidationResponse = $showValidation->handle($request->all());
+
+            if ($showValidationResponse['success'] == false) {
+                return response()->json($showValidationResponse);
+            }
+            $showServiceResponse = $showService->handle($request);
+            return response()->json($showServiceResponse);
+        } catch (\Throwable $e) {
             \Log::error($e);
             return [
                 'success'       => false,
