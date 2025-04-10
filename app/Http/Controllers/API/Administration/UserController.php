@@ -2,6 +2,8 @@
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
+use App\Services\V1\User\ChangePasswordService;
+use App\Services\V1\User\ChangePasswordValidation;
 use App\Services\V1\User\DeleteService;
 use App\Services\V1\User\DeleteValidation;
 use App\Services\V1\User\IndexService;
@@ -78,6 +80,30 @@ class UserController extends Controller
             }
             $deleteServiceResponse = $deleteService->handle($request);
             return response()->json($deleteServiceResponse);
+        } catch (\Throwable $e) {
+            \Log::error($e);
+            return [
+                'success'       => false,
+                'titleResponse' => 'error',
+                'textResponse'  => 'There was an unexpected error',
+                'data'          => [],
+            ];
+        }
+
+    }
+
+    public function changePassword(Request $reques, ChangePasswordValidation $changePasswordValidation, ChangePasswordService $changePasswordService)
+    {
+
+        try {
+
+            $changePasswordValidationResponse = $changePasswordValidation->handle($request->all());
+
+            if ($changePasswordValidationResponse['success'] == false) {
+                return response()->json($changePasswordValidationResponse);
+            }
+            $changePasswordServiceResponse = $changePasswordService->handle($request);
+            return response()->json($changePasswordServiceResponse);
         } catch (\Throwable $e) {
             \Log::error($e);
             return [
