@@ -109,7 +109,7 @@ Route::group([
     Route::resource('/aplicaciones', 'AplicationController');
     Route::resource('/transacciones', 'TransactionController');
     Route::resource('/usuarios', 'UserController');
-    Route::post('/usuarios/cambiar-contrasena', 'UserController');
+    Route::post('/usuarios/cambiar-contrasena', 'UserController@changePassword');
 
     Route::resource('/lugares-de-aplicacion', 'AplicationPlaceController');
     Route::resource('/productos', 'ProductController');
