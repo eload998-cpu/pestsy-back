@@ -92,7 +92,7 @@ class UserController extends Controller
 
     }
 
-    public function changePassword(Request $reques, ChangePasswordValidation $changePasswordValidation, ChangePasswordService $changePasswordService)
+    public function changePassword(Request $request, ChangePasswordValidation $changePasswordValidation, ChangePasswordService $changePasswordService)
     {
 
         try {
