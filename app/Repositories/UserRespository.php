@@ -25,6 +25,11 @@ class UserRespository
         return $this->user->find($id);
     }
 
+    public function findByCriteria($criteria)
+    {
+        return $this->user->where($criteria)->first();
+    }
+
     public function getByCriteria($criteria)
     {
         return $this->user->where($criteria)->get();
