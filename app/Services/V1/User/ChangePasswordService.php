@@ -5,6 +5,7 @@ use App\Mail\UserCreationMail;
 use App\Repositories\UserRespository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class ChangePasswordService
 {
