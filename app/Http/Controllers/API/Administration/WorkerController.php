@@ -45,7 +45,7 @@ class WorkerController extends Controller
 
         if (str_contains($worker->email, '@mail.com')) {
             $validator = \Validator::make([], []);
-            $validator->errors()->add('usuario', 'Asigne un correo valido al obrero');
+            $validator->errors()->add('usuario', 'Asigne un correo valido al técnico');
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 

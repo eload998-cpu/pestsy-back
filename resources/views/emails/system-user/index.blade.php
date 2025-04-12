@@ -34,7 +34,7 @@
                                           line-height: 29px;
                                           max-width: 500px; 
                                           text-align: center;">
-                                            Le damos la bienvenida al mejor gestor de bitacoras de la web<br>
+                                            Le damos la bienvenida a Pestsy<br>
                                             Tus credenciales de acceso son las siguientes:<br><br>
                                             <b>Correo: {{ $user->email }}</b><br>
                                             <b>Contraseña: {{ $password }}</b><br><br>
