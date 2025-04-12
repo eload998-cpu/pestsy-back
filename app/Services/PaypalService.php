@@ -21,7 +21,7 @@ class PaypalService
     public function getPayPalToken()
     {
         try {
-
+            
             $clientId     = config("paypal.{$this->mode}.client_id");
             $clientSecret = config("paypal.{$this->mode}.client_secret");
 
@@ -36,7 +36,7 @@ class PaypalService
                 $accessToken = $response->json()['access_token'];
                 return $accessToken;
             } else {
-                return response()->json(null);
+                return null;
             }
         } catch (\Exception $e) {
             Log::info($e);
