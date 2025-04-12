@@ -21,7 +21,7 @@ class CreateOrderRequest extends FormRequest
     {
         return [
             'client_id' => 'Cliente',
-            'worker_id' => 'Obrero'
+            'worker_id' => 'Técnico'
         ];
     }
 

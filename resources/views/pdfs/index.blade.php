@@ -395,7 +395,7 @@
         </div>
 
         <div class="col-xs-4 mt-2">
-            <span><b>Obrero:</b></span>
+            <span><b>Técnico:</b></span>
             {{ $order['worker']['full_name'] }}
         </div>
     </div>

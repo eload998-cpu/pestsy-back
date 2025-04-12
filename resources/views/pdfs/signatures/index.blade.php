@@ -22,7 +22,7 @@
 
     <div class="col-xs-6 text-center">
     <img  style="width:150px;" src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path($signature['worker_signature_url']))) }}" alt="">
-    <div class="text-center"><b>Firma del Obrero</b></div>
+    <div class="text-center"><b>Firma del Técnico</b></div>
 
     </div>
 
