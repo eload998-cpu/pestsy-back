@@ -576,7 +576,7 @@ class AuthController extends Controller
         //CREATE SCHEMAS
         $this->schema->createSchemas($user->id);
         updateConnectionSchema('administration');
-        AddRoleEvent::dispatch($user->id, 'fumigator');
+        AddRoleEvent::dispatch($user->id, 'administrator');
 
         $plan = Plan::where('name', 'Gratis')->first();
         $now  = Carbon::now();
@@ -584,7 +584,7 @@ class AuthController extends Controller
         $status_type = StatusType::where('name', 'plan')->first();
         $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
-        $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => Carbon::parse($now)->addDays(7), 'status_id' => $status->id, 'created_at' => $now]]);
+        $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => Carbon::parse($now)->addMonths(1), 'status_id' => $status->id, 'created_at' => $now]]);
 
         $company                 = Company::find($user->company->id);
         $company->order_quantity = $plan->order_quantity;
