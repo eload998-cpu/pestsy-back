@@ -278,10 +278,7 @@ class PermissionSeeder extends Seeder
             [
             "list client",
             "create client",
-            "edit client",
-
-            "list worker",
-
+            
             "create pest",
             "list pest",
 
