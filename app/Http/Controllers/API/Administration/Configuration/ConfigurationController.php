@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration\Configuration;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Administration\Company;
-
+use App\Models\Administration\DeletedAccount;
+use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -91,7 +90,7 @@ class ConfigurationController extends Controller
 
             try {
                 $user = Auth::user();
-
+                DeletedAccount::create(["email" => $user->email]);
                 $statement = "DROP SCHEMA {$user->module_name} CASCADE";
                 DB::statement($statement);
 
