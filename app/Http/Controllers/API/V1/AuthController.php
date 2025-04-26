@@ -11,6 +11,7 @@ use App\Mail\RegisterMail;
 use App\Models\Administration\City;
 use App\Models\Administration\Company;
 use App\Models\Administration\Country;
+use App\Models\Administration\DeletedAccount;
 use App\Models\Administration\FacebookDeleteData;
 use App\Models\Administration\Plan;
 use App\Models\Administration\State;
@@ -536,6 +537,10 @@ class AuthController extends Controller
     public function register(CreateUserRequest $request)
     {
 
+        //Here we check if the user has deleted the account
+
+        $isDeletedAccount = DeletedAccount::where('email', $request->email)->count();
+
         $company = $this->company->create([
             "name"  => $request->company_name,
             "email" => $request->email,
@@ -582,12 +587,12 @@ class AuthController extends Controller
         $now  = Carbon::now();
 
         $status_type = StatusType::where('name', 'plan')->first();
-        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
+        $status      = Status::where('status_type_id', $status_type->id)->where('name', ($isDeletedAccount > 0) ? 'inactive' : 'active')->first();
 
-        $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => Carbon::parse($now)->addMonths(1), 'status_id' => $status->id, 'created_at' => $now]]);
+        $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => ($isDeletedAccount > 0) ? $now : Carbon::parse($now)->addMonths(1), 'status_id' => $status->id, 'created_at' => $now]]);
 
         $company                 = Company::find($user->company->id);
-        $company->order_quantity = $plan->order_quantity;
+        $company->order_quantity = ($isDeletedAccount > 0) ? 0 : $plan->order_quantity;
         $company->save();
 
         if (! str_contains($user->email, '@mail.com')) {

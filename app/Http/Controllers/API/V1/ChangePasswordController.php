@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\V1;
 
 use App\Http\Controllers\Controller;
@@ -20,7 +19,7 @@ class ChangePasswordController extends Controller
 
         return response()->json([
             "success" => true,
-            "data" => ($check_token) ? false : true,
+            "data"    => ($check_token) ? false : true,
         ]);
 
     }
@@ -28,44 +27,61 @@ class ChangePasswordController extends Controller
     public function resetPassword(ResetPasswordRequest $request)
     {
 
-        $password_reset = PasswordReset::where('token', $request->token)->first();
-        $user = User::where('email', $password_reset->email)->first();
-        $user->password = $request->password;
-        $user->save();
+        try {
+            $password_reset = PasswordReset::where('token', $request->token)->first();
 
-        $password_reset->where('token', $request->token)->delete();
-        return response()->json(
-            [
-                "success" => true,
-                "message" => "Contraseña actualizada con exito",
-            ]
-        );
+            if (! empty($password_reset)) {
+                $user           = User::where('email', $password_reset->email)->first();
+                $user->password = $request->password;
+                $user->save();
+
+                $password_reset->where('token', $request->token)->delete();
+                return response()->json(
+                    [
+                        "success" => true,
+                        "message" => "Contraseña actualizada con exito",
+                    ]
+                );
+            }
+
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "El token ha expirado",
+                ]
+            );
+
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    "success" => false,
+                    "message" => "El token ha expirado",
+                ]
+            );
+        }
 
     }
 
     public function changePassword(ChangePasswordRequest $request)
     {
-      
 
-        if (!str_contains($request->emai, '@mail.com')) {
+        if (! str_contains($request->emai, '@mail.com')) {
 
             $token = generate_jwt();
 
-            $check_email = User::where('email',$request->email)->first();
+            $check_email = User::where('email', $request->email)->first();
 
-            if(!empty($check_email))
-            {
+            if (! empty($check_email)) {
                 PasswordReset::create(
                     [
                         "email" => $request->email,
                         "token" => $token,
                     ]
                 );
-    
+
                 Mail::to($request->email)
                     ->send(new ChangePasswordMail($token));
             }
-
 
         }
         return response()->json(
