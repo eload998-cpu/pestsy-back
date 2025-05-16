@@ -40,7 +40,6 @@ Route::controller(PaypalController::class)
         Route::post('capture-order', 'captureOrder');
         Route::post('get-subscription-detail', 'getSubscriptionDetail');
 
-
     });
 
 Route::post('/refreshing-token', 'API\V1\AuthController@refreshToken');
@@ -107,6 +106,9 @@ Route::group([
     Route::resource('/dispositivos', 'DeviceController');
     Route::resource('/ubicaciones', 'LocationController');
     Route::resource('/aplicaciones', 'AplicationController');
+    Route::resource('/metodos-de-desinfeccion', 'DesinfectionMethodController');
+    Route::resource('/elementos-afectados', 'AffectedElementController');
+
     Route::resource('/transacciones', 'TransactionController');
     Route::resource('/usuarios', 'UserController');
     Route::post('/usuarios/cambiar-contrasena', 'UserController@changePassword');
@@ -126,6 +128,9 @@ Route::group([
     Route::resource('/trampas', 'TrapController');
     Route::resource('/observaciones', 'ObservationController');
     Route::resource('/control-de-roedores', 'RodentControlController');
+    Route::resource('/control-de-xilofagos', 'XylophageControlController');
+    Route::resource('/control-de-legionella', 'LegionellaControlController');
+
     Route::resource('/imagenes', 'ImageController');
     Route::resource('/firmas', 'SignatureController');
 

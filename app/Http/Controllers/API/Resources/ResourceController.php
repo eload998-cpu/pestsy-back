@@ -1,15 +1,19 @@
 <?php
-
 namespace App\Http\Controllers\API\Resources;
 
 use App\Http\Controllers\Controller;
 use App\Models\Administration\Plan;
+use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
 use App\Models\Module\AplicationPlace;
+use App\Models\Module\AppliedTreatment;
+use App\Models\Module\ConstructionType;
+use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
-use App\Models\Module\Product;use Illuminate\Http\Request;
+use App\Models\Module\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -27,12 +31,16 @@ class ResourceController extends Controller
         $module_name = $user->module_name;
         updateConnectionSchema($module_name);
 
-        $aplications = [];
-        $aplication_places = [];
-        $products = [];
-        $devices = [];
-        $locations = [];
-        $pests = [];
+        $aplications          = [];
+        $aplication_places    = [];
+        $products             = [];
+        $devices              = [];
+        $locations            = [];
+        $pests                = [];
+        $applied_treatments   = [];
+        $construction_types   = [];
+        $affected_elements    = [];
+        $desinfection_methods = [];
 
         if ($request->aplications) {
             $aplications = Aplication::all();
@@ -59,12 +67,37 @@ class ResourceController extends Controller
 
         }
 
+        if ($request->desinfection_methods) {
+            $desinfection_methods = DesinfectionMethod::get();
+
+        }
+
+        if ($request->xylophages) {
+            $pests = Pest::where('is_xylophagus', true)->get();
+
+        }
+
         if ($request->pests) {
             $pests = Pest::all();
 
         }
 
-        return response()->json(compact('aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests'), 200);
+        if ($request->applied_treatments) {
+            $applied_treatments = AppliedTreatment::all();
+
+        }
+
+        if ($request->construction_types) {
+            $construction_types = ConstructionType::all();
+
+        }
+
+        if ($request->affected_elements) {
+            $affected_elements = AffectedElement::all();
+
+        }
+
+        return response()->json(compact('aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
 
     }
 
@@ -72,7 +105,7 @@ class ResourceController extends Controller
     {
 
         $fumigator_plan = Plan::select('id', 'name', 'price', 'period')->where('name', 'Fumigador')->first();
-        $premium_plan = Plan::select('id', 'name', 'price', 'period')->where('name', 'Premium')->first();
+        $premium_plan   = Plan::select('id', 'name', 'price', 'period')->where('name', 'Premium')->first();
 
         return compact('fumigator_plan', 'premium_plan');
     }

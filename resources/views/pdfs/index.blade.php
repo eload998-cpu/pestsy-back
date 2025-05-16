@@ -367,8 +367,12 @@
                 <b>Tel:</b> {{ $order['user']['company']['phone'] }}<br>
                 <b> E-mail: <b>{{ $order['user']['company']['email'] }}<br>
                         <b class="eleven">Fecha:</b> {{ $order['parsed_date'] }}<br>
-                        <b class="eleven">Dirección:</b><br>
-                        {{ !empty($order['user']['company']['direction']) ? $order['user']['company']['direction'] : 'Sin definir' }}<br>
+                        @if(!empty($order['user']['company']['direction']))
+                        <b  class="eleven">Dirección:</b><br>
+                        {{$order['user']['company']['direction'] }}
+                        @else
+                        <br>
+                        @endif
             </p>
         </div>
 
@@ -489,9 +493,16 @@
 
     </div>
 
-    <!--EXTERNAL CONDITIONS-->
 
-    @include('pdfs.external-conditions.index')
+    <!--XYLOPHAGE-->
+
+        @include('pdfs.xylophage.index')
+
+    <!-- -->
+
+    <!--LEGIONELLA-->
+
+    @include('pdfs.legionella.index')
 
     <!-- -->
 
@@ -538,14 +549,11 @@
 
 
 
-
-
     <!--OBSERVATIONS-->
 
     @include('pdfs.observations.index')
 
     <!-- -->
-
 
 
 

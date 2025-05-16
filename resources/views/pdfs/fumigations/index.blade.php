@@ -1,5 +1,5 @@
 
-@if(count($order["fumigations"]))
+@if(isset ($order["fumigations"]) && count($order["fumigations"]))
 
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">

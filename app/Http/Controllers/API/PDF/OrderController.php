@@ -1,9 +1,7 @@
 <?php
-
 namespace App\Http\Controllers\API\PDF;
 
 use App\Http\Controllers\Controller;
-use App\Models\Administration\UserSubscription;
 use App\Models\Module\Operator;
 use App\Models\Module\Order;
 use App\Models\Module\SystemUser;
@@ -24,9 +22,9 @@ class OrderController extends Controller
         expiredAccountMessage();
 
         $order_status_type = StatusType::where('name', 'order')->first();
-        $order_status = Status::where('status_type_id', $order_status_type->id)->where('name', 'completed')->first();
-        $user = Auth::user();
-        $user_role = $user->roles()->first()->name;
+        $order_status      = Status::where('status_type_id', $order_status_type->id)->where('name', 'completed')->first();
+        $user              = Auth::user();
+        $user_role         = $user->roles()->first()->name;
 
         $module_name = $user->module_name;
         updateConnectionSchema($module_name);
@@ -59,20 +57,35 @@ class OrderController extends Controller
         $order->load('user.company');
         $order->load('client');
         $order->load('worker');
-        $order->load('externalCondition');
-        $order->load('internalCondition');
-        $order->load('rodentControls', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest');
-        $order->load('fumigations', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
-        $order->load('lamps');
-        $order->load('traps', 'traps.product', 'traps.device');
-        $order->load('infestationGrade');
+
+        if ($order->service_type == "Xilofago") {
+            $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.pest', 'xylophageControl.appliedTreatment', 'xylophageControl.constructionType', 'xylophageControl.affectedElement');
+
+        }
+
+        if ($order->service_type == "Legionela") {
+            $order->load('legionellaControl', 'legionellaControl.location', 'legionellaControl.desinfectionMethod');
+
+        }
+
+        if ($order->service_type == "General") {
+
+            $order->load('externalCondition');
+            $order->load('internalCondition');
+            $order->load('rodentControls', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest');
+            $order->load('fumigations', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
+            $order->load('lamps');
+            $order->load('traps', 'traps.product', 'traps.device');
+            $order->load('infestationGrade');
+        }
+
         $order->load('observations');
         $order->load('signatures');
         $order->load('images');
 
         $order = $order->toArray();
 
-        $user_role = $user->roles()->first()->name;
+        $user_role            = $user->roles()->first()->name;
         $user["subscription"] = $user->subscriptions()->latest()->first();
 
         switch ($user_role) {
@@ -102,10 +115,10 @@ class OrderController extends Controller
         $PDFOptions = ['enable_remote' => true];
 
         $file_name = $order["order_number"] . ".pdf";
-        $headers = [
-            'Content-Description' => 'File Transfer',
-            'Content-Disposition' => 'attachment; filename=' . $file_name . '',
-            'Content-Type' => 'application/zip, application/octet-stream',
+        $headers   = [
+            'Content-Description'           => 'File Transfer',
+            'Content-Disposition'           => 'attachment; filename=' . $file_name . '',
+            'Content-Type'                  => 'application/zip, application/octet-stream',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
         // share data to view

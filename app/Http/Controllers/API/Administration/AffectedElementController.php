@@ -1,25 +1,22 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-
-use App\Http\Requests\Administration\Pest\CreatePestRequest;
-
-use App\Http\Requests\Administration\Pest\UpdatePestRequest;
-use App\Models\Module\Pest;
+use App\Http\Requests\Administration\AffectedElement\CreateAffectedElementRequest;
+use App\Http\Requests\Administration\AffectedElement\UpdateAffectedElementRequest;
+use App\Models\Module\AffectedElement;
 use DB;
 use Illuminate\Http\Request;
 
-class PestController extends Controller
+class AffectedElementController extends Controller
 {
 
-    private $pest;
+    private $affectedElement;
     private $paginate_size = 6;
 
-    public function __construct(Pest $pest)
+    public function __construct(AffectedElement $affectedElement)
     {
-        $this->pest = $pest;
+        $this->affectedElement = $affectedElement;
 
     }
 
@@ -30,35 +27,31 @@ class PestController extends Controller
      */
     public function index(Request $request)
     {
-        $pests = $this->pest;
+        $affectedElement = $this->affectedElement;
 
         if ($request->search) {
-            $search_value = $request->search;
-            $pests = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
+            $search_value    = $request->search;
+            $affectedElement = $affectedElement->whereRaw("LOWER(affected_elements.name) ILIKE '%{$search_value}%'");
 
         }
 
         if ($request->sort) {
             switch ($request->sortBy) {
 
-                case 'common_name':
-                    $pests = $pests->orderBy("common_name", $request->sort);
-                    break;
-
-                case 'scientific_name':
-                    $pests = $pests->orderBy("scientific_name", $request->sort);
+                case 'name':
+                    $affectedElement = $affectedElement->orderBy("name", $request->sort);
                     break;
             }
 
         } else {
-            $pests = $pests->orderBy("pests.created_at", "desc");
+            $affectedElement = $affectedElement->orderBy("affected_elements.created_at", "desc");
 
         }
 
-        $pests = $pests->paginate($this->paginate_size);
-        $pests = parsePaginator($pests);
+        $affectedElement = $affectedElement->paginate($this->paginate_size);
+        $affectedElement = parsePaginator($affectedElement);
 
-        return response()->json($pests);
+        return response()->json($affectedElement);
     }
 
     /**
@@ -77,14 +70,11 @@ class PestController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreatePestRequest $request)
+    public function store(CreateAffectedElementRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $data = $request->all();
-            unset($data["_method"]);
 
-            \Log::info($data);
-            $pest = Pest::create($data);
+            $affectedElement = AffectedElement::create($request->all());
 
         });
 
@@ -99,9 +89,9 @@ class PestController extends Controller
      */
     public function show($id)
     {
-        $pest = Pest::find($id);
+        $affectedElement = AffectedElement::find($id);
 
-        return response()->json(['success' => true, 'data' => $pest]);
+        return response()->json(['success' => true, 'data' => $affectedElement]);
 
     }
 
@@ -123,7 +113,7 @@ class PestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePestRequest $request, $id)
+    public function update(UpdateAffectedElementRequest $request, $id)
     {
 
         DB::transaction(function () use ($request, $id) {
@@ -131,7 +121,7 @@ class PestController extends Controller
             $data = $request->all();
             unset($data["_method"]);
 
-            $pest = Pest::where('id', $id)->update($data);
+            $affectedElement = AffectedElement::where('id', $id)->update($data);
 
         });
 
@@ -147,7 +137,7 @@ class PestController extends Controller
      */
     public function destroy($id)
     {
-        $pest = Pest::destroy($id);
+        $affectedElement = AffectedElement::destroy($id);
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

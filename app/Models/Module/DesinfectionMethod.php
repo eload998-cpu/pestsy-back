@@ -1,20 +1,17 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Pest extends Model
+class DesinfectionMethod extends Model
 {
     use HasFactory;
 
-    protected $table="pests";
+    protected $table = "desinfection_methods";
 
-    protected $fillable=[
-        "common_name",
-        "scientific_name",
-        "is_xylophagus"
+    protected $fillable = [
+        "name",
     ];
 
 }

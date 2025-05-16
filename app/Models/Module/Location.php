@@ -13,6 +13,7 @@ class Location extends Model
 
     protected $fillable=[
         "name",
+        "is_legionella",
     ];
 
     //getters

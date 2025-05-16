@@ -80,6 +80,7 @@ class LocationController extends Controller
      */
     public function store(CreateLocationRequest $request)
     {
+
         DB::transaction(function () use ($request) {
 
         $location=Location::create($request->all());

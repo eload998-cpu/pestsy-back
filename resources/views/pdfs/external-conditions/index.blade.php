@@ -1,3 +1,5 @@
+@if(isset ($order["external_condition"]) && count($order["external_condition"]))
+
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">
                 <h6 class="text-center" >CONDICIONES EXTERNAS</h6>
@@ -46,3 +48,5 @@
         <span><b>Lugares de anidacion para plagas: </b></span>{{translate_conditions($order["external_condition"]["nesting"])}}
     </div>
 </div>
+
+@endif

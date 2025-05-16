@@ -1,25 +1,22 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-
-use App\Http\Requests\Administration\Pest\CreatePestRequest;
-
-use App\Http\Requests\Administration\Pest\UpdatePestRequest;
-use App\Models\Module\Pest;
-use DB;
+use App\Http\Requests\Administration\DesinfectionMethod\CreateDesinfectionMethodRequest;
+use App\Http\Requests\Administration\DesinfectionMethod\UpdateDesinfectionMethodRequest;
 use Illuminate\Http\Request;
+use App\Models\Module\{DesinfectionMethod};
+use DB;
 
-class PestController extends Controller
+class DesinfectionMethodController extends Controller
 {
 
-    private $pest;
+    private $desinfectionMethod;
     private $paginate_size = 6;
 
-    public function __construct(Pest $pest)
+    public function __construct(DesinfectionMethod $desinfectionMethod)
     {
-        $this->pest = $pest;
+        $this->desinfectionMethod = $desinfectionMethod;
 
     }
 
@@ -30,35 +27,31 @@ class PestController extends Controller
      */
     public function index(Request $request)
     {
-        $pests = $this->pest;
+        $desinfectionMethods = $this->desinfectionMethod;
 
         if ($request->search) {
-            $search_value = $request->search;
-            $pests = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
+            $search_value        = $request->search;
+            $desinfectionMethods = $desinfectionMethods->whereRaw("LOWER(desinfection_methods.name) ILIKE '%{$search_value}%'");
 
         }
 
         if ($request->sort) {
             switch ($request->sortBy) {
 
-                case 'common_name':
-                    $pests = $pests->orderBy("common_name", $request->sort);
-                    break;
-
-                case 'scientific_name':
-                    $pests = $pests->orderBy("scientific_name", $request->sort);
+                case 'name':
+                    $desinfectionMethods = $desinfectionMethods->orderBy("name", $request->sort);
                     break;
             }
 
         } else {
-            $pests = $pests->orderBy("pests.created_at", "desc");
+            $desinfectionMethods = $desinfectionMethods->orderBy("desinfection_methods.created_at", "desc");
 
         }
 
-        $pests = $pests->paginate($this->paginate_size);
-        $pests = parsePaginator($pests);
+        $desinfectionMethods = $desinfectionMethods->paginate($this->paginate_size);
+        $desinfectionMethods = parsePaginator($desinfectionMethods);
 
-        return response()->json($pests);
+        return response()->json($desinfectionMethods);
     }
 
     /**
@@ -77,14 +70,11 @@ class PestController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreatePestRequest $request)
+    public function store(CreateDesinfectionMethodRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $data = $request->all();
-            unset($data["_method"]);
 
-            \Log::info($data);
-            $pest = Pest::create($data);
+            $desinfectionMethod = DesinfectionMethod::create($request->all());
 
         });
 
@@ -99,9 +89,9 @@ class PestController extends Controller
      */
     public function show($id)
     {
-        $pest = Pest::find($id);
+        $desinfectionMethod = DesinfectionMethod::find($id);
 
-        return response()->json(['success' => true, 'data' => $pest]);
+        return response()->json(['success' => true, 'data' => $desinfectionMethod]);
 
     }
 
@@ -123,7 +113,7 @@ class PestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePestRequest $request, $id)
+    public function update(UpdateDesinfectionMethodRequest $request, $id)
     {
 
         DB::transaction(function () use ($request, $id) {
@@ -131,7 +121,7 @@ class PestController extends Controller
             $data = $request->all();
             unset($data["_method"]);
 
-            $pest = Pest::where('id', $id)->update($data);
+            $desinfectionMethod = DesinfectionMethod::where('id', $id)->update($data);
 
         });
 
@@ -147,7 +137,7 @@ class PestController extends Controller
      */
     public function destroy($id)
     {
-        $pest = Pest::destroy($id);
+        $desinfectionMethod = DesinfectionMethod::destroy($id);
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

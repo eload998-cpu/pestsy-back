@@ -140,6 +140,7 @@ class User extends Authenticatable
             $last_order = intval($order->order_number);
             $arr["id"] = $order->id;
             $arr["last_order"] = $last_order;
+            $arr["service_type"] = $order->service_type;
 
             return $arr;
         }

@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\CreateOrderRequest;
 use App\Mail\OrderMail;
 use App\Models\Administration\Company;
-use App\Models\Administration\UserSubscription;
 use App\Models\Module\Client;
 use App\Models\Module\ExternalCondition;
 use App\Models\Module\InfestationGrade;
@@ -42,13 +40,13 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $status_type = StatusType::where('name', 'order')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
-        $user = Auth::user();
+        $status_type  = StatusType::where('name', 'order')->first();
+        $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
+        $user         = Auth::user();
         $role_of_user = "";
-        $client_id = null;
-        $module_name = $user->module_name;
-        $user_role = $user->roles()->first()->name;
+        $client_id    = null;
+        $module_name  = $user->module_name;
+        $user_role    = $user->roles()->first()->name;
         switch ($user_role) {
 
             case 'system_user':
@@ -69,11 +67,11 @@ class OrderController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $orders = $orders->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(orders.order_number)  || LOWER(orders.date) ILIKE '%{$search_value}%'");
+            $orders       = $orders->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(orders.order_number)  || LOWER(orders.date) ILIKE '%{$search_value}%'");
 
         }
 
-        if (!empty($client_id)) {
+        if (! empty($client_id)) {
             $orders = $orders->where('orders.client_id', $client_id);
         }
 
@@ -86,8 +84,8 @@ class OrderController extends Controller
 
                 case 'client_name':
 
-                    $sortOrder = ($request->sort=="ASC")?"DESC":"ASC";
-                    $orders = $orders->orderByRaw("clients.first_name || clients.last_name {$sortOrder}");
+                    $sortOrder = ($request->sort == "ASC") ? "DESC" : "ASC";
+                    $orders    = $orders->orderByRaw("clients.first_name || clients.last_name {$sortOrder}");
                     break;
 
                 case 'direction':
@@ -96,7 +94,7 @@ class OrderController extends Controller
 
                 case 'service_type':
 
-                    $sortOrder = ($request->sort=="ASC")?"DESC":"ASC";
+                    $sortOrder = ($request->sort == "ASC") ? "DESC" : "ASC";
 
                     $orders = $orders->orderBy("service_type", $sortOrder);
                     break;
@@ -132,13 +130,13 @@ class OrderController extends Controller
     public function dailyOrders(Request $request)
     {
 
-        $status_type = StatusType::where('name', 'order')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
-        $user = Auth::user();
+        $status_type  = StatusType::where('name', 'order')->first();
+        $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
+        $user         = Auth::user();
         $role_of_user = "";
-        $client_id = null;
-        $module_name = $user->module_name;
-        $user_role = $user->roles()->first()->name;
+        $client_id    = null;
+        $module_name  = $user->module_name;
+        $user_role    = $user->roles()->first()->name;
         switch ($user_role) {
 
             case 'system_user':
@@ -159,11 +157,11 @@ class OrderController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $orders = $orders->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(orders.order_number) || LOWER(orders.service_type) || LOWER(orders.date) || LOWER(orders.direction)  ILIKE '%{$search_value}%'");
+            $orders       = $orders->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(orders.order_number) || LOWER(orders.service_type) || LOWER(orders.date) || LOWER(orders.direction)  ILIKE '%{$search_value}%'");
 
         }
 
-        if (!empty($client_id)) {
+        if (! empty($client_id)) {
             $orders = $orders->where('orders.client_id', $client_id);
         }
 
@@ -215,9 +213,9 @@ class OrderController extends Controller
     private function validateOrderNumber($order_number)
     {
         $user = Auth::user();
-        $q = Order::where("order_number", $order_number);
+        $q    = Order::where("order_number", $order_number);
 
-        if (!empty($q->first())) {
+        if (! empty($q->first())) {
             $o = $q->where("user_id", $user->id)->first();
 
             if (empty($o)) {
@@ -256,9 +254,9 @@ class OrderController extends Controller
 
     public function validateSubscription()
     {
-        $user = Auth::user();
+        $user        = Auth::user();
         $module_name = $user->module_name;
-        $user_role = $user->roles()->first()->name;
+        $user_role   = $user->roles()->first()->name;
 
         switch ($user_role) {
 
@@ -287,7 +285,6 @@ class OrderController extends Controller
     public function store(CreateOrderRequest $request)
     {
 
-
         if ($this->validateSubscription() <= 0) {
             $validator = \Validator::make([], []);
             $validator->errors()->add('Error', 'Ha alcanzado el limite de ordenes, renueve su plan');
@@ -296,24 +293,24 @@ class OrderController extends Controller
 
         $order = DB::transaction(function () use ($request) {
 
-            $status_type = StatusType::where('name', 'order')->first();
-            $status = Status::where('status_type_id', $status_type->id)->where('name', $request->status)->first();
+            $status_type  = StatusType::where('name', 'order')->first();
+            $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->status)->first();
             $order_number = $request->order_number;
 
-            $user = Auth::user();
+            $user        = Auth::user();
             $module_name = $user->module_name;
             updateConnectionSchema($module_name);
 
             if ($request->action == "CREATE") {
-                $validation = $this->validateOrderNumber($order_number);
+                $validation   = $this->validateOrderNumber($order_number);
                 $order_number = $this->getOrderNumber($order_number, $validation);
             }
 
             $arrive_time = str_replace("Z", "", $request->arrive_time);
-            $start_time = str_replace("Z", "", $request->start_time);
-            $end_time = str_replace("Z", "", $request->end_time);
-            $client_id = null;
-            $worker_id = null;
+            $start_time  = str_replace("Z", "", $request->start_time);
+            $end_time    = str_replace("Z", "", $request->end_time);
+            $client_id   = null;
+            $worker_id   = null;
 
             if (is_string($request->client_id)) {
                 $client_id = $this->addClient($request->client_id);
@@ -332,78 +329,80 @@ class OrderController extends Controller
                     "order_number" => $order_number,
                 ],
                 [
-                    "client_id" => $client_id,
-                    "worker_id" => $worker_id,
-                    "date" => $request->date,
-                    "direction" => $request->direction,
+                    "client_id"    => $client_id,
+                    "worker_id"    => $worker_id,
+                    "date"         => $request->date,
+                    "direction"    => $request->direction,
                     "service_type" => $request->service_type,
-                    "arrive_time" => $arrive_time,
-                    "start_time" => $start_time,
-                    "end_time" => $end_time,
-                    "coordinator" => $request->coordinator,
-                    "origin" => $request->origin,
-                    "status_id" => $status->id,
-                    "user_id" => Auth::user()->id,
+                    "arrive_time"  => $arrive_time,
+                    "start_time"   => $start_time,
+                    "end_time"     => $end_time,
+                    "coordinator"  => $request->coordinator,
+                    "origin"       => $request->origin,
+                    "status_id"    => $status->id,
+                    "user_id"      => Auth::user()->id,
                 ]);
 
-            $external_condition = ExternalCondition::updateOrCreate(
-                [
-                    "order_id" => $order->id,
-                ],
-                [
-                    "obsolete_machinery" => $request->external_conditions["obsolete_machinery"],
-                    "sewer_system" => $request->external_conditions["sewer_system"],
-                    "debris" => $request->external_conditions["debris"],
-                    "containers" => $request->external_conditions["containers"],
-                    "spotlights" => $request->external_conditions["spotlights"],
-                    "green_areas" => $request->external_conditions["green_areas"],
-                    "waste" => $request->external_conditions["waste"],
-                    "nesting" => $request->external_conditions["nesting"],
-                ]);
+            if ($request->service_type == "General") {
+                $external_condition = ExternalCondition::updateOrCreate(
+                    [
+                        "order_id" => $order->id,
+                    ],
+                    [
+                        "obsolete_machinery" => $request->external_conditions["obsolete_machinery"],
+                        "sewer_system"       => $request->external_conditions["sewer_system"],
+                        "debris"             => $request->external_conditions["debris"],
+                        "containers"         => $request->external_conditions["containers"],
+                        "spotlights"         => $request->external_conditions["spotlights"],
+                        "green_areas"        => $request->external_conditions["green_areas"],
+                        "waste"              => $request->external_conditions["waste"],
+                        "nesting"            => $request->external_conditions["nesting"],
+                    ]);
 
-            $internal_condition = InternalCondition::updateOrCreate(
-                [
-                    "order_id" => $order->id,
-                ],
-                [
-                    "walls" => $request->internal_conditions["walls"],
-                    "floors" => $request->internal_conditions["floors"],
-                    "cleaning" => $request->internal_conditions["cleaning"],
-                    "windows" => $request->internal_conditions["windows"],
-                    "storage" => $request->internal_conditions["storage"],
-                    "space" => $request->internal_conditions["space"],
-                    "evidences" => $request->internal_conditions["evidences"],
-                    "roofs" => $request->internal_conditions["roofs"],
-                    "sealings" => $request->internal_conditions["sealings"],
-                    "closed_doors" => $request->internal_conditions["closed_doors"],
-                    "pests_facilities" => $request->internal_conditions["pests_facilities"],
-                    "garbage_cans" => $request->internal_conditions["garbage_cans"],
-                    "equipment" => $request->internal_conditions["equipment"],
-                    "ventilation" => $request->internal_conditions["ventilation"],
-                    "clean_walls" => $request->internal_conditions["clean_walls"],
-                    "ducts" => $request->internal_conditions["ducts"],
-                ]);
+                $internal_condition = InternalCondition::updateOrCreate(
+                    [
+                        "order_id" => $order->id,
+                    ],
+                    [
+                        "walls"            => $request->internal_conditions["walls"],
+                        "floors"           => $request->internal_conditions["floors"],
+                        "cleaning"         => $request->internal_conditions["cleaning"],
+                        "windows"          => $request->internal_conditions["windows"],
+                        "storage"          => $request->internal_conditions["storage"],
+                        "space"            => $request->internal_conditions["space"],
+                        "evidences"        => $request->internal_conditions["evidences"],
+                        "roofs"            => $request->internal_conditions["roofs"],
+                        "sealings"         => $request->internal_conditions["sealings"],
+                        "closed_doors"     => $request->internal_conditions["closed_doors"],
+                        "pests_facilities" => $request->internal_conditions["pests_facilities"],
+                        "garbage_cans"     => $request->internal_conditions["garbage_cans"],
+                        "equipment"        => $request->internal_conditions["equipment"],
+                        "ventilation"      => $request->internal_conditions["ventilation"],
+                        "clean_walls"      => $request->internal_conditions["clean_walls"],
+                        "ducts"            => $request->internal_conditions["ducts"],
+                    ]);
 
-            $infestation_grade = InfestationGrade::updateOrCreate(
-                [
-                    "order_id" => $order->id,
-                ],
-                [
-                    "german_cockroaches" => $request->pests["german_cockroaches"],
-                    "flies" => $request->pests["flies"],
-                    "bees" => $request->pests["bees"],
-                    "fleas" => $request->pests["fleas"],
-                    "moths" => $request->pests["moths"],
-                    "weevils" => $request->pests["weevils"],
-                    "american_cockroaches" => $request->pests["american_cockroaches"],
-                    "ants" => $request->pests["ants"],
-                    "termites" => $request->pests["termites"],
-                    "spiders" => $request->pests["spiders"],
-                    "rodents" => $request->pests["rodents"],
-                    "fire_ants" => $request->pests["fire_ants"],
-                    "stilt_walkers" => $request->pests["stilt_walkers"],
-                    "others" => $request->pests["others"],
-                ]);
+                $infestation_grade = InfestationGrade::updateOrCreate(
+                    [
+                        "order_id" => $order->id,
+                    ],
+                    [
+                        "german_cockroaches"   => $request->pests["german_cockroaches"],
+                        "flies"                => $request->pests["flies"],
+                        "bees"                 => $request->pests["bees"],
+                        "fleas"                => $request->pests["fleas"],
+                        "moths"                => $request->pests["moths"],
+                        "weevils"              => $request->pests["weevils"],
+                        "american_cockroaches" => $request->pests["american_cockroaches"],
+                        "ants"                 => $request->pests["ants"],
+                        "termites"             => $request->pests["termites"],
+                        "spiders"              => $request->pests["spiders"],
+                        "rodents"              => $request->pests["rodents"],
+                        "fire_ants"            => $request->pests["fire_ants"],
+                        "stilt_walkers"        => $request->pests["stilt_walkers"],
+                        "others"               => $request->pests["others"],
+                    ]);
+            }
 
             return $order;
         });
@@ -411,7 +410,7 @@ class OrderController extends Controller
         return response()
             ->json([
                 "success" => true,
-                "data" => [
+                "data"    => [
                     "order" => $order,
                 ],
                 "message" => "Orden almacenada con exito",
@@ -422,13 +421,13 @@ class OrderController extends Controller
     {
         $client_name = explode("-", $client_id);
         $client_name = explode(" ", $client_name[1]);
-        $email_name = str_replace(" ", "_", $client_name[0]);
+        $email_name  = str_replace(" ", "_", $client_name[0]);
 
         return $client = Client::create(
             [
                 "first_name" => $client_name[0],
-                "email" => $email_name . "@mail.com",
-                "date" => Carbon::now(),
+                "email"      => $email_name . "@mail.com",
+                "date"       => Carbon::now(),
             ]
         )->id;
 
@@ -436,14 +435,14 @@ class OrderController extends Controller
 
     private function addWorker($worker_name)
     {
-        $worker_name = explode("-", $worker_name);
-        $worker_name = explode(" ", $worker_name[1]);
-        $email_name = str_replace(" ", "_", $worker_name[0]);
+        $worker_name   = explode("-", $worker_name);
+        $worker_name   = explode(" ", $worker_name[1]);
+        $email_name    = str_replace(" ", "_", $worker_name[0]);
         return $worker = Worker::create(
             [
                 "first_name" => $worker_name[0],
-                "email" => $email_name . "@mail.com",
-                "date" => Carbon::now(),
+                "email"      => $email_name . "@mail.com",
+                "date"       => Carbon::now(),
             ]
         )->id;
 
@@ -456,10 +455,10 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $clients = Client::all();
         $workers = Worker::all();
-        $order = $this->order->find($id);
+        $order   = $this->order->find($id);
         $order->load('externalCondition');
         $order->load('internalCondition');
         $order->load('infestationGrade');
@@ -477,23 +476,23 @@ class OrderController extends Controller
      */
     public function checkOrder(Request $request)
     {
-        $user = Auth::user();
+        $user    = Auth::user();
         $clients = Client::all();
         $workers = Worker::all();
 
         $status_type = StatusType::where('name', 'order')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', 'in process')->first();
+        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'in process')->first();
 
         $order = $this->order->where(["status_id" => $status->id, "user_id" => $user->id])->latest()->first();
 
-        if (!empty($order)) {
+        if (! empty($order)) {
             $order->load('externalCondition');
             $order->load('internalCondition');
             $order->load('infestationGrade');
         }
 
-        $last_order = $this->order->latest()->first();
-        $last_order_number = (!empty($last_order)) ? str_pad($last_order->order_number + 1, 3, '0', STR_PAD_LEFT) : str_pad(1, 3, '0', STR_PAD_LEFT);
+        $last_order        = $this->order->latest()->first();
+        $last_order_number = (! empty($last_order)) ? str_pad($last_order->order_number + 1, 3, '0', STR_PAD_LEFT) : str_pad(1, 3, '0', STR_PAD_LEFT);
 
         return response()->json(compact('clients', 'workers', 'order', 'last_order_number'), 200);
     }
@@ -537,21 +536,21 @@ class OrderController extends Controller
     public function resend($id)
     {
         expiredAccountMessage();
-        
+
         $user = Auth::user();
 
-        $order = Order::find($id);
+        $order        = Order::find($id);
         $company_name = $user->company->name;
 
         if (empty($user->last_email_sent)) {
             $user->last_email_sent = Carbon::now();
             $user->save();
-            if (!str_contains($order->client->email, '@mail.com')) {
+            if (! str_contains($order->client->email, '@mail.com')) {
                 Mail::to($order->client->email)->send(new OrderMail($order, $company_name));
             }
             //OPTIONAL EMAILS
 
-            $user_role = $user->roles()->first()->name;
+            $user_role   = $user->roles()->first()->name;
             $module_name = $user->module_name;
             updateConnectionSchema($module_name);
 
@@ -569,7 +568,7 @@ class OrderController extends Controller
 
             foreach ($order->client->emails as $e) {
 
-                if (!str_contains($e->email, '@mail.com')) {
+                if (! str_contains($e->email, '@mail.com')) {
 
                     Mail::to($e->email)->send(new OrderMail($order, $company_name));
                 }
@@ -579,7 +578,7 @@ class OrderController extends Controller
         return response()
             ->json([
                 "success" => true,
-                "data" => [],
+                "data"    => [],
                 "message" => "Orden Reenviada con exito",
             ]);
     }
@@ -593,26 +592,26 @@ class OrderController extends Controller
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 
-        $order = Order::find($request->order_id);
-        $user = Auth::user();
+        $order        = Order::find($request->order_id);
+        $user         = Auth::user();
         $company_name = $user->company->name;
 
         DB::transaction(function () use ($request, $order) {
-            $status_type = StatusType::where('name', 'order')->first();
-            $status = Status::where('status_type_id', $status_type->id)->where('name', 'completed')->first();
+            $status_type      = StatusType::where('name', 'order')->first();
+            $status           = Status::where('status_type_id', $status_type->id)->where('name', 'completed')->first();
             $order->status_id = $status->id;
             $order->save();
 
         });
 
-        if (!str_contains($order->client->email, '@mail.com') && !str_contains($order->client->email, '@pestsy.com')) {
+        if (! str_contains($order->client->email, '@mail.com') && ! str_contains($order->client->email, '@pestsy.com')) {
             Mail::to($order->client->email)->send(new OrderMail($order, $company_name));
 
         }
 
         //OPTIONAL EMAILS
 
-        $user_role = $user->roles()->first()->name;
+        $user_role   = $user->roles()->first()->name;
         $module_name = $user->module_name;
         updateConnectionSchema($module_name);
         $id = $user->id;
@@ -625,7 +624,7 @@ class OrderController extends Controller
 
                 $subscription_user = User::find($user_id);
 
-                $company = Company::find($subscription_user->company->id);
+                $company                 = Company::find($subscription_user->company->id);
                 $company->order_quantity = $company->order_quantity - 1;
 
                 $company->save();
@@ -643,7 +642,7 @@ class OrderController extends Controller
                 if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
                     updateConnectionSchema("administration");
 
-                    $company = Company::find($user->company->id);
+                    $company                 = Company::find($user->company->id);
                     $company->order_quantity = $company->order_quantity - 1;
                     $company->save();
 
@@ -655,7 +654,7 @@ class OrderController extends Controller
 
         foreach ($order->client->emails as $e) {
 
-            if (!str_contains($e->email, '@mail.com') && !str_contains($e->email, '@pestsy.com')) {
+            if (! str_contains($e->email, '@mail.com') && ! str_contains($e->email, '@pestsy.com')) {
                 Mail::to($e->email)->send(new OrderMail($order, $company_name));
             }
         }
@@ -663,7 +662,7 @@ class OrderController extends Controller
         return response()
             ->json([
                 "success" => true,
-                "data" => [],
+                "data"    => [],
                 "message" => "Orden finalizada con exito",
             ]);
 
@@ -673,9 +672,9 @@ class OrderController extends Controller
     {
 
         DB::transaction(function () use ($request) {
-            $order = Order::find($request->order_id);
-            $status_type = StatusType::where('name', 'order')->first();
-            $status = Status::where('status_type_id', $status_type->id)->where('name', 'pending')->first();
+            $order            = Order::find($request->order_id);
+            $status_type      = StatusType::where('name', 'order')->first();
+            $status           = Status::where('status_type_id', $status_type->id)->where('name', 'pending')->first();
             $order->status_id = $status->id;
             $order->save();
 
@@ -683,7 +682,7 @@ class OrderController extends Controller
         return response()
             ->json([
                 "success" => true,
-                "data" => [],
+                "data"    => [],
                 "message" => "Orden finalizada con exito",
             ]);
 
