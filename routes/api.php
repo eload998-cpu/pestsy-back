@@ -108,6 +108,8 @@ Route::group([
     Route::resource('/aplicaciones', 'AplicationController');
     Route::resource('/metodos-de-desinfeccion', 'DesinfectionMethodController');
     Route::resource('/elementos-afectados', 'AffectedElementController');
+    Route::resource('/tipo-de-construcciones', 'ConstructionTypeController');
+    Route::resource('/tratamientos-aplicados', 'AppliedTreatmentController');
 
     Route::resource('/transacciones', 'TransactionController');
     Route::resource('/usuarios', 'UserController');
