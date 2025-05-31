@@ -23,8 +23,8 @@ class DeleteService
         try {
 
             $user = $this->userRespository->find($request->id);
-            
-            $this->schema->destroySchema($user->module_name);
+
+            $this->schema->destroySchema("modules");
             $user = $this->userRespository->destroy($request->id);
 
             $response = [

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +8,11 @@ class AppliedTreatment extends Model
 {
     use HasFactory;
 
-    protected $table="applied_treatments";
+    protected $table = "modules.applied_treatments";
 
-    protected $fillable=[
+    protected $fillable = [
         "name",
+        "company_id",
     ];
 
 }

@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Mail;
 
+use App\Models\Administration\Company;
 use App\Models\Module\Order;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -27,7 +27,7 @@ class OrderMail extends Mailable
      */
     public function __construct(Order $order, $company_name)
     {
-        $this->order = $order;
+        $this->order        = $order;
         $this->company_name = $company_name;
     }
 
@@ -64,10 +64,8 @@ class OrderMail extends Mailable
     {
 
         $user = Auth::user();
-        $user_role = $user->roles()->first()->name;
 
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         // retreive all records from db
         $order = Order::find($this->order->id);
@@ -87,38 +85,10 @@ class OrderMail extends Mailable
 
         $order = $order->toArray();
 
-        $user_role = $user->roles()->first()->name;
+        $user_role            = $user->roles()->first()->name;
         $user["subscription"] = $user->subscriptions()->latest()->first();
-
-
-        switch ($user_role) {
-
-            case 'operator':
-                updateConnectionSchema($module_name);
-
-                $administrator = User::find($user->operators()->first()->id);
-                $order["logo"] = $administrator->company->logo;
-
-                break;
-
-            case 'system_user':
-                updateConnectionSchema($module_name);
-
-                $administrator = User::find($user->systemUsers()->first()->id);
-                $order["logo"] = $administrator->company->logo;
-
-                break;
-
-            default:
-                if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-                    $order["logo"] = $user->company->logo;
-
-                }
-                break;
-
-        }
-
-        $PDFOptions = ['enable_remote' => true];
+        $order["logo"]        = $user->company->logo;
+        $PDFOptions           = ['enable_remote' => true];
 
         // share data to view
         $pdf = PDF::setOptions($PDFOptions)->loadView('pdfs.index', ["order" => $order]);

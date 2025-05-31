@@ -10,7 +10,7 @@ class Lamp extends Model
     use HasFactory;
 
 
-    protected $table="lamps";
+    protected $table="modules.lamps";
 
     protected $fillable=
     [

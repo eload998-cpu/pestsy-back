@@ -33,7 +33,6 @@ return new class extends Migration
             $table->string('oauth_facebook_id')->nullable();
             $table->string('paypal_subscription_id')->nullable();
             $table->boolean('active_subscription')->default(false);
-            $table->string('module_name')->nullable();
             $table->timestamp('last_email_sent')->nullable();
             $table->rememberToken();
             $table->timestamps();

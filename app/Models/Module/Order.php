@@ -11,7 +11,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table   = "orders";
+    protected $table   = "modules.orders";
     protected $appends = [
         "parsed_arrive_time",
         "parsed_start_time",
@@ -32,6 +32,7 @@ class Order extends Model
         "coordinator",
         "origin",
         "status_id",
+        "company_id",
         "user_id",
     ];
     /*

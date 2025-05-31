@@ -42,9 +42,8 @@ class ValidOwner implements Rule
         $user = Auth::user();
         $user_role = $user->roles()->first()->name;
 
-        $module_name = $user->module_name;
         $user_id = $user->id;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
         switch ($user_role) {
 
             default:

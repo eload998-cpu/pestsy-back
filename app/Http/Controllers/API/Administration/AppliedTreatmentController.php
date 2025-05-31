@@ -7,6 +7,7 @@ use App\Http\Requests\Administration\AppliedTreatment\UpdateAppliedTreatmentRequ
 use App\Models\Module\AppliedTreatment;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AppliedTreatmentController extends Controller
 {
@@ -28,12 +29,15 @@ class AppliedTreatmentController extends Controller
     public function index(Request $request)
     {
         $appliedTreatment = $this->appliedTreatment;
+        $user             = Auth::user();
 
         if ($request->search) {
             $search_value     = $request->search;
             $appliedTreatment = $appliedTreatment->whereRaw("LOWER(applied_treatments.name) ILIKE '%{$search_value}%'");
 
         }
+        $appliedTreatment = $appliedTreatment->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

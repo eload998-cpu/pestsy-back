@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-
 use App\Http\Requests\Administration\Pest\CreatePestRequest;
-
 use App\Http\Requests\Administration\Pest\UpdatePestRequest;
 use App\Models\Module\Pest;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PestController extends Controller
 {
@@ -31,12 +29,15 @@ class PestController extends Controller
     public function index(Request $request)
     {
         $pests = $this->pest;
+        $user  = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $pests = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
+            $pests        = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
 
         }
+        $pests = $pests->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

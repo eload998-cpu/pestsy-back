@@ -10,10 +10,7 @@ class MipController extends Controller
 
     public function __construct()
     {
-        $user = Auth::user();
-
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
     }
 

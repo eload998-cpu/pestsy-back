@@ -22,8 +22,7 @@ class ClientFactory extends Factory
 
     public function definition()
     {
-        $module_name = "module_12";
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         if (is_null(self::$lastCreatedAt)) {
             self::$lastCreatedAt = Carbon::parse('2024-11-01');

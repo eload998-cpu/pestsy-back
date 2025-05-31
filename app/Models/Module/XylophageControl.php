@@ -8,7 +8,7 @@ class XylophageControl extends Model
 {
     use HasFactory;
 
-    protected $table = "control_of_xylophages";
+    protected $table = "modules.control_of_xylophages";
 
     protected $fillable =
         [

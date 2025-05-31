@@ -9,7 +9,7 @@ class Fumigation extends Model
 {
     use HasFactory;
 
-    protected $table="fumigations";
+    protected $table="modules.fumigations";
 
     protected $fillable=
     [

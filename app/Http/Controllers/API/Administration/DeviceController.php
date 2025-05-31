@@ -1,15 +1,13 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-
 use App\Http\Requests\Administration\Device\CreateDeviceRequest;
-
 use App\Http\Requests\Administration\Device\UpdateDeviceRequest;
 use App\Models\Module\Device;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DeviceController extends Controller
 {
@@ -31,12 +29,15 @@ class DeviceController extends Controller
     public function index(Request $request)
     {
         $devices = $this->device;
+        $user    = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $devices = $devices->whereRaw("LOWER(devices.name) ILIKE '%{$search_value}%'");
+            $devices      = $devices->whereRaw("LOWER(devices.name) ILIKE '%{$search_value}%'");
 
         }
+        $devices = $devices->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

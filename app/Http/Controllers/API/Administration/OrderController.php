@@ -43,24 +43,25 @@ class OrderController extends Controller
         $status_type  = StatusType::where('name', 'order')->first();
         $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
         $user         = Auth::user();
+        $company_id   = $user->company_id;
         $role_of_user = "";
         $client_id    = null;
-        $module_name  = $user->module_name;
         $user_role    = $user->roles()->first()->name;
+
+        updateConnectionSchema("modules");
+
         switch ($user_role) {
 
             case 'system_user':
-                updateConnectionSchema($module_name);
-
-                $client_id = $user->systemUsers()->first()->pivot->client_id;
+                $client_id = $user->systemUsers()->first()->id;
 
                 break;
 
         }
-        updateConnectionSchema($module_name);
 
         $orders = $this->order
-            ->where('status_id', $status->id)
+            ->where('orders.status_id', $status->id)
+            ->where('orders.company_id', $company_id)
             ->leftJoin('clients', 'orders.client_id', 'clients.id')
             ->select('orders.*', DB::raw("COALESCE(clients.first_name || ' ' || clients.last_name, clients.first_name) AS client_name"))
             ->with('status');
@@ -133,23 +134,25 @@ class OrderController extends Controller
         $status_type  = StatusType::where('name', 'order')->first();
         $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->condition)->first();
         $user         = Auth::user();
+        $company_id   = $user->company_id;
         $role_of_user = "";
         $client_id    = null;
-        $module_name  = $user->module_name;
         $user_role    = $user->roles()->first()->name;
+
+        updateConnectionSchema("modules");
+
         switch ($user_role) {
 
             case 'system_user':
-                updateConnectionSchema($module_name);
 
-                $client_id = $user->systemUsers()->first()->pivot->client_id;
+                $client_id = $user->systemUsers()->first()->id;
 
                 break;
 
         }
-        updateConnectionSchema($module_name);
 
         $orders = Order::where('status_id', $status->id)
+            ->where('company_id', $company_id)
             ->leftJoin('clients', 'orders.client_id', 'clients.id')
             ->select('orders.*', DB::raw("COALESCE(clients.first_name || ' ' || clients.last_name, clients.first_name) AS client_name"))
             ->whereBetween(DB::raw('DATE(orders.date)'), [$request->date_1, $request->date_2])
@@ -213,7 +216,7 @@ class OrderController extends Controller
     private function validateOrderNumber($order_number)
     {
         $user = Auth::user();
-        $q    = Order::where("order_number", $order_number);
+        $q    = Order::where("order_number", $order_number)->where('company_id', $user->company_id);
 
         if (! empty($q->first())) {
             $o = $q->where("user_id", $user->id)->first();
@@ -242,8 +245,9 @@ class OrderController extends Controller
                 break;
 
             case 'NOT VALID':
+                $user = Auth::user();
 
-                $order_number = DB::table('orders')->select('order_number')->orderByRaw('cast(order_number as int) DESC')->first();
+                $order_number = DB::table('orders')->select('order_number')->where('company_id', $user->company_id)->orderByRaw('cast(order_number as int) DESC')->first();
                 $order_number = intval($order_number->order_number);
                 $order_number = str_pad($order_number + 1, 3, '0', STR_PAD_LEFT);
                 return $order_number;
@@ -254,31 +258,12 @@ class OrderController extends Controller
 
     public function validateSubscription()
     {
-        $user        = Auth::user();
-        $module_name = $user->module_name;
-        $user_role   = $user->roles()->first()->name;
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
 
-        switch ($user_role) {
+        updateConnectionSchema("modules");
 
-            case 'operator':
-
-                updateConnectionSchema($module_name);
-                $user_id = $user->operators()->first()->id;
-
-                $subscription_user = User::find($user_id);
-
-                return $subscription_user->company->order_quantity;
-                break;
-
-            default:
-                if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-                    updateConnectionSchema($module_name);
-                    return $user->company->order_quantity;
-
-                }
-                break;
-
-        }
+        return $user->company->order_quantity;
 
     }
 
@@ -297,9 +282,8 @@ class OrderController extends Controller
             $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->status)->first();
             $order_number = $request->order_number;
 
-            $user        = Auth::user();
-            $module_name = $user->module_name;
-            updateConnectionSchema($module_name);
+            $user = Auth::user();
+            updateConnectionSchema("modules");
 
             if ($request->action == "CREATE") {
                 $validation   = $this->validateOrderNumber($order_number);
@@ -327,6 +311,7 @@ class OrderController extends Controller
             $order = Order::updateOrCreate(
                 [
                     "order_number" => $order_number,
+                    "company_id"   => $user->company_id
                 ],
                 [
                     "client_id"    => $client_id,
@@ -341,6 +326,7 @@ class OrderController extends Controller
                     "origin"       => $request->origin,
                     "status_id"    => $status->id,
                     "user_id"      => Auth::user()->id,
+                    "company_id"   => Auth::user()->company_id,
                 ]);
 
             if ($request->service_type == "General") {
@@ -419,6 +405,9 @@ class OrderController extends Controller
 
     private function addClient($client_id)
     {
+
+        $user = Auth::user();
+
         $client_name = explode("-", $client_id);
         $client_name = explode(" ", $client_name[1]);
         $email_name  = str_replace(" ", "_", $client_name[0]);
@@ -428,6 +417,7 @@ class OrderController extends Controller
                 "first_name" => $client_name[0],
                 "email"      => $email_name . "@mail.com",
                 "date"       => Carbon::now(),
+                "company_id" => $user->company_id,
             ]
         )->id;
 
@@ -435,6 +425,9 @@ class OrderController extends Controller
 
     private function addWorker($worker_name)
     {
+
+        $user = Auth::user();
+
         $worker_name   = explode("-", $worker_name);
         $worker_name   = explode(" ", $worker_name[1]);
         $email_name    = str_replace(" ", "_", $worker_name[0]);
@@ -443,6 +436,8 @@ class OrderController extends Controller
                 "first_name" => $worker_name[0],
                 "email"      => $email_name . "@mail.com",
                 "date"       => Carbon::now(),
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -456,8 +451,8 @@ class OrderController extends Controller
     public function show($id)
     {
         $user    = Auth::user();
-        $clients = Client::all();
-        $workers = Worker::all();
+        $clients = Client::where('company_id', $user->company->id)->get();
+        $workers = Worker::where('company_id', $user->company->id)->get();
         $order   = $this->order->find($id);
         $order->load('externalCondition');
         $order->load('internalCondition');
@@ -477,13 +472,13 @@ class OrderController extends Controller
     public function checkOrder(Request $request)
     {
         $user    = Auth::user();
-        $clients = Client::all();
-        $workers = Worker::all();
+        $clients = Client::where('company_id', $user->company->id)->get();
+        $workers = Worker::where('company_id', $user->company->id)->get();
 
         $status_type = StatusType::where('name', 'order')->first();
         $status      = Status::where('status_type_id', $status_type->id)->where('name', 'in process')->first();
 
-        $order = $this->order->where(["status_id" => $status->id, "user_id" => $user->id])->latest()->first();
+        $order = $this->order->where(["status_id" => $status->id, "company_id" => $user->company_id, "user_id" => $user->id])->latest()->first();
 
         if (! empty($order)) {
             $order->load('externalCondition');
@@ -491,7 +486,7 @@ class OrderController extends Controller
             $order->load('infestationGrade');
         }
 
-        $last_order        = $this->order->latest()->first();
+        $last_order        = $this->order->where(["company_id" => $user->company_id])->latest()->first();
         $last_order_number = (! empty($last_order)) ? str_pad($last_order->order_number + 1, 3, '0', STR_PAD_LEFT) : str_pad(1, 3, '0', STR_PAD_LEFT);
 
         return response()->json(compact('clients', 'workers', 'order', 'last_order_number'), 200);
@@ -550,9 +545,8 @@ class OrderController extends Controller
             }
             //OPTIONAL EMAILS
 
-            $user_role   = $user->roles()->first()->name;
-            $module_name = $user->module_name;
-            updateConnectionSchema($module_name);
+            $user_role = $user->roles()->first()->name;
+            updateConnectionSchema("modules");
 
         } else {
             $lastSent = $user->last_email_sent;
@@ -592,8 +586,10 @@ class OrderController extends Controller
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 
-        $order        = Order::find($request->order_id);
-        $user         = Auth::user();
+        $order   = Order::find($request->order_id);
+        $user    = Auth::user();
+        $company = Company::find($user->company->id);
+
         $company_name = $user->company->name;
 
         DB::transaction(function () use ($request, $order) {
@@ -611,46 +607,12 @@ class OrderController extends Controller
 
         //OPTIONAL EMAILS
 
-        $user_role   = $user->roles()->first()->name;
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        $user_role = $user->roles()->first()->name;
+        updateConnectionSchema("modules");
         $id = $user->id;
 
-        switch ($user_role) {
-
-            case 'operator':
-
-                $user_id = $user->operators()->first()->id;
-
-                $subscription_user = User::find($user_id);
-
-                $company                 = Company::find($subscription_user->company->id);
-                $company->order_quantity = $company->order_quantity - 1;
-
-                $company->save();
-
-                updateConnectionSchema($module_name);
-                break;
-
-            case 'system_user':
-
-                updateConnectionSchema($module_name);
-                break;
-
-            default:
-
-                if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-                    updateConnectionSchema("administration");
-
-                    $company                 = Company::find($user->company->id);
-                    $company->order_quantity = $company->order_quantity - 1;
-                    $company->save();
-
-                    updateConnectionSchema($module_name);
-                }
-                break;
-
-        }
+        $company->order_quantity = $user->company->order_quantity - 1;
+        $company->save();
 
         foreach ($order->client->emails as $e) {
 

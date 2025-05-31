@@ -9,7 +9,7 @@ class RodentControl extends Model
 {
     use HasFactory;
 
-    protected $table="control_of_rodents";
+    protected $table="modules.control_of_rodents";
 
     protected $fillable=
     [

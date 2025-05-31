@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,21 +8,21 @@ class Location extends Model
 {
     use HasFactory;
 
-    protected $table="locations";
+    protected $table = "modules.locations";
 
-    protected $fillable=[
+    protected $fillable = [
         "name",
         "is_legionella",
+        "company_id",
     ];
 
     //getters
 
-     //setters
+    //setters
 
-     public function setNameAttribute($value)
-     {
-         $this->attributes["name"] = stripAccents($value);
-     }
-
+    public function setNameAttribute($value)
+    {
+        $this->attributes["name"] = stripAccents($value);
+    }
 
 }

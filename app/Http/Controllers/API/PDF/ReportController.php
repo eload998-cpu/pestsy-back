@@ -1,19 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\API\PDF;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
 
     public function __construct()
     {
-        $user = Auth::user();
 
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
     }
 
@@ -22,14 +18,14 @@ class ReportController extends Controller
     {
 
         $zip_file = 'informes.zip';
-        $zip = new \ZipArchive();
+        $zip      = new \ZipArchive();
         $zip->open($zip_file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
-        $path = storage_path('app/public/files/reports/' . $id);
+        $path  = storage_path('app/public/files/reports/' . $id);
         $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         foreach ($files as $name => $file) {
             // We're skipping all subfolders
-            if (!$file->isDir()) {
+            if (! $file->isDir()) {
                 $filePath = $file->getRealPath();
 
                 // extracting filename with substr/strlen
@@ -41,10 +37,10 @@ class ReportController extends Controller
         $zip->close();
 
         $file_name = $zip_file;
-        $headers = [
-            'Content-Description' => 'File Transfer',
-            'Content-Disposition' => 'attachment; filename=' . $file_name . '',
-            'Content-Type' => 'application/zip, application/octet-stream',
+        $headers   = [
+            'Content-Description'           => 'File Transfer',
+            'Content-Disposition'           => 'attachment; filename=' . $file_name . '',
+            'Content-Type'                  => 'application/zip, application/octet-stream',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
 

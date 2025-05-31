@@ -9,7 +9,7 @@ class Observation extends Model
 {
     use HasFactory;
 
-    protected $table="observations";
+    protected $table="modules.observations";
 
     protected $fillable=
     [

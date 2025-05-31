@@ -7,6 +7,7 @@ use App\Http\Requests\Administration\ConstructionType\UpdateConstructionTypeRequ
 use App\Models\Module\ConstructionType;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ConstructionTypeController extends Controller
 {
@@ -28,12 +29,15 @@ class ConstructionTypeController extends Controller
     public function index(Request $request)
     {
         $constructionType = $this->constructionType;
+        $user             = Auth::user();
 
         if ($request->search) {
             $search_value     = $request->search;
             $constructionType = $constructionType->whereRaw("LOWER(construction_types.name) ILIKE '%{$search_value}%'");
 
         }
+        $constructionType = $constructionType->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

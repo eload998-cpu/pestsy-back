@@ -9,10 +9,11 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $table="products";
+    protected $table="modules.products";
 
     protected $fillable=[
         "name",
+        "company_id"
     ];
 
 

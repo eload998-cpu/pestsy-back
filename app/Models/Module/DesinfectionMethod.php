@@ -8,10 +8,11 @@ class DesinfectionMethod extends Model
 {
     use HasFactory;
 
-    protected $table = "desinfection_methods";
+    protected $table = "modules.desinfection_methods";
 
     protected $fillable = [
         "name",
+        "company_id",
     ];
 
 }

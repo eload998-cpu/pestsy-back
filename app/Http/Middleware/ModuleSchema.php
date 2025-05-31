@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -19,11 +18,8 @@ class ModuleSchema
     {
 
         $user = Auth::user();
-
-        $user_role = $user->roles()->first()->name;
-
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        $request->merge(["company_id" => $user->company_id]);
+        updateConnectionSchema("modules");
 
         return $next($request);
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -18,20 +17,18 @@ class DatabaseSeeder extends Seeder
             //CountryLocationSeeder::class,
             //StatusSeeder::class,
             //PlanSeeder::class,
-            RoleSeeder::class,
-            PermissionSeeder::class,
+            //RoleSeeder::class,
+            //PermissionSeeder::class,
             //PlanPaypalIdSeeder::class
             //ClientSeeder::class,
             //WorkerSeeder::class
-
+            MasterSeeder::class,
 
         ]);
 
-         
-         //\App\Models\Module\Client::factory(10)->create();
-         //\App\Models\Module\Worker::factory(10)->create();
-      
-        
+        //\App\Models\Module\Client::factory(10)->create();
+        //\App\Models\Module\Worker::factory(10)->create();
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

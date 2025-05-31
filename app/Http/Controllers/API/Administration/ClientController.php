@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Events\AddRoleEvent;
@@ -42,11 +41,13 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         $clients = $this->client;
+        $user    = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $clients = $clients->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(clients.cellphone) || LOWER(clients.email)  ILIKE '%{$search_value}%'");
+            $clients      = $clients->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(clients.cellphone) || LOWER(clients.email)  ILIKE '%{$search_value}%'");
         }
+        $clients = $clients->where('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {
@@ -84,7 +85,7 @@ class ClientController extends Controller
     public function checkClientRole(Request $request)
     {
         $client = SystemUser::where('client_id', $request->id)->first();
-        return !empty($client) ? true : false;
+        return ! empty($client) ? true : false;
 
     }
 
@@ -111,7 +112,7 @@ class ClientController extends Controller
         $password = Str::random(10);
 
         $status_type = StatusType::where('name', 'user')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
+        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
         $validate_user = User::where('email', $client->email)->first();
 
@@ -123,45 +124,42 @@ class ClientController extends Controller
 
         $user = User::create(
             [
-                "email" => $client->email,
+                "email"      => $client->email,
                 "first_name" => $client->first_name,
-                "last_name" => !empty($client->last_name) ? $client->last_name : "Fumigador",
-                "cellphone" => $client->cellphone,
-                "city_id" => Auth::user()->city_id,
-                "password" => $password,
+                "last_name"  => ! empty($client->last_name) ? $client->last_name : "Fumigador",
+                "cellphone"  => $client->cellphone,
+                "city_id"    => Auth::user()->city_id,
+                "password"   => $password,
                 "company_id" => Auth::user()->company_id,
-                "status_id" => $status->id,
+                "status_id"  => $status->id,
             ]);
 
-        $user->password = $password;
-        $user->module_name = Auth::user()->module_name;
-
+        $user->password    = $password;
         $user->save();
 
         //ATTACH TO ADMINISTRATOR USER
         $user->systemUsers()->detach();
-        $user->systemUsers()->attach(Auth::user()->id, ['client_id' => $client->id]);
+        $user->systemUsers()->attach($client->id,['company_id' => $user->company_id]);
 
         updateConnectionSchema("administration");
 
         AddRoleEvent::dispatch($user->id, 'system_user');
-        if (!str_contains($user->email, '@mail.com')) {
+        if (! str_contains($user->email, '@mail.com')) {
 
             Mail::to($user->email)->send(new UserCreationMail($user, $password));
         }
         //OPTIONAL EMAILS
 
-        $auth_user = Auth::user();
+        $auth_user    = Auth::user();
         $subscription = UserSubscription::where('user_id', $auth_user->id)->orderBy('created_at', 'DESC')->get()->first();
-        $now = Carbon::now();
+        $now          = Carbon::now();
         $user->subscriptions()->attach([$subscription->plan_id => ['start_date' => $subscription->start_date, 'end_date' => $subscription->end_date, 'status_id' => $subscription->status_id, 'created_at' => $now]]);
 
         $id = $auth_user->id;
-        $module_name = "module_{$id}";
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         foreach ($client->emails as $e) {
-            if (!str_contains($e->email, '@mail.com')) {
+            if (! str_contains($e->email, '@mail.com')) {
 
                 Mail::to($e->email)->send(new UserCreationMail($user, $password));
             }
@@ -192,14 +190,14 @@ class ClientController extends Controller
 
         DB::transaction(function () use ($request) {
 
-            $data = $request->except(['emails']);
+            $data   = $request->except(['emails']);
             $client = Client::create($data);
 
             foreach ($request->emails as $e) {
                 ClientEmail::create(
                     [
                         "client_id" => $client->id,
-                        "email" => $e["email"],
+                        "email"     => $e["email"],
                     ]
                 );
             }
@@ -219,11 +217,7 @@ class ClientController extends Controller
     {
 
         $client = Client::find($id);
-        $user = Auth::user();
-
-        $user_role = $user->roles()->first()->name;
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         $client->load('emails');
         $client->load('administrators');
@@ -268,7 +262,7 @@ class ClientController extends Controller
                     ClientEmail::create(
                         [
                             "client_id" => $id,
-                            "email" => $e["email"],
+                            "email"     => $e["email"],
                         ]
                     );
                 }

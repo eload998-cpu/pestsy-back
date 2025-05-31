@@ -13,18 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::get('/', function () {
     return view('welcome');
 });
-
-// GOOGLE AUTHENTICATION
-Route::get('login/auth/google', 'API\V1\AuthController@redirectToGoogle');
-Route::get('auth/google/callback', 'API\V1\AuthController@handleGoogleCallback');
-
-//FACEBOOK AUTHENTICATION
-Route::get('login/auth/facebook', 'API\V1\AuthController@redirectToFacebook');
-Route::get('auth/facebook/callback', 'API\V1\AuthController@handleFacebookCallback');
-
-
-

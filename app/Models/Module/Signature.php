@@ -10,7 +10,7 @@ class Signature extends Model
 {
     use HasFactory;
 
-    protected $table="signatures";
+    protected $table="modules.signatures";
 
     protected $fillable=
     [

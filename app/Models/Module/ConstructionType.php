@@ -8,10 +8,11 @@ class ConstructionType extends Model
 {
     use HasFactory;
 
-    protected $table = "construction_types";
+    protected $table = "modules.construction_types";
 
     protected $fillable = [
         "name",
+        "company_id",
     ];
 
 }

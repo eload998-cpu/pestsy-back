@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Events\AddRoleEvent;
@@ -35,7 +34,7 @@ class WorkerController extends Controller
     public function checkWorkerRole(Request $request)
     {
         $worker = Operator::where('worker_id', $request->id)->first();
-        return (!empty($worker)) ? true : false;
+        return (! empty($worker)) ? true : false;
 
     }
 
@@ -59,7 +58,7 @@ class WorkerController extends Controller
         }
 
         $status_type = StatusType::where('name', 'user')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
+        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
         $password = Str::random(10);
 
@@ -74,14 +73,13 @@ class WorkerController extends Controller
         $user = User::create(
             [
                 "first_name" => $worker->first_name,
-                "last_name" => !empty($worker->last_name) ? $worker->last_name : "Operador",
-                "email" => $worker->email,
-                "cellphone" => $worker->cellphone,
-                "city_id" => Auth::user()->city_id,
-                "password" => $password,
+                "last_name"  => ! empty($worker->last_name) ? $worker->last_name : "Operador",
+                "email"      => $worker->email,
+                "cellphone"  => $worker->cellphone,
+                "city_id"    => Auth::user()->city_id,
+                "password"   => $password,
                 "company_id" => Auth::user()->company_id,
-                "status_id" => $status->id,
-                "module_name" => Auth::user()->module_name,
+                "status_id"  => $status->id,
             ]);
 
         $user->password = $password;
@@ -90,11 +88,11 @@ class WorkerController extends Controller
         //ATTACH TO ADMINISTRATOR USER
 
         $user->operators()->detach();
-        $user->operators()->attach(Auth::user()->id, ['worker_id' => $worker->id]);
+        $user->operators()->attach($worker->id, ['company_id' => $user->company_id]);
 
         updateConnectionSchema("administration");
 
-        $auth_user = Auth::user();
+        $auth_user    = Auth::user();
         $subscription = UserSubscription::where('user_id', $auth_user->id)->orderBy('created_at', 'DESC')->get()->first();
 
         $now = Carbon::now();
@@ -102,7 +100,7 @@ class WorkerController extends Controller
 
         AddRoleEvent::dispatch($user->id, 'operator');
 
-        if (!str_contains($user->email, '@mail.com')) {
+        if (! str_contains($user->email, '@mail.com')) {
 
             Mail::to($user->email)->send(new UserCreationMail($user, $password));
         }
@@ -118,12 +116,14 @@ class WorkerController extends Controller
     public function index(Request $request)
     {
         $workers = $this->worker;
+        $user    = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $workers = $workers->whereRaw("LOWER(workers.first_name) || LOWER(workers.last_name) || LOWER(workers.cellphone) || LOWER(workers.email) ILIKE '%{$search_value}%'");
+            $workers      = $workers->whereRaw("LOWER(workers.first_name) || LOWER(workers.last_name) || LOWER(workers.cellphone) || LOWER(workers.email) ILIKE '%{$search_value}%'");
 
         }
+        $workers = $workers->where("company_id", $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

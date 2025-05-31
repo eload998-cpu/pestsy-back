@@ -2,9 +2,7 @@
 namespace App\Http\Controllers\API\PDF;
 
 use App\Http\Controllers\Controller;
-use App\Models\Module\Operator;
 use App\Models\Module\Order;
-use App\Models\Module\SystemUser;
 use App\Models\Status;
 use App\Models\StatusType;
 use App\Models\User;
@@ -26,26 +24,7 @@ class OrderController extends Controller
         $user              = Auth::user();
         $user_role         = $user->roles()->first()->name;
 
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
-        switch ($user_role) {
-
-            case 'operator':
-
-                $user_id = Operator::where("user_id", $user->id)->first()->administrator_id;
-                break;
-
-            case 'system_user':
-                $user_id = SystemUser::where("user_id", $user->id)->first()->administrator_id;
-                break;
-
-            default:
-                if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-                    $user_id = $user->id;
-                }
-                break;
-
-        }
+        updateConnectionSchema("modules");
 
         // retreive all records from db
         $order = Order::find($id);
@@ -87,29 +66,7 @@ class OrderController extends Controller
 
         $user_role            = $user->roles()->first()->name;
         $user["subscription"] = $user->subscriptions()->latest()->first();
-
-        switch ($user_role) {
-
-            case 'operator':
-
-                $administrator = User::find($user_id);
-                $order["logo"] = $administrator->company->logo;
-                break;
-
-            case 'system_user':
-                $administrator = User::find($user_id);
-                $order["logo"] = $administrator->company->logo;
-
-                break;
-
-            default:
-                if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-                    $order["logo"] = $user->company->logo;
-
-                }
-                break;
-
-        }
+        $order["logo"]        = $user->company->logo;
 
         //return $order;
         $PDFOptions = ['enable_remote' => true];

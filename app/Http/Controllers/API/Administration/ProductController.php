@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
@@ -8,6 +7,7 @@ use App\Http\Requests\Administration\Product\UpdateProductRequest;
 use App\Models\Module\Product;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -29,12 +29,15 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $products = $this->product;
+        $user     = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $products = $products->whereRaw("LOWER(products.name) ILIKE '%{$search_value}%'");
+            $products     = $products->whereRaw("LOWER(products.name) ILIKE '%{$search_value}%'");
 
         }
+        $products = $products->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

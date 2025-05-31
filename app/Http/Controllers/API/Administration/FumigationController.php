@@ -1,20 +1,15 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-
 use App\Http\Requests\Administration\Order\Fumigation\CreateFumigationRequest;
-
 use App\Http\Requests\Administration\Order\Fumigation\UpdateFumigationRequest;
-
-use App\Models\Module\Fumigation;
 use App\Models\Module\Aplication;
 use App\Models\Module\AplicationPlace;
-
+use App\Models\Module\Fumigation;
 use App\Models\Module\Product;
-use Illuminate\Http\Request;
 use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class FumigationController extends Controller
@@ -44,7 +39,7 @@ class FumigationController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $fumigations = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(aplication_places.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
+            $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(aplication_places.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
         Log::info($request->all());
@@ -54,8 +49,7 @@ class FumigationController extends Controller
 
                 case 'fumigations':
 
-
-                    $sort= ($request->sort == "ASC") ? "DESC":"ASC";
+                    $sort        = ($request->sort == "ASC") ? "DESC" : "ASC";
                     $fumigations = $fumigations->orderBy("fumigations.dose", $sort);
                     break;
 
@@ -87,9 +81,9 @@ class FumigationController extends Controller
     {
         $data = DB::transaction(function () use ($request) {
 
-            $aplication_id = null;
+            $aplication_id       = null;
             $aplication_place_id = null;
-            $product_id = null;
+            $product_id          = null;
 
             if (is_string($request->aplication_id)) {
                 $aplication_id = $this->addApplication($request->aplication_id);
@@ -111,18 +105,18 @@ class FumigationController extends Controller
 
             Fumigation::create(
                 [
-                    "aplication_id" => $aplication_id,
+                    "aplication_id"       => $aplication_id,
                     "aplication_place_id" => $aplication_place_id,
-                    "product_id" => $product_id,
-                    "dose" => $request->dose,
-                    "order_id" => $request->order_id,
+                    "product_id"          => $product_id,
+                    "dose"                => $request->dose,
+                    "order_id"            => $request->order_id,
                 ]);
         });
 
         return response()->json(
             ["success" => true,
-                "data" => [],
-                "message" => "Exito!",
+                "data"     => [],
+                "message"  => "Exito!",
             ]
         );
 
@@ -135,9 +129,9 @@ class FumigationController extends Controller
 
             $data = $request->all();
 
-            $aplication_id = null;
+            $aplication_id       = null;
             $aplication_place_id = null;
-            $product_id = null;
+            $product_id          = null;
 
             if (is_string($request->aplication_id)) {
                 $aplication_id = $this->addApplication($request->aplication_id);
@@ -157,11 +151,12 @@ class FumigationController extends Controller
                 $product_id = $request->product_id;
             }
 
-            $data["aplication_id"] = $aplication_id;
+            $data["aplication_id"]       = $aplication_id;
             $data["aplication_place_id"] = $aplication_place_id;
-            $data["product_id"] = $product_id;
+            $data["product_id"]          = $product_id;
 
             unset($data["_method"]);
+            unset($data["company_id"]);
 
             $fumigation = Fumigation::where('id', $id)->update($data);
 
@@ -200,7 +195,6 @@ class FumigationController extends Controller
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
-
 
     private function addApplication($id)
     {

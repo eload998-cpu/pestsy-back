@@ -30,9 +30,11 @@ class TechnicalStaffController extends Controller
     {
         $files = $this->file;
         $search_value = $request->search;
+        $user         = Auth::user();
 
         $files = $files->orderBy("created_at", "desc");
         $files = $files->whereRaw("LOWER(technical_staff.name) ILIKE '%{$search_value}%'");
+        $files = $files->where("company_id", $user->company_id);
 
         $files = $files->paginate($this->paginate_size);
         $files = parsePaginator($files);
@@ -44,7 +46,7 @@ class TechnicalStaffController extends Controller
     {
         expiredAccountMessage();
         $user = Auth::user();
-        updateConnectionSchema($user->module_name);
+        updateConnectionSchema("modules");
 
         $data = DB::transaction(function () use ($request) {
             $path = "/public/files/TechnicalStaffs";
@@ -69,6 +71,7 @@ class TechnicalStaffController extends Controller
                     $file = TechnicalStaff::create([
                         'name' => $name,
                         'file_url' => $storage_link,
+                        'company_id' =>$request->company_id
 
                     ]);
                 }
@@ -110,7 +113,7 @@ class TechnicalStaffController extends Controller
 
     
         expiredAccountMessage();
-        updateConnectionSchema(Auth::user()->module_name);
+        updateConnectionSchema("modules");
 
         $file = TechnicalStaff::find($id);
         $file_path = str_replace("/storage/", "", $file->file_url);

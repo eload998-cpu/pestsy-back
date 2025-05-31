@@ -4,9 +4,10 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\DesinfectionMethod\CreateDesinfectionMethodRequest;
 use App\Http\Requests\Administration\DesinfectionMethod\UpdateDesinfectionMethodRequest;
-use Illuminate\Http\Request;
-use App\Models\Module\{DesinfectionMethod};
+use App\Models\Module\DesinfectionMethod;
 use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DesinfectionMethodController extends Controller
 {
@@ -28,12 +29,15 @@ class DesinfectionMethodController extends Controller
     public function index(Request $request)
     {
         $desinfectionMethods = $this->desinfectionMethod;
+        $user                = Auth::user();
 
         if ($request->search) {
             $search_value        = $request->search;
             $desinfectionMethods = $desinfectionMethods->whereRaw("LOWER(desinfection_methods.name) ILIKE '%{$search_value}%'");
 
         }
+        $desinfectionMethods = $desinfectionMethods->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

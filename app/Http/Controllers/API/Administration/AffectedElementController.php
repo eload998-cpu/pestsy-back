@@ -7,6 +7,7 @@ use App\Http\Requests\Administration\AffectedElement\UpdateAffectedElementReques
 use App\Models\Module\AffectedElement;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AffectedElementController extends Controller
 {
@@ -28,12 +29,15 @@ class AffectedElementController extends Controller
     public function index(Request $request)
     {
         $affectedElement = $this->affectedElement;
+        $user            = Auth::user();
 
         if ($request->search) {
             $search_value    = $request->search;
             $affectedElement = $affectedElement->whereRaw("LOWER(affected_elements.name) ILIKE '%{$search_value}%'");
 
         }
+        $affectedElement = $affectedElement->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +8,11 @@ class AffectedElement extends Model
 {
     use HasFactory;
 
-    protected $table="affected_elements";
+    protected $table = "modules.affected_elements";
 
-    protected $fillable=[
+    protected $fillable = [
         "name",
+        "company_id",
     ];
 
 }

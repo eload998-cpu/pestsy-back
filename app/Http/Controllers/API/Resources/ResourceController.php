@@ -27,9 +27,7 @@ class ResourceController extends Controller
         $user = Auth::user();
 
         $user_role = $user->roles()->first()->name;
-
-        $module_name = $user->module_name;
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         $aplications          = [];
         $aplication_places    = [];

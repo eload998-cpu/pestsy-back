@@ -7,7 +7,6 @@ use App\Models\Module\AplicationPlace;
 use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
 use App\Models\Module\DesinfectionMethod;
-
 use App\Models\Module\Device;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
@@ -23,6 +22,7 @@ class MasterSeeder extends Seeder
      */
     public function run()
     {
+
         Aplication::truncate();
         AplicationPlace::truncate();
         Device::truncate();

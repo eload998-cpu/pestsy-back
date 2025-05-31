@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use App\Models\User;
@@ -11,7 +10,7 @@ class Worker extends Model
 {
     use HasFactory;
 
-    protected $table = "workers";
+    protected $table = "modules.workers";
 
     protected $appends = [
         "full_name",
@@ -28,8 +27,8 @@ class Worker extends Model
         "cellphone",
         "direction",
         "code",
+        "company_id",
     ];
-
 
     public function setEmailAttribute($value)
     {
@@ -39,7 +38,7 @@ class Worker extends Model
     public function administrators()
     {
 
-        return $this->belongsToMany(User::class, 'operators', 'worker_id', 'administrator_id');
+        return $this->belongsToMany(User::class, 'operators', 'worker_id');
 
     }
 
@@ -61,7 +60,7 @@ class Worker extends Model
     public function getParsedDateAttribute(): string
     {
 
-        if (!empty($this->attributes["date"])) {
+        if (! empty($this->attributes["date"])) {
             return Carbon::parse($this->attributes["date"])->format('d/m/Y');
 
         }
@@ -74,8 +73,8 @@ class Worker extends Model
     public function getFullNameAttribute(): string
     {
 
-        $first_name = (!empty($this->attributes["first_name"])) ? $this->attributes["first_name"] : '';
-        $last_name = (!empty($this->attributes["last_name"])) ? $this->attributes["last_name"] : '';
+        $first_name = (! empty($this->attributes["first_name"])) ? $this->attributes["first_name"] : '';
+        $last_name  = (! empty($this->attributes["last_name"])) ? $this->attributes["last_name"] : '';
 
         $full_name = $first_name . " " . $last_name;
 

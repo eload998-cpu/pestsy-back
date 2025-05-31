@@ -17,8 +17,7 @@ class PestFactory extends Factory
      */
     public function definition()
     {
-        $module_name="module_1";
-        updateConnectionSchema($module_name);
+        updateConnectionSchema("modules");
 
         return [
             'common_name' => fake()->name(),

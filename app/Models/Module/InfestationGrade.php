@@ -9,7 +9,7 @@ class InfestationGrade extends Model
 {
     use HasFactory;
 
-    protected $table="infestation_grades";
+    protected $table="modules.infestation_grades";
 
     protected $fillable=
     [

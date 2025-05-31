@@ -8,7 +8,7 @@ class LegionellaControl extends Model
 {
     use HasFactory;
 
-    protected $table = "control_of_legionella";
+    protected $table = "modules.control_of_legionella";
 
     protected $fillable =
         [

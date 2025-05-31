@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,20 +8,20 @@ class Permission extends Model
 {
     use HasFactory;
 
-    protected $table="permissions";
+    protected $table = "modules.permissions";
 
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "name",
-        "file_url"
+        "file_url",
+        "company_id",
     ];
 
-    
     protected function fileUrl(): Attribute
     {
         return Attribute::make(
-            get: function($value){
-                return config('app.url').$value;
+            get: function ($value) {
+                return config('app.url') . $value;
             }
         );
     }
