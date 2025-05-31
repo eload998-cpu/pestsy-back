@@ -148,7 +148,14 @@ class PestController extends Controller
      */
     public function destroy($id)
     {
-        $pest = Pest::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $pest = Pest::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $pest = $pest->orWhere('is_general', true);
+        }
+        $pest = $pest->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

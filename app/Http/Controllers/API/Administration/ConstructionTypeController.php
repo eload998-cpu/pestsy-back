@@ -139,9 +139,16 @@ class ConstructionTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+   public function destroy($id)
     {
-        $constructionType = ConstructionType::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $constructionType = ConstructionType::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $constructionType = $constructionType->orWhere('is_general', true);
+        }
+        $constructionType = $constructionType->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

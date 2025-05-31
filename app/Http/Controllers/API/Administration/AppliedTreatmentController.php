@@ -141,7 +141,14 @@ class AppliedTreatmentController extends Controller
      */
     public function destroy($id)
     {
-        $appliedTreatment = AppliedTreatment::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $appliedTreatment = AppliedTreatment::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $appliedTreatment = $appliedTreatment->orWhere('is_general', true);
+        }
+        $appliedTreatment = $appliedTreatment->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

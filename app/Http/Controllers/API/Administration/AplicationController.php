@@ -140,9 +140,16 @@ class AplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+  public function destroy($id)
     {
-        $aplication = aplication::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $aplication = aplication::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $aplication = $aplication->orWhere('is_general', true);
+        }
+        $aplication = $aplication->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

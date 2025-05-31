@@ -142,7 +142,14 @@ class LocationController extends Controller
      */
     public function destroy($id)
     {
-        $location = Location::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $location = Location::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $location = $location->orWhere('is_general', true);
+        }
+        $location = $location->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
