@@ -9,11 +9,13 @@ class Pest extends Model
 {
     use HasFactory;
 
-    protected $table="pests";
+    protected $table="modules.pests";
 
     protected $fillable=[
         "common_name",
-        "scientific_name"
+        "scientific_name",
+        "is_xylophagus",
+        "company_id"
     ];
 
 }

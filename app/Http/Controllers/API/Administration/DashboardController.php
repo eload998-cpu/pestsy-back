@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
@@ -22,15 +21,15 @@ class DashboardController extends Controller
     private $dates = ["january", "february", "march", "april", "june", "july", "may", "august", "november", "december"];
     public function index()
     {
-        $total_orders = Order::count();
-        $total_clients = Client::count();
-        $total_workers = Worker::count();
-        $total_system_users = SystemUser::count();
-        $total_operators = Operator::count();
-        $total_devices = Device::count();
-        $total_products = Product::count();
+        $user               = User::find(Auth::user()->id);
+        $total_orders       = Order::where('company_id', $user->company->id)->count();
+        $total_clients      = Client::where('company_id', $user->company->id)->count();
+        $total_workers      = Worker::where('company_id', $user->company->id)->count();
+        $total_system_users = SystemUser::where('company_id', $user->company->id)->count();
+        $total_operators    = Operator::where('company_id', $user->company->id)->count();
+        $total_devices      = Device::where('company_id', $user->company->id)->count();
+        $total_products     = Product::where('company_id', $user->company->id)->count();
 
-        $user = User::find(Auth::user()->id);
         $subscription_quantity = $user->company->order_quantity;
 
         return response()->json(
@@ -85,11 +84,14 @@ class DashboardController extends Controller
 
     private function getEntityAnualData($filter_type, $start, $end)
     {
+        $user = User::find(Auth::user()->id);
+
         $data = null;
         switch ($filter_type) {
             case 'orders':
                 $data = Order::whereYear(DB::raw('DATE(date)'), '>=', $start)
                     ->whereYear(DB::raw('DATE(date)'), '<=', $end)
+                    ->where('company_id', $user->company->id)
                     ->get();
 
                 break;
@@ -97,6 +99,7 @@ class DashboardController extends Controller
             case 'clients':
                 $data = Client::select('created_at as date')->whereYear(DB::raw('DATE(created_at)'), '>=', $start)
                     ->whereYear(DB::raw('DATE(created_at)'), '<=', $end)
+                    ->where('company_id', $user->company->id)
                     ->get();
 
                 break;
@@ -104,21 +107,24 @@ class DashboardController extends Controller
             case 'workers':
                 $data = Worker::select('created_at as date')->whereYear(DB::raw('DATE(created_at)'), '>=', $start)
                     ->whereYear(DB::raw('DATE(created_at)'), '<=', $end)
+                    ->where('company_id', $user->company->id)
                     ->get();
 
                 break;
 
             case 'operators':
 
-                $data = User::join('administration.operators as operator', 'users.id', '=', 'operator.administrator_id')
+                $data = User::join('modules.operators as operator', 'users.id', '=', 'operator.user_id')
                     ->whereYear(DB::raw('DATE(users.created_at)'), '>=', $start)
+                    ->where('users.company_id', $user->company->id)
                     ->whereYear(DB::raw('users.created_at'), '<=', $end)
                     ->get();
 
                 break;
 
             case 'system_users':
-                $data = User::join('administration.system_users as system_user', 'users.id', '=', 'system_user.administrator_id')
+                $data = User::join('modules.system_users as system_user', 'users.id', '=', 'system_user.user_id')
+                    ->where('users.company_id', $user->company->id)
                     ->whereYear(DB::raw('users.created_at'), '>=', $start)
                     ->whereYear(DB::raw('users.created_at'), '<=', $end)
                     ->get();
@@ -132,35 +138,39 @@ class DashboardController extends Controller
 
     private function getEntityDailyData(Request $request)
     {
+
+        $user = User::find(Auth::user()->id);
         $data = null;
         switch ($request->filter_type) {
             case 'orders':
 
-                $data = Order::whereBetween(DB::raw('DATE(date)'), [$request->date_1, $request->date_2])->get();
+                $data = Order::where('company_id', $user->company->id)->whereBetween(DB::raw('DATE(date)'), [$request->date_1, $request->date_2])->get();
 
                 break;
 
             case 'clients':
 
-                $data = Client::select('created_at as date')->whereBetween(DB::raw('DATE(created_at)'), [$request->date_1, $request->date_2])->get();
+                $data = Client::select('created_at as date')->where('company_id', $user->company->id)->whereBetween(DB::raw('DATE(created_at)'), [$request->date_1, $request->date_2])->get();
 
                 break;
 
             case 'workers':
 
-                $data = Worker::select('created_at as date')->whereBetween(DB::raw('DATE(created_at)'), [$request->date_1, $request->date_2])->get();
+                $data = Worker::select('created_at as date')->where('company_id', $user->company->id)->whereBetween(DB::raw('DATE(created_at)'), [$request->date_1, $request->date_2])->get();
 
                 break;
 
             case 'operators':
 
-                $data = User::join('administration.operators as operator', 'users.id', '=', 'operator.administrator_id')
+                $data = User::join('modules.operators as operator', 'users.id', '=', 'operator.user_id')
+                    ->where('users.company_id', $user->company->id)
                     ->whereBetween(DB::raw('DATE(users.created_at)'), [$request->date_1, $request->date_2])->get();
 
                 break;
 
             case 'system_users':
-                $data = User::join('administration.system_users as system_user', 'users.id', '=', 'system_user.administrator_id')
+                $data = User::join('modules.system_users as system_user', 'users.id', '=', 'system_user.user_id')
+                    ->where('users.company_id', $user->company->id)
                     ->whereBetween(DB::raw('DATE(users.created_at)'), [$request->date_1, $request->date_2])->get();
                 break;
 
@@ -171,34 +181,42 @@ class DashboardController extends Controller
 
     private function getEntityMonthlyData($filter_type, $start_date, $end_date)
     {
+        $user = User::find(Auth::user()->id);
+
         $data = null;
         switch ($filter_type) {
             case 'orders':
-                $data = Order::whereBetween('date', [$start_date, $end_date])->get();
+                $data = Order::where('company_id', $user->company->id)->whereBetween('date', [$start_date, $end_date])->get();
 
                 break;
 
             case 'clients':
 
-                $data = Client::select('first_name', 'last_name', 'created_at as date')->whereBetween(DB::raw('DATE(created_at)'), [$start_date, $end_date])->get();
+                $data = Client::select('first_name', 'last_name', 'created_at as date')
+                    ->where('company_id', $user->company->id)
+                    ->whereBetween(DB::raw('DATE(created_at)'), [$start_date, $end_date])->get();
 
                 break;
 
             case 'workers':
 
-                $data = Worker::select('created_at as date')->whereBetween(DB::raw('DATE(created_at)'), [$start_date, $end_date])->get();
+                $data = Worker::select('created_at as date')
+                    ->where('company_id', $user->company->id)
+                    ->whereBetween(DB::raw('DATE(created_at)'), [$start_date, $end_date])->get();
 
                 break;
 
             case 'operators':
 
-                $data = User::join('administration.operators as operator', 'users.id', '=', 'operator.administrator_id')
+                $data = User::join('modules.operators as operator', 'users.id', '=', 'operator.user_id')
+                    ->where('users.company_id', $user->company->id)
                     ->whereBetween(DB::raw('users.created_at'), [$start_date, $end_date])->get();
 
                 break;
 
             case 'system_users':
-                $data = User::join('administration.system_users as system_user', 'users.id', '=', 'system_user.administrator_id')
+                $data = User::join('modules.system_users as system_user', 'users.id', '=', 'system_user.user_id')
+                    ->where('users.company_id', $user->company->id)
                     ->whereBetween(DB::raw('users.created_at'), [$start_date, $end_date])->get();
                 break;
 
@@ -209,10 +227,11 @@ class DashboardController extends Controller
 
     private function anualOrders(Request $request)
     {
-        $start = $request->annual_1;
-        $end = $request->annual_2;
 
-        $data = $this->getEntityAnualData($request->filter_type, $request->annual_1, $request->annual_2);
+        $start = $request->annual_1;
+        $end   = $request->annual_2;
+
+        $data       = $this->getEntityAnualData($request->filter_type, $request->annual_1, $request->annual_2);
         $date_range = $this->createAnualArray($start, $end);
 
         $anual_results = [];
@@ -221,7 +240,7 @@ class DashboardController extends Controller
             foreach ($data as $o => $order) {
                 $order_date = Carbon::parse($order->date)->format('Y');
 
-                if (!array_key_exists($order_date, $anual_results)) {
+                if (! array_key_exists($order_date, $anual_results)) {
                     $anual_results[$order_date] = 0;
                 }
 
@@ -240,8 +259,9 @@ class DashboardController extends Controller
 
     private function dailyOrders(Request $request)
     {
-        $data = $this->getEntityDailyData($request);
-        $date_range = $this->createWeeklyArray($request->date_1, $request->date_2);
+
+        $data         = $this->getEntityDailyData($request);
+        $date_range   = $this->createWeeklyArray($request->date_1, $request->date_2);
         $daily_orders = [];
 
         foreach ($data as $key => $value) {
@@ -252,7 +272,7 @@ class DashboardController extends Controller
 
                 if ($d == $order_date) {
 
-                    if (!array_key_exists($order_date, $daily_orders)) {
+                    if (! array_key_exists($order_date, $daily_orders)) {
                         $daily_orders[$order_date] = 0;
                     }
 
@@ -272,7 +292,7 @@ class DashboardController extends Controller
         $data = $this->getEntityDailyData($request);
 
         $date_range = $this->createWeeklyArray($request->date_1, $request->date_2);
-        $weeks = array_chunk($date_range, $week_pivot);
+        $weeks      = array_chunk($date_range, $week_pivot);
 
         $week_results = [];
         foreach ($weeks as $key => $value) {
@@ -281,7 +301,7 @@ class DashboardController extends Controller
                 $order_date = Carbon::parse($order->date)->format('Y-m-d');
 
                 if (in_array($order_date, $value)) {
-                    if (!array_key_exists($value[0] . " a " . end($value), $week_results)) {
+                    if (! array_key_exists($value[0] . " a " . end($value), $week_results)) {
                         $week_results[$value[0] . " a " . end($value)] = 0;
                     }
 
@@ -300,8 +320,8 @@ class DashboardController extends Controller
     {
 
         $start_month = $request->month_1;
-        $end_month = $request->month_2;
-        $year = $request->month_year;
+        $end_month   = $request->month_2;
+        $year        = $request->month_year;
 
         $months = $this->getMonthsByString($start_month, $end_month);
         if ($month_pivot == 1) {
@@ -314,7 +334,7 @@ class DashboardController extends Controller
         Carbon::setLocale('es');
 
         $start_date = Carbon::createFromFormat('F Y', "{$start_month} {$year}")->startOfMonth();
-        $end_date = Carbon::createFromFormat('F Y', "{$end_month} {$year}")->endOfMonth();
+        $end_date   = Carbon::createFromFormat('F Y', "{$end_month} {$year}")->endOfMonth();
 
         $data = $this->getEntityMonthlyData($request->filter_type, $start_date, $end_date);
 
@@ -324,10 +344,10 @@ class DashboardController extends Controller
 
             foreach ($data as $order) {
 
-                $d = Carbon::parse($order->date)->format('Y-m-d');
+                $d    = Carbon::parse($order->date)->format('Y-m-d');
                 $date = Carbon::createFromFormat('Y-m-d', $d)->isoFormat('MMMM');
 
-                if (!array_key_exists($date, $month_results)) {
+                if (! array_key_exists($date, $month_results)) {
                     $month_results[$date] = 0;
 
                 }
@@ -349,10 +369,10 @@ class DashboardController extends Controller
     {
 
         $dates = [];
-        $date = Carbon::parse($start_date)->format('Y-m-d');
+        $date  = Carbon::parse($start_date)->format('Y-m-d');
         while ($date <= $end_date) {
             $dates[] = $date;
-            $date = date('Y-m-d', strtotime($date . ' +1 day'));
+            $date    = date('Y-m-d', strtotime($date . ' +1 day'));
         }
 
         return $dates;
@@ -370,7 +390,7 @@ class DashboardController extends Controller
         Carbon::setLocale('es');
 
         $startDate = Carbon::createFromFormat('F', $start_month)->startOfMonth();
-        $endDate = Carbon::createFromFormat('F', $end_month)->startOfMonth();
+        $endDate   = Carbon::createFromFormat('F', $end_month)->startOfMonth();
 
         $months = [];
         while ($startDate->lte($endDate)) {
@@ -383,11 +403,11 @@ class DashboardController extends Controller
 
     public function fillMissingMonths($startMonth, $endMonth)
     {
-        $months = [];
+        $months       = [];
         $currentMonth = $startMonth;
 
         while ($currentMonth != $endMonth) {
-            $months[] = $currentMonth;
+            $months[]     = $currentMonth;
             $currentMonth = ($currentMonth + 1) % 13;
 
             if ($currentMonth == 0) {
@@ -405,8 +425,8 @@ class DashboardController extends Controller
         $response = [];
         foreach ($data as $key => $value) {
             $data = [
-                "name" => $key,
-                "y" => $value,
+                "name"      => $key,
+                "y"         => $value,
                 "drilldown" => $key,
             ];
 

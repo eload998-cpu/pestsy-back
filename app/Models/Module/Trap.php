@@ -9,7 +9,7 @@ class Trap extends Model
 {
     use HasFactory;
 
-    protected $table="traps";
+    protected $table="modules.traps";
 
     protected $fillable=
     [

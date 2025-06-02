@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,17 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class AplicationPlace extends Model
 {
     use HasFactory;
-    protected $table="aplication_places";
+    protected $table = "modules.aplication_places";
 
     protected $fillable = [
-        "name"
+        "name",
+        "company_id",
     ];
 
+    //setters
 
-     //setters
-
-     public function setNameAttribute($value)
-     {
-         $this->attributes["name"] = stripAccents($value);
-     }
+    public function setNameAttribute($value)
+    {
+        $this->attributes["name"] = stripAccents($value);
+    }
 }

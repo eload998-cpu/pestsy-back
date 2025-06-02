@@ -1,28 +1,25 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Administration\Aplication\CreateAplicationRequest;
+use App\Http\Requests\Administration\Aplication\UpdateAplicationRequest;
 use Illuminate\Http\Request;
-
-use App\Http\Requests\Administration\Aplication\{CreateAplicationRequest,UpdateAplicationRequest};
-
-use App\Models\Module\{Aplication};
+use Illuminate\Support\Facades\Auth;
+use App\Models\Module\Aplication;
 use DB;
-
 
 class AplicationController extends Controller
 {
 
     private $aplication;
-    private $paginate_size=6;
+    private $paginate_size = 6;
 
     public function __construct(Aplication $aplication)
     {
-        $this->aplication=$aplication;
+        $this->aplication = $aplication;
 
     }
-
 
     /**
      * Display a listing of the resource.
@@ -31,33 +28,33 @@ class AplicationController extends Controller
      */
     public function index(Request $request)
     {
+
         $aplications = $this->aplication;
-        
-        if( $request->search )
-        {
-            $search_value=$request->search;
-            $aplications=$aplications->whereRaw("LOWER(aplications.name) ILIKE '%{$search_value}%'");
+        $user        = Auth::user();
+
+        if ($request->search) {
+            $search_value = $request->search;
+            $aplications  = $aplications->whereRaw("LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
-    
-        if( $request->sort )
-        {
+        $aplications = $aplications->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
+
+        if ($request->sort) {
             switch ($request->sortBy) {
-         
+
                 case 'name':
-                    $aplications= $aplications->orderBy("name",$request->sort);
-                break;
+                    $aplications = $aplications->orderBy("name", $request->sort);
+                    break;
             }
 
-
-        }else
-        {
-            $aplications= $aplications->orderBy("aplications.created_at","desc");
+        } else {
+            $aplications = $aplications->orderBy("aplications.created_at", "desc");
 
         }
-        
-        $aplications=$aplications->paginate($this->paginate_size);
-        $aplications=parsePaginator($aplications);
+
+        $aplications = $aplications->paginate($this->paginate_size);
+        $aplications = parsePaginator($aplications);
 
         return response()->json($aplications);
     }
@@ -82,11 +79,11 @@ class AplicationController extends Controller
     {
         DB::transaction(function () use ($request) {
 
-        $aplication=aplication::create($request->all());
+            $aplication = aplication::create($request->all());
 
         });
 
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        return response()->json(['success' => true, 'message' => 'Exito']);
     }
 
     /**
@@ -97,9 +94,9 @@ class AplicationController extends Controller
      */
     public function show($id)
     {
-        $aplication=aplication::find($id);
+        $aplication = aplication::find($id);
 
-        return response()->json(['success'=>true,'data'=>$aplication]);
+        return response()->json(['success' => true, 'data' => $aplication]);
 
     }
 
@@ -124,17 +121,16 @@ class AplicationController extends Controller
     public function update(UpdateAplicationRequest $request, $id)
     {
 
-        DB::transaction(function () use ($request,$id) {
+        DB::transaction(function () use ($request, $id) {
 
-        $data=$request->all();
-        unset($data["_method"]); 
+            $data = $request->all();
+            unset($data["_method"]);
 
-
-        $aplication=aplication::where('id',$id)->update($data);
+            $aplication = aplication::where('id', $id)->update($data);
 
         });
 
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
@@ -144,10 +140,17 @@ class AplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+  public function destroy($id)
     {
-        $aplication=aplication::destroy($id);
-        return response()->json(['success'=>true,'message'=>'Exito']);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $aplication = aplication::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $aplication = $aplication->orWhere('is_general', true);
+        }
+        $aplication = $aplication->delete();
+        return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 }

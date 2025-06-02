@@ -10,7 +10,7 @@ class PestBitacore extends Model
     use HasFactory;
 
     
-    protected $table="pest_bitacores";
+    protected $table="modules.pest_bitacores";
 
     protected $fillable=
     [

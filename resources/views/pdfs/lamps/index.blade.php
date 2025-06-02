@@ -1,4 +1,4 @@
-@if(count($order["lamps"]))
+@if(isset ($order["lamps"]) && count($order["lamps"]))
 
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">
@@ -37,7 +37,7 @@
                   </tr>
 
                   <tr style="width=100%">
-                  <td colspan="7"><b>Observaciones: </b>{{$lamp["observation"]}}</td> 
+                  <td colspan="7"><b>Observaciones: </b>{{$lamp["observation"]}}</td>
                   </tr>
                 @endforeach
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +8,11 @@ class Device extends Model
 {
     use HasFactory;
 
-    protected $table = "devices";
+    protected $table = "modules.devices";
 
     protected $fillable = [
         "name",
+        "company_id",
     ];
 
     //getters

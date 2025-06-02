@@ -1,18 +1,14 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\File\CreateFileRequest;
 use App\Models\Module\Report;
-use App\Models\Status;
-use App\Models\StatusType;
 use DB;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Administration\UserSubscription;
 
 class ReportController extends Controller
 {
@@ -28,20 +24,19 @@ class ReportController extends Controller
     //
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $client_id = $request->order_id;
+        $user         = Auth::user();
+        $client_id    = $request->order_id;
         $search_value = $request->search;
 
         if (empty($client_id)) {
             $user_role = $user->roles()->first()->name;
 
-            $module_name = $user->module_name;
             switch ($user_role) {
 
                 case 'system_user':
 
-                    updateConnectionSchema($module_name);
-                    $client_id = $user->systemUsers()->first()->pivot->client_id;
+                    updateConnectionSchema("modules");
+                    $client_id = $user->systemUsers()->first()->id;
 
                     break;
 
@@ -63,11 +58,11 @@ class ReportController extends Controller
     {
         expiredAccountMessage();
         $user = Auth::user();
-        updateConnectionSchema($user->module_name);
+        updateConnectionSchema("modules");
 
         $data = DB::transaction(function () use ($request) {
             $path = "/public/files/reports/{$request->client_id}";
-            if (!Storage::exists($path)) {
+            if (! Storage::exists($path)) {
                 Storage::makeDirectory($path, 0755);
 
             }
@@ -77,7 +72,7 @@ class ReportController extends Controller
                 foreach ($value as $f) {
 
                     // Getting file name
-                    $name = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
+                    $name     = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
                     $filename = rand() . '_' . $name;
 
                     $path = Storage::disk('public')->putFileAs('files/reports/' . $request->client_id, new File($f), $filename);
@@ -87,8 +82,8 @@ class ReportController extends Controller
                     $storage_link = "/storage/files/reports/{$request->client_id}/{$filename}";
 
                     $file = Report::create([
-                        'name' => $name,
-                        'file_url' => $storage_link,
+                        'name'      => $name,
+                        'file_url'  => $storage_link,
                         'client_id' => $request->client_id,
 
                     ]);
@@ -101,8 +96,8 @@ class ReportController extends Controller
 
         return response()->json(
             ["success" => true,
-                "data" => [],
-                "message" => "Exito!",
+                "data"     => [],
+                "message"  => "Exito!",
             ]
         );
 
@@ -116,7 +111,7 @@ class ReportController extends Controller
      */
     public function destroy($id)
     {
-        $file = Report::find($id);
+        $file      = Report::find($id);
         $file_path = str_replace("/storage/", "", $file->file_url);
         Storage::disk('public')->delete($file_path);
 
@@ -130,14 +125,14 @@ class ReportController extends Controller
     {
 
         expiredAccountMessage();
-        updateConnectionSchema(Auth::user()->module_name);
-        $file = Report::find($id);
+        updateConnectionSchema("modules");
+        $file      = Report::find($id);
         $file_path = str_replace("/storage/", "", $file->file_url);
         $file_name = basename($file_path);
-        $headers = [
-            'Content-Description' => 'File Transfer',
-            'Content-Disposition' => 'attachment; filename=' . basename($file_path) . '',
-            'Content-Type' => 'application/pdf',
+        $headers   = [
+            'Content-Description'           => 'File Transfer',
+            'Content-Disposition'           => 'attachment; filename=' . basename($file_path) . '',
+            'Content-Type'                  => 'application/pdf',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
 

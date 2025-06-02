@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +8,7 @@ class Operator extends Model
 {
     use HasFactory;
 
-    protected $table = "operators";
+    protected $table    = "modules.operators";
+    protected $fillable = ["worker_id", "user_id", "company_id"];
 
 }

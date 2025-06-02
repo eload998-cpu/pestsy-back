@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Administration\Pest;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -24,9 +23,19 @@ class CreatePestRequest extends FormRequest
     public function rules()
     {
         return [
-            'common_name'=>'required',
-            'scientific_name'=>'required'
+            'common_name'     => 'required',
+            'scientific_name' => 'required',
+            'is_xylophagus'   => 'nullable|boolean',
 
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if ($this->has('is_xylophagus')) {
+            $this->merge([
+                'is_xylophagus' => ($this->is_xylophagus == 'true') ? true : false,
+            ]);
+        }
     }
 }

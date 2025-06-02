@@ -9,7 +9,7 @@ class InternalCondition extends Model
 {
     use HasFactory;
 
-    protected $table="internal_conditions";
+    protected $table="modules.internal_conditions";
 
     protected $fillable=
     [

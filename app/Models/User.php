@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -7,7 +6,6 @@ use App\Models\Administration\City;
 use App\Models\Administration\Company;
 use App\Models\Administration\Plan;
 use App\Models\Administration\Transaction;
-use App\Models\Module\Order;
 use App\Models\Status;
 use App\Models\StatusType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -39,11 +37,10 @@ class User extends Authenticatable
         'status_id',
         'oauth_google_id',
         'oauth_facebook_id',
-        'module_name',
         'last_email_sent',
         'paypal_subscription_id',
         'active_subscription',
-        'verify_paypal_subscription'
+        'verify_paypal_subscription',
     ];
 
     /**
@@ -114,51 +111,14 @@ class User extends Authenticatable
 
     public function systemUsers()
     {
-        return $this->belongsToMany(User::class, 'system_users', 'user_id', 'administrator_id')->withPivot('client_id');
+        return $this->belongsToMany(User::class, 'system_users', 'user_id', 'client_id');
 
     }
 
     public function operators()
     {
 
-        return $this->belongsToMany(User::class, 'operators', 'user_id', 'administrator_id');
-
-    }
-
-    public function lastOrder($module_name, $user_id)
-    {
-
-        updateConnectionSchema($module_name);
-
-        $status_type = StatusType::where('name', 'order')->first();
-        $status = Status::where('status_type_id', $status_type->id)->where('name', 'in process')->first();
-        $order = Order::where('status_id', $status->id)->where('user_id', $user_id)->latest()->first();
-        $arr = [];
-
-        if (!empty($order)) {
-
-            $last_order = intval($order->order_number);
-            $arr["id"] = $order->id;
-            $arr["last_order"] = $last_order;
-
-            return $arr;
-        }
-
-        return "";
-
-    }
-
-    public function lastSystemOrderNumber($module_name)
-    {
-
-        updateConnectionSchema($module_name);
-
-        if (!empty(Order::latest()->first())) {
-            $last_order = intval(Order::latest()->first()->order_number);
-            return str_pad($last_order + 1, 3, '0', STR_PAD_LEFT);
-        }
-
-        return "";
+        return $this->belongsToMany(User::class, 'operators', 'user_id', 'worker_id');
 
     }
 
@@ -167,24 +127,22 @@ class User extends Authenticatable
     //GETTERS
 
     public function getPendingTransactionAttribute(): bool
-    {   
+    {
 
-        try{
+        try {
 
             $status_type = StatusType::where('name', 'transaction')->first();
-            $status = Status::where('status_type_id', $status_type->id)->where('name', 'pending')->first();
-    
+            $status      = Status::where('status_type_id', $status_type->id)->where('name', 'pending')->first();
+
             $transaction = $this->transactions()
                 ->where('status_id', $status->id)
                 ->orderBy('created_at', 'DESC')->get()->first();
-    
-            return (!$this->attributes["active_subscription"] && !empty($transaction)) ? true : false;
-        }catch(\Exception $e)
-        {
+
+            return (! $this->attributes["active_subscription"] && ! empty($transaction)) ? true : false;
+        } catch (\Exception $e) {
             \Log::error($e);
         }
 
-       
     }
 
     public function getFullNameAttribute(): string
@@ -198,12 +156,10 @@ class User extends Authenticatable
     public function getCompanyLogoAttribute(): string
     {
         $company = $this->company;
-        $logo = $company->logo;
+        $logo    = $company->logo;
 
         return ($logo) ? $logo : "";
     }
-
-
 
     //SETTERS
 

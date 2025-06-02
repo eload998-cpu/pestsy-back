@@ -1,9 +1,12 @@
 <?php
-
 namespace Database\Seeders;
 
+use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
 use App\Models\Module\AplicationPlace;
+use App\Models\Module\AppliedTreatment;
+use App\Models\Module\ConstructionType;
+use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
@@ -19,12 +22,17 @@ class MasterSeeder extends Seeder
      */
     public function run()
     {
+
         Aplication::truncate();
         AplicationPlace::truncate();
         Device::truncate();
         Location::truncate();
         Pest::truncate();
         Product::truncate();
+        AffectedElement::truncate();
+        AppliedTreatment::truncate();
+        ConstructionType::truncate();
+        DesinfectionMethod::truncate();
 
         $directoryPath = storage_path() . "/app/storage/masters/"; // replace with your directory path
 
@@ -35,6 +43,10 @@ class MasterSeeder extends Seeder
             $directoryPath . "plagas.php",
             $directoryPath . "productos.php",
             $directoryPath . "ubicaciones.php",
+            $directoryPath . "elementos_afectados.php",
+            $directoryPath . "tipos_de_construccion.php",
+            $directoryPath . "tratamientos_aplicados.php",
+            $directoryPath . "metodos_desinfeccion.php",
 
         ];
 
@@ -75,8 +87,8 @@ class MasterSeeder extends Seeder
 
                             Pest::create([
                                 "scientific_name" => $row["nombre_cientifico"],
-                                "common_name" => $row["nombre_comun"],
-
+                                "common_name"     => $row["nombre_comun"],
+                                "is_xylophagus"   => isset($row["is_xylophagus"]) ? true : false,
                             ]);
 
                             break;
@@ -84,8 +96,8 @@ class MasterSeeder extends Seeder
                         case 'productos':
 
                             Product::create([
-                                "name" => $row["nombre"],
-                                "code" => $row["numero_de_registro"],
+                                "name"              => $row["nombre"],
+                                "code"              => $row["numero_de_registro"],
                                 "active_ingredient" => $row["ingrediente_activo"],
                             ]);
 
@@ -95,6 +107,37 @@ class MasterSeeder extends Seeder
 
                             Location::create([
                                 "name" => $row["ubicacion"],
+                            ]);
+
+                            break;
+
+                        case 'elementos_afectados':
+
+                            AffectedElement::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+                        case 'tipos_de_construccion':
+
+                            ConstructionType::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+
+                        case 'tratamientos_aplicados':
+
+                            AppliedTreatment::create([
+                                "name" => $row["nombre"],
+                            ]);
+
+                            break;
+
+                        case 'metodos_desinfeccion':
+
+                            DesinfectionMethod::create([
+                                "name" => $row["nombre"],
                             ]);
 
                             break;

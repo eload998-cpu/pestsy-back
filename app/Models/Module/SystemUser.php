@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,6 +8,6 @@ class SystemUser extends Model
 {
     use HasFactory;
 
-    protected $table = "system_users";
-    protected $fillable = ["client_id","user_id","administrator_id"];
+    protected $table    = "modules.system_users";
+    protected $fillable = ["client_id", "user_id", "company_id"];
 }

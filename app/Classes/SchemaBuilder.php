@@ -90,6 +90,7 @@ class SchemaBuilder
         Schema::create("{$schema_name}.locations", function (Blueprint $table) {
             $table->id();
             $table->text('name');
+            $table->boolean('is_legionella')->default(false);
             $table->timestamps();
         });
 
@@ -103,6 +104,26 @@ class SchemaBuilder
             $table->id();
             $table->string('common_name');
             $table->string('scientific_name');
+            $table->boolean('is_xylophagus')->default(false)->nullable();
+
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.applied_treatments", function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.construction_types", function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.affected_elements", function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
             $table->timestamps();
         });
 
@@ -112,6 +133,7 @@ class SchemaBuilder
             $table->timestamps();
         });
 
+ 
         Schema::create("{$schema_name}.aplication_places", function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -124,6 +146,12 @@ class SchemaBuilder
             $table->string('code')->nullable();
             $table->string('active_ingredient')->nullable();
 
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.desinfection_methods", function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
             $table->timestamps();
         });
 
@@ -225,6 +253,57 @@ class SchemaBuilder
             $table->bigInteger('product_id');
             $table->foreign('product_id')->references('id')->on("{$schema_name}.products")->onDelete('restrict');
             $table->bigInteger('dose');
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.control_of_xylophages", function (Blueprint $table) use ($schema_name) {
+            $table->id();
+
+            $table->bigInteger('affected_element_id');
+            $table->foreign('affected_element_id')->references('id')->on("{$schema_name}.affected_elements")->onDelete('cascade');
+
+            $table->bigInteger('construction_type_id');
+            $table->foreign('construction_type_id')->references('id')->on("{$schema_name}.construction_types")->onDelete('cascade');
+
+            $table->bigInteger('applied_treatment_id');
+            $table->foreign('applied_treatment_id')->references('id')->on("{$schema_name}.applied_treatments")->onDelete('cascade');
+
+            $table->bigInteger('product_id');
+            $table->foreign('product_id')->references('id')->on("{$schema_name}.products")->onDelete('cascade');
+
+            $table->bigInteger('pest_id');
+            $table->foreign('pest_id')->references('id')->on("{$schema_name}.pests")->onDelete('cascade');
+
+            $table->bigInteger('order_id');
+            $table->foreign('order_id')->references('id')->on("{$schema_name}.orders")->onDelete('cascade');
+
+            $table->string('infestation_level')->nullable();
+            $table->date('treatment_date')->nullable();
+            $table->date('next_treatment_date')->nullable();
+
+            $table->text('observation');
+
+            $table->timestamps();
+        });
+
+        Schema::create("{$schema_name}.control_of_legionella", function (Blueprint $table) use ($schema_name) {
+            $table->id();
+
+            $table->string('code');
+
+            $table->bigInteger('order_id');
+            $table->foreign('order_id')->references('id')->on("{$schema_name}.orders")->onUpdate('cascade')->onDelete('cascade');
+            $table->bigInteger('location_id');
+            $table->foreign('location_id')->references('id')->on("{$schema_name}.locations")->onUpdate('cascade')->onDelete('cascade');
+            $table->bigInteger('desinfection_method_id');
+            $table->foreign('desinfection_method_id')->references('id')->on("{$schema_name}.desinfection_methods")->onUpdate('cascade')->onDelete('cascade');
+            $table->date('last_treatment_date')->nullable();
+            $table->date('next_treatment_date')->nullable();
+            $table->string('inspection_result')->nullable();
+            $table->boolean('sample_required')->default(false);
+            $table->float('water_temperature')->nullable();
+            $table->float('residual_chlorine_level')->nullable();
+            $table->text('observation')->nullable();
             $table->timestamps();
         });
 

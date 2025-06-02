@@ -26,12 +26,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 //MAILS
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -52,111 +50,13 @@ class AuthController extends Controller
 
     }
 
-    public function redirectToGoogle()
-    {
-        return Socialite::driver('google')->redirect();
-    }
-
-    public function redirectToFacebook()
-    {
-        return Socialite::driver('facebook')->redirect();
-    }
-
-    public function handleFacebookCallback(Request $request)
-    {
-
-        if (isset($request->error_code)) {
-            return redirect(config('app.front_app_base_url'));
-        }
-
-        $user = Socialite::driver('facebook')->user();
-        // if the user exits, use that user and login
-        $finduser = User::where('email', $user->email)->first();
-        if ($finduser) {
-            //if the user exists, login and show dashboard
-            if (! empty($finduser->tokens)) {
-                $finduser->tokens->each(function ($token) {$token->delete();});
-                unset($finduser->tokens);
-            }
-
-            $token = $finduser->createToken('auth_token')->accessToken;
-
-            //ADDING LAST ORDER
-            updateConnectionSchema('administration');
-            $finduser->load('roles.permissions');
-
-            $user_role                = $finduser->roles()->first()->name;
-            $finduser["subscription"] = $finduser->subscriptions()->latest('user_subscriptions.created_at')->first();
-
-            $module_name = $finduser->module_name;
-            updateConnectionSchema($module_name);
-
-            switch ($user_role) {
-
-                case 'operator':
-
-                    $last_order                           = $finduser->lastOrder($module_name, $finduser->id);
-                    $last_system_order_number             = $finduser->lastSystemOrderNumber($module_name);
-                    $user                                 = $finduser->toArray();
-                    $finduser["last_order"]               = $last_order;
-                    $finduser["last_system_order_number"] = $last_system_order_number;
-                    break;
-
-                default:
-                    if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-
-                        $last_order                           = $finduser->lastOrder($module_name, $finduser->id);
-                        $last_system_order_number             = $finduser->lastSystemOrderNumber($module_name);
-                        $finduser                             = $finduser->toArray();
-                        $finduser["last_order"]               = $last_order;
-                        $finduser["last_system_order_number"] = $last_system_order_number;
-                        $finduser["pending_transaction"]      = $finduser->pending_transaction;
-
-                    }
-                    break;
-
-            }
-
-            // Encrypting a string
-            $stringToEncrypt = 'E4i0kgYtoK';
-            $encryptedString = Crypt::encryptString($stringToEncrypt, $this->password);
-
-            return redirect(config('app.front_app_base_url') . 'pre-login?email=' . $finduser["email"] . '&token=' . $encryptedString);
-
-        } else {
-            //user is not yet created, so create first
-            $password       = Str::random(10);
-            $user_full_name = explode(" ", $user->name);
-            $data           = [
-                "company_name"          => "Fumigadora " . $user->name,
-                "first_name"            => $user_full_name[0],
-                "last_name"             => isset($user_full_name[1]) ? $user_full_name[1] : 'Administrador',
-                "email"                 => $user->email,
-                "password"              => $password,
-                "password_confirmation" => $password,
-                "cellphone"             => null,
-                "country_id"            => 44,
-                "city_id"               => 18198,
-                "state_id"              => 742,
-                "oauth_facebook_id"     => $user->id,
-                "oauth"                 => true,
-            ];
-
-            $request = new CreateUserRequest;
-            $request->replace($data);
-
-            return $this->register($request);
-
-        }
-
-    }
-
     public function preLogin(Request $request)
     {
         $status_type = StatusType::where('name', 'user')->first();
         $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
-        $user = $this->user->where("email", "=", $request->email)->first();
+        $user    = $this->user->where("email", "=", $request->email)->first();
+        $company = $this->company->find($user->company_id);
 
         if (! empty($user)) {
 
@@ -179,14 +79,13 @@ class AuthController extends Controller
             $user_role            = $user->roles()->first()->name;
             $user["subscription"] = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
 
-            $module_name = $user->module_name;
-            updateConnectionSchema($module_name);
+            updateConnectionSchema("modules");
             switch ($user_role) {
 
                 case 'operator':
 
-                    $last_order                       = $user->lastOrder($module_name, $user->id);
-                    $last_system_order_number         = $user->lastSystemOrderNumber($module_name);
+                    $last_order                       = $company->lastOrder($user->id);
+                    $last_system_order_number         = $company->lastSystemOrderNumber();
                     $user                             = $user->toArray();
                     $user["last_order"]               = $last_order;
                     $user["last_system_order_number"] = $last_system_order_number;
@@ -195,8 +94,8 @@ class AuthController extends Controller
                 default:
                     if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
 
-                        $last_order               = $user->lastOrder($module_name, $user->id);
-                        $last_system_order_number = $user->lastSystemOrderNumber($module_name);
+                        $last_order               = $company->lastOrder($user->id);
+                        $last_system_order_number = $company->lastSystemOrderNumber();
                         $country_name             = $user->city->state->country->name;
                         $pending_transaction      = $user->pending_transaction;
 
@@ -267,7 +166,8 @@ class AuthController extends Controller
                 "status_id" => $status->id,
             ]);
 
-            $user = $this->user->firstWhere("email", "=", $request->email);
+            $user    = $this->user->firstWhere("email", "=", $request->email);
+            $company = $this->company->find($user->company_id);
 
             if (! $request->oauth) {
                 if (! $valid_credentials) {
@@ -315,15 +215,12 @@ class AuthController extends Controller
             $user_role            = $user->roles()->first()->name;
             $user["subscription"] = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
 
-            $module_name = $user->module_name;
-            updateConnectionSchema($module_name);
-
             switch ($user_role) {
 
                 case 'operator':
 
-                    $last_order                       = $user->lastOrder($module_name, $user->id);
-                    $last_system_order_number         = $user->lastSystemOrderNumber($module_name);
+                    $last_order                       = $company->lastOrder($user->id);
+                    $last_system_order_number         = $company->lastSystemOrderNumber();
                     $user                             = $user->toArray();
                     $user["last_order"]               = $last_order;
                     $user["last_system_order_number"] = $last_system_order_number;
@@ -332,8 +229,8 @@ class AuthController extends Controller
                 default:
                     if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
 
-                        $last_order               = $user->lastOrder($module_name, $user->id);
-                        $last_system_order_number = $user->lastSystemOrderNumber($module_name);
+                        $last_order               = $company->lastOrder($user->id);
+                        $last_system_order_number = $company->lastSystemOrderNumber();
                         $country_name             = $user->city->state->country->name;
                         $pending_transaction      = $user->pending_transaction;
 
@@ -487,19 +384,20 @@ class AuthController extends Controller
     {
 
         $user = Auth::User();
+
         updateConnectionSchema("administration");
+        $company = $this->company->find($user->company_id);
+
         $user->load('roles.permissions');
         $user["subscription"] = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
         $user["country_name"] = $user->city->state->country->name;
         $user_role            = $user->roles()->first()->name;
-        $module_name          = $user->module_name;
-        updateConnectionSchema($module_name);
         switch ($user_role) {
 
             case 'operator':
 
-                $last_order                       = $user->lastOrder($module_name, $user->id);
-                $last_system_order_number         = $user->lastSystemOrderNumber($module_name);
+                $last_order                       = $company->lastOrder($user->id);
+                $last_system_order_number         = $company->lastSystemOrderNumber();
                 $user                             = $user->toArray();
                 $user["last_order"]               = $last_order;
                 $user["last_system_order_number"] = $last_system_order_number;
@@ -507,14 +405,14 @@ class AuthController extends Controller
 
             case 'system_user':
 
-                updateConnectionSchema($module_name);
+                updateConnectionSchema("modules");
                 break;
 
             default:
                 if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
 
-                    $last_order               = $user->lastOrder($module_name, $user->id);
-                    $last_system_order_number = $user->lastSystemOrderNumber($module_name);
+                    $last_order               = $company->lastOrder($user->id);
+                    $last_system_order_number = $company->lastSystemOrderNumber();
                     $premiumPlan              = Plan::where('name', 'Premium')->first();
                     $wasPremium               = $user->subscriptions()->where("plan_id", $premiumPlan->id)->first();
                     $wasPremium               = ! empty($wasPremium) ? true : false;
@@ -561,7 +459,6 @@ class AuthController extends Controller
 
         ]);
 
-        $user->module_name = "module_" . $user->id;
         $user->save();
 
         $data = [
@@ -577,13 +474,11 @@ class AuthController extends Controller
             $data["password"] = $request->oauth_google_id;
 
         }
-
-        //CREATE SCHEMAS
-        $this->schema->createSchemas($user->id);
         updateConnectionSchema('administration');
+
         AddRoleEvent::dispatch($user->id, 'administrator');
 
-        $plan = Plan::where('name', 'Gratis')->first();
+        $plan = Plan::where('name', 'Premium')->first();
         $now  = Carbon::now();
 
         $status_type = StatusType::where('name', 'plan')->first();
@@ -625,12 +520,11 @@ class AuthController extends Controller
         $user_id        = $data['user_id'];
         $url            = env('PROD_APP_URL');
         // Start data deletion
-        $user = User::where('oauth_facebook_id', $data['user_id'])->first();
-
+        $user       = User::where('oauth_facebook_id', $data['user_id'])->first();
+        $company_id = $user->company_id;
         #REMOVE SCHEMA
-        $this->schema->destroySchema($user->module_name);
-
         $user->delete();
+        Company::destroy($company_id);
         $random = Str::random(8);
         FacebookDeleteData::create(["code" => $random, "uid" => $random]);
 

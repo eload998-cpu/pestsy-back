@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,21 +8,21 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $table="reports";
+    protected $table = "modules.reports";
 
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "name",
         "file_url",
         "client_id"
+     
     ];
 
-    
     protected function fileUrl(): Attribute
     {
         return Attribute::make(
-            get: function($value){
-                return config('app.url').$value;
+            get: function ($value) {
+                return config('app.url') . $value;
             }
         );
     }

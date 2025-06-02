@@ -11,7 +11,7 @@ class ClientEmail extends Model
 {
     use HasFactory;
 
-    protected $table="client_emails";
+    protected $table="modules.client_emails";
 
 
 

@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Models\Module;
 
 use App\Models\Status;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,12 +11,12 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $table = "orders";
+    protected $table   = "modules.orders";
     protected $appends = [
         "parsed_arrive_time",
         "parsed_start_time",
         "parsed_end_time",
-        "parsed_date"
+        "parsed_date",
     ];
 
     protected $fillable = [
@@ -34,6 +32,7 @@ class Order extends Model
         "coordinator",
         "origin",
         "status_id",
+        "company_id",
         "user_id",
     ];
     /*
@@ -54,15 +53,22 @@ class Order extends Model
 
     public function getParsedDateAttribute(): string
     {
-   
+
         return Carbon::parse($this->attributes["date"])->format('d/m/Y');
     }
 
-    public function isDate($string) {
-        $matches = array();
+    public function isDate($string)
+    {
+        $matches = [];
         $pattern = '/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/';
-        if (!preg_match($pattern, $string, $matches)) return false;
-        if (!checkdate($matches[2], $matches[1], $matches[3])) return false;
+        if (! preg_match($pattern, $string, $matches)) {
+            return false;
+        }
+
+        if (! checkdate($matches[2], $matches[1], $matches[3])) {
+            return false;
+        }
+
         return true;
     }
 
@@ -71,7 +77,7 @@ class Order extends Model
     public function getParsedArriveTimeAttribute(): string
     {
         $timestamp = strtotime($this->attributes["arrive_time"]);
-        if (!empty($timestamp)) {
+        if (! empty($timestamp)) {
             $time = date('g:i a', $timestamp);
             return $time;
         }
@@ -82,7 +88,7 @@ class Order extends Model
     public function getParsedStartTimeAttribute(): string
     {
         $timestamp = strtotime($this->attributes["start_time"]);
-        if (!empty($timestamp)) {
+        if (! empty($timestamp)) {
             $time = date('g:i a', $timestamp);
             return $time;
         }
@@ -93,7 +99,7 @@ class Order extends Model
     public function getParsedEndTimeAttribute(): string
     {
         $timestamp = strtotime($this->attributes["end_time"]);
-        if (!empty($timestamp)) {
+        if (! empty($timestamp)) {
             $time = date('g:i a', $timestamp);
             return $time;
         }
@@ -107,7 +113,6 @@ class Order extends Model
     {
         return $this->belongsTo(Status::class);
     }
-
 
     public function user()
     {
@@ -142,6 +147,16 @@ class Order extends Model
     public function rodentControls()
     {
         return $this->hasMany(RodentControl::class, 'order_id', 'id');
+    }
+
+    public function xylophageControl()
+    {
+        return $this->hasMany(XylophageControl::class, 'order_id', 'id');
+    }
+
+    public function legionellaControl()
+    {
+        return $this->hasMany(LegionellaControl::class, 'order_id', 'id');
     }
 
     public function fumigations()

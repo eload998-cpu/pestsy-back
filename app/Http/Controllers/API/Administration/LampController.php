@@ -92,6 +92,7 @@ class LampController extends Controller
 
         $data=$request->all();
         unset($data["_method"]); 
+        unset($data["company_id"]); 
 
 
         $lamp=Lamp::where('id',$id)->update($data);

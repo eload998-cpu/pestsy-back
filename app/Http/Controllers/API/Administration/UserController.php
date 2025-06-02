@@ -4,8 +4,6 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Services\V1\User\ChangePasswordService;
 use App\Services\V1\User\ChangePasswordValidation;
-use App\Services\V1\User\DeleteService;
-use App\Services\V1\User\DeleteValidation;
 use App\Services\V1\User\IndexService;
 use App\Services\V1\User\ShowService;
 use App\Services\V1\User\ShowValidation;
@@ -67,6 +65,8 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    /*
     public function destroy($id, Request $request, DeleteValidation $deleteValidation, DeleteService $deleteService)
     {
 
@@ -90,7 +90,7 @@ class UserController extends Controller
             ];
         }
 
-    }
+    }*/
 
     public function changePassword(Request $request, ChangePasswordValidation $changePasswordValidation, ChangePasswordService $changePasswordService)
     {

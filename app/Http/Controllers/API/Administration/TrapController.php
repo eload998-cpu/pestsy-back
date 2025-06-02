@@ -125,6 +125,7 @@ class TrapController extends Controller
             $data["device_id"] = $device_id;
             $data["product_id"] = $product_id;
             unset($data["_method"]);
+            unset($data["company_id"]);
 
             $trap = Trap::where('id', $id)->update($data);
 

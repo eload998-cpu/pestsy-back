@@ -1,3 +1,4 @@
+@if(isset ($order["internal_condition"]) && count($order["internal_condition"]))
 
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">
@@ -87,3 +88,5 @@
         <span><b>Ductos, bajantes de agua y elec. Sellados:</b>  </span>{{translate_conditions($order["internal_condition"]["ducts"])}}
     </div>
 </div>
+
+@endif

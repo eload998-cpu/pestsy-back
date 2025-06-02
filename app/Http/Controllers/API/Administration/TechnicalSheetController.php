@@ -1,18 +1,14 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\File\CreateFileRequest;
 use App\Models\Module\TechnicalSheet;
-use App\Models\Status;
-use App\Models\StatusType;
 use DB;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Administration\UserSubscription;
 
 class TechnicalSheetController extends Controller
 {
@@ -28,11 +24,13 @@ class TechnicalSheetController extends Controller
     //
     public function index(Request $request)
     {
-        $files = $this->file;
+        $files        = $this->file;
         $search_value = $request->search;
+        $user         = Auth::user();
 
         $files = $files->orderBy("created_at", "desc");
         $files = $files->whereRaw("LOWER(technical_sheets.name) ILIKE '%{$search_value}%'");
+        $files = $files->where("company_id", $user->company_id);
 
         $files = $files->paginate($this->paginate_size);
         $files = parsePaginator($files);
@@ -44,11 +42,11 @@ class TechnicalSheetController extends Controller
     {
         expiredAccountMessage();
         $user = Auth::user();
-        updateConnectionSchema($user->module_name);
+        updateConnectionSchema("modules");
 
         $data = DB::transaction(function () use ($request) {
             $path = "/public/files/TechnicalSheets";
-            if (!Storage::exists($path)) {
+            if (! Storage::exists($path)) {
                 Storage::makeDirectory($path, 0755);
 
             }
@@ -58,7 +56,7 @@ class TechnicalSheetController extends Controller
                 foreach ($value as $f) {
 
                     // Getting file name
-                    $name = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
+                    $name     = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
                     $filename = rand() . '_' . $name;
 
                     $path = Storage::disk('public')->putFileAs('files/TechnicalSheets', new File($f), $filename);
@@ -68,9 +66,9 @@ class TechnicalSheetController extends Controller
                     $storage_link = "/storage/files/TechnicalSheets/{$filename}";
 
                     $file = TechnicalSheet::create([
-                        'name' => $name,
+                        'name'     => $name,
                         'file_url' => $storage_link,
-
+                        'company_id' =>$request->company_id
                     ]);
                 }
 
@@ -81,8 +79,8 @@ class TechnicalSheetController extends Controller
 
         return response()->json(
             ["success" => true,
-                "data" => [],
-                "message" => "Exito!",
+                "data"     => [],
+                "message"  => "Exito!",
             ]
         );
 
@@ -96,7 +94,7 @@ class TechnicalSheetController extends Controller
      */
     public function destroy($id)
     {
-        $file = TechnicalSheet::find($id);
+        $file      = TechnicalSheet::find($id);
         $file_path = str_replace("/storage/", "", $file->file_url);
         Storage::disk('public')->delete($file_path);
 
@@ -110,15 +108,15 @@ class TechnicalSheetController extends Controller
     {
 
         expiredAccountMessage();
-        
-        updateConnectionSchema(Auth::user()->module_name);
-        $file = TechnicalSheet::find($id);
+
+        updateConnectionSchema("modules");
+        $file      = TechnicalSheet::find($id);
         $file_path = str_replace("/storage/", "", $file->file_url);
         $file_name = basename($file_path);
-        $headers = [
-            'Content-Description' => 'File Transfer',
-            'Content-Disposition' => 'attachment; filename=' . basename($file_path) . '',
-            'Content-Type' => 'application/pdf',
+        $headers   = [
+            'Content-Description'           => 'File Transfer',
+            'Content-Disposition'           => 'attachment; filename=' . basename($file_path) . '',
+            'Content-Type'                  => 'application/pdf',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ];
 

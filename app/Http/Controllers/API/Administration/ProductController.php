@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
@@ -8,6 +7,7 @@ use App\Http\Requests\Administration\Product\UpdateProductRequest;
 use App\Models\Module\Product;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -29,12 +29,15 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $products = $this->product;
+        $user     = Auth::user();
 
         if ($request->search) {
             $search_value = $request->search;
-            $products = $products->whereRaw("LOWER(products.name) ILIKE '%{$search_value}%'");
+            $products     = $products->whereRaw("LOWER(products.name) ILIKE '%{$search_value}%'");
 
         }
+        $products = $products->whereNull('company_id')
+            ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {
@@ -137,9 +140,16 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+     public function destroy($id)
     {
-        $product = product::destroy($id);
+        $user      = Auth::user();
+        $user_role = $user->roles()->first()->name;
+
+        $product = product::where('id', $id)->where('is_general', false);
+        if ($user_role == "super_administrator") {
+            $product = $product->orWhere('is_general', true);
+        }
+        $product = $product->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

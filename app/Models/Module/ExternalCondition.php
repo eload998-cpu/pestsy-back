@@ -9,7 +9,7 @@ class ExternalCondition extends Model
 {
     use HasFactory;
 
-    protected $table="external_conditions";
+    protected $table="modules.external_conditions";
 
     protected $fillable=
     [

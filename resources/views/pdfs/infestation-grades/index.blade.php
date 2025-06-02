@@ -1,4 +1,8 @@
 
+@if(isset ($order["infestation_grade"]) && count($order["infestation_grade"]))
+
+
+
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">
                 <h6 class="text-center" >GRADO DE INFESTACIÓN</h6>
@@ -96,3 +100,4 @@
     </div>
 </div>
 
+@endif
