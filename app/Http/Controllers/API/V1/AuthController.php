@@ -55,10 +55,10 @@ class AuthController extends Controller
         $status_type = StatusType::where('name', 'user')->first();
         $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
-        $user    = $this->user->where("email", "=", $request->email)->first();
-        $company = $this->company->find($user->company_id);
+        $user = $this->user->where("email", "=", $request->email)->first();
 
         if (! empty($user)) {
+            $company = $this->company->find($user->company_id);
 
             if ($user->status_id != $status->id) {
                 return response()->json(['errors' => ['message' => 'Por favor renueve su suscripci贸n']], 422);

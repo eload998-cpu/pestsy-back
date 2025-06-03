@@ -91,9 +91,6 @@ class ConfigurationController extends Controller
             try {
                 $user = Auth::user();
                 DeletedAccount::create(["email" => $user->email]);
-                $statement = "DROP SCHEMA modules CASCADE";
-                DB::statement($statement);
-
                 Company::destroy($user->company_id);
                 User::destroy($user->id);
                 return true;
