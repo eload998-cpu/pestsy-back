@@ -23,6 +23,7 @@ return new class extends Migration
             $table->foreign('status_id')->references('id')->on("public.statuses")->onDelete('cascade');
             $table->float('price', 8, 2)->nullable();
             $table->string('paypal_id')->nullable();
+            $table->string('paypal_product_id')->nullable();
             $table->timestamps();
         });
     }

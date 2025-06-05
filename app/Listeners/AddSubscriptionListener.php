@@ -44,8 +44,8 @@ class AddSubscriptionListener
             $user = User::find($event->user_id);
             updateConnectionSchema("modules");
 
-            $operators = Operator::where("administrator_id", $user->id)->get();
-            $system_users = SystemUser::where("administrator_id", $user->id)->get();
+            $operators = Operator::where("company_id", $user->company_id)->get();
+            $system_users = SystemUser::where("company_id", $user->company_id)->get();
 
             updateConnectionSchema("administration");
 
