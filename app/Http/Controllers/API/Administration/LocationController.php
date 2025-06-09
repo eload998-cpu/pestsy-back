@@ -94,7 +94,14 @@ class LocationController extends Controller
      */
     public function show($id)
     {
-        $location = Location::find($id);
+
+        $user     = Auth::user();
+        $location = Location::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($location)) {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $location]);
 

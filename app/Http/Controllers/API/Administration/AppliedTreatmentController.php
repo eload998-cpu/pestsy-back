@@ -93,7 +93,15 @@ class AppliedTreatmentController extends Controller
      */
     public function show($id)
     {
-        $appliedTreatment = AppliedTreatment::find($id);
+
+        $user             = Auth::user();
+        $appliedTreatment = AppliedTreatment::where('id', $id)->where('company_id', $user->company->id)->first();
+
+         if(empty($appliedTreatment))
+        {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $appliedTreatment]);
 

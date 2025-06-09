@@ -311,7 +311,7 @@ class OrderController extends Controller
             $order = Order::updateOrCreate(
                 [
                     "order_number" => $order_number,
-                    "company_id"   => $user->company_id
+                    "company_id"   => $user->company_id,
                 ],
                 [
                     "client_id"    => $client_id,
@@ -453,7 +453,11 @@ class OrderController extends Controller
         $user    = Auth::user();
         $clients = Client::where('company_id', $user->company->id)->get();
         $workers = Worker::where('company_id', $user->company->id)->get();
-        $order   = $this->order->find($id);
+        $order   = $this->order->where('id', $id)->where('company_id', $user->company->id)->first();
+        if (empty($order)) {
+            abort(401);
+        }
+
         $order->load('externalCondition');
         $order->load('internalCondition');
         $order->load('infestationGrade');

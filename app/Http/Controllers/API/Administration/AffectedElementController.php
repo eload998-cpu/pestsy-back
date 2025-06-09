@@ -93,8 +93,13 @@ class AffectedElementController extends Controller
      */
     public function show($id)
     {
-        $affectedElement = AffectedElement::find($id);
+        $user            = Auth::user();
+        $affectedElement = AffectedElement::where('id', $id)->where('company_id', $user->company->id)->first();
 
+        if (empty($affectedElement)) {
+            abort(401);
+
+        }
         return response()->json(['success' => true, 'data' => $affectedElement]);
 
     }

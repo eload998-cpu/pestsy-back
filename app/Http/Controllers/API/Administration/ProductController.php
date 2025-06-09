@@ -94,7 +94,14 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = product::find($id);
+
+        $user    = Auth::user();
+        $product = product::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($product)) {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $product]);
 
@@ -140,7 +147,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-     public function destroy($id)
+    public function destroy($id)
     {
         $user      = Auth::user();
         $user_role = $user->roles()->first()->name;

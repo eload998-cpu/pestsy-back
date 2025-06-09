@@ -93,8 +93,14 @@ class ConstructionTypeController extends Controller
      */
     public function show($id)
     {
-        $constructionType = ConstructionType::find($id);
 
+        $user             = Auth::user();
+        $constructionType = ConstructionType::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($constructionType)) {
+            abort(401);
+
+        }
         return response()->json(['success' => true, 'data' => $constructionType]);
 
     }
@@ -139,7 +145,7 @@ class ConstructionTypeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-   public function destroy($id)
+    public function destroy($id)
     {
         $user      = Auth::user();
         $user_role = $user->roles()->first()->name;

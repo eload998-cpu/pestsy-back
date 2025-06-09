@@ -134,12 +134,12 @@ class ClientController extends Controller
                 "status_id"  => $status->id,
             ]);
 
-        $user->password    = $password;
+        $user->password = $password;
         $user->save();
 
         //ATTACH TO ADMINISTRATOR USER
         $user->systemUsers()->detach();
-        $user->systemUsers()->attach($client->id,['company_id' => $user->company_id]);
+        $user->systemUsers()->attach($client->id, ['company_id' => $user->company_id]);
 
         updateConnectionSchema("administration");
 
@@ -216,7 +216,14 @@ class ClientController extends Controller
     public function show($id)
     {
 
-        $client = Client::find($id);
+        $user   = Auth::user();
+        $client = Client::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if(empty($client))
+        {
+            abort(401);
+
+        }
         updateConnectionSchema("modules");
 
         $client->load('emails');

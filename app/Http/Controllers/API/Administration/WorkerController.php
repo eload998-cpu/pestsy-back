@@ -188,7 +188,14 @@ class WorkerController extends Controller
      */
     public function show($id)
     {
-        $worker = Worker::find($id);
+
+        $user   = Auth::user();
+        $worker = Worker::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($worker)) {
+            abort(401);
+
+        }
 
         $worker->load('administrators');
 

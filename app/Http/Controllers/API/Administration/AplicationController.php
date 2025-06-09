@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Aplication\CreateAplicationRequest;
 use App\Http\Requests\Administration\Aplication\UpdateAplicationRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Module\Aplication;
 use DB;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AplicationController extends Controller
 {
@@ -94,8 +94,14 @@ class AplicationController extends Controller
      */
     public function show($id)
     {
-        $aplication = aplication::find($id);
 
+        $user       = Auth::user();
+        $aplication = aplication::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($aplication)) {
+            abort(401);
+
+        }
         return response()->json(['success' => true, 'data' => $aplication]);
 
     }
@@ -140,7 +146,7 @@ class AplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-  public function destroy($id)
+    public function destroy($id)
     {
         $user      = Auth::user();
         $user_role = $user->roles()->first()->name;
