@@ -100,7 +100,14 @@ class PestController extends Controller
      */
     public function show($id)
     {
-        $pest = Pest::find($id);
+
+        $user = Auth::user();
+        $pest = Pest::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($pest)) {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $pest]);
 

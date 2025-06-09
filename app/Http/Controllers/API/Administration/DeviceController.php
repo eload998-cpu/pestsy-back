@@ -93,7 +93,14 @@ class DeviceController extends Controller
      */
     public function show($id)
     {
-        $device = Device::find($id);
+
+        $user   = Auth::user();
+        $device = Device::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($device)) {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $device]);
 
@@ -139,7 +146,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-     public function destroy($id)
+    public function destroy($id)
     {
         $user      = Auth::user();
         $user_role = $user->roles()->first()->name;

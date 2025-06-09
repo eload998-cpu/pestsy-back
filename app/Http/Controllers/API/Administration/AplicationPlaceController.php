@@ -93,8 +93,13 @@ class AplicationPlaceController extends Controller
      */
     public function show($id)
     {
-        $aplicacion_place = AplicationPlace::find($id);
+        $user             = Auth::user();
+        $aplicacion_place = AplicationPlace::where('id', $id)->where('company_id', $user->company->id)->first();
 
+        if (empty($aplicacion_place)) {
+            abort(401);
+
+        }
         return response()->json(['success' => true, 'data' => $aplicacion_place]);
 
     }

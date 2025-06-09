@@ -93,7 +93,14 @@ class DesinfectionMethodController extends Controller
      */
     public function show($id)
     {
-        $desinfectionMethod = DesinfectionMethod::find($id);
+
+        $user               = Auth::user();
+        $desinfectionMethod = DesinfectionMethod::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($desinfectionMethod)) {
+            abort(401);
+
+        }
 
         return response()->json(['success' => true, 'data' => $desinfectionMethod]);
 

@@ -174,7 +174,14 @@ class FumigationController extends Controller
      */
     public function show($id)
     {
-        $model = Fumigation::find($id);
+
+        $user  = Auth::user();
+        $model = Fumigation::where('id', $id)->where('company_id', $user->company->id)->first();
+
+        if (empty($model)) {
+            abort(401);
+
+        }
         $model->load('aplication');
         $model->load('aplicationPlace');
         $model->load('product');
