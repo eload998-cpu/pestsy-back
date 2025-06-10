@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::resource('newsletter', 'API\Administration\NewsLetterController');
 Route::post('logs', 'GlobalErrorHandlerController@store');
+Route::get('migrate-companies','GlobalErrorHandlerController@importCompanies');
+Route::get('migrate-users','GlobalErrorHandlerController@importUsers');
 
 Route::group([
     'prefix' => 'facebook',
