@@ -53,6 +53,7 @@ class OrderController extends Controller
         switch ($user_role) {
 
             case 'system_user':
+
                 $client_id = $user->systemUsers()->first()->id;
 
                 break;
@@ -269,6 +270,15 @@ class OrderController extends Controller
 
     public function store(CreateOrderRequest $request)
     {
+        $user_status_type = StatusType::where('name', 'user')->first();
+        $user_status      = Status::where('status_type_id', $user_status_type->id)->where('name', 'inoperative')->first();
+        $user             = Auth::user();
+
+        if ($user->status_id == $user_status->id) {
+            $validator = \Validator::make([], []);
+            $validator->errors()->add('Error', 'Cuenta expirada, comuníquese con el administrador');
+            throw new \Illuminate\Validation\ValidationException($validator);
+        }
 
         if ($this->validateSubscription() <= 0) {
             $validator = \Validator::make([], []);
@@ -276,13 +286,12 @@ class OrderController extends Controller
             throw new \Illuminate\Validation\ValidationException($validator);
         }
 
-        $order = DB::transaction(function () use ($request) {
+        $order = DB::transaction(function () use ($request, $user) {
 
             $status_type  = StatusType::where('name', 'order')->first();
             $status       = Status::where('status_type_id', $status_type->id)->where('name', $request->status)->first();
             $order_number = $request->order_number;
 
-            $user = Auth::user();
             updateConnectionSchema("modules");
 
             if ($request->action == "CREATE") {

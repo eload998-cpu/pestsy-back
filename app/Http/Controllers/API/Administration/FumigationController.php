@@ -10,6 +10,7 @@ use App\Models\Module\Fumigation;
 use App\Models\Module\Product;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class FumigationController extends Controller
@@ -42,7 +43,6 @@ class FumigationController extends Controller
             $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(aplication_places.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
-        Log::info($request->all());
 
         if ($request->sort) {
             switch ($request->sortBy) {
@@ -175,13 +175,7 @@ class FumigationController extends Controller
     public function show($id)
     {
 
-        $user  = Auth::user();
-        $model = Fumigation::where('id', $id)->where('company_id', $user->company->id)->first();
-
-        if (empty($model)) {
-            abort(401);
-
-        }
+        $model = Fumigation::find($id);
         $model->load('aplication');
         $model->load('aplicationPlace');
         $model->load('product');
@@ -207,10 +201,13 @@ class FumigationController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Aplication::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -220,10 +217,13 @@ class FumigationController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = AplicationPlace::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -233,10 +233,13 @@ class FumigationController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Product::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 

@@ -6,6 +6,8 @@ use App\Models\Administration\City;
 use App\Models\Administration\Company;
 use App\Models\Administration\Plan;
 use App\Models\Administration\Transaction;
+use App\Models\Module\Client;
+use App\Models\Module\Worker;
 use App\Models\Status;
 use App\Models\StatusType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -41,6 +43,7 @@ class User extends Authenticatable
         'paypal_subscription_id',
         'active_subscription',
         'verify_paypal_subscription',
+        'is_owner',
     ];
 
     /**
@@ -111,14 +114,14 @@ class User extends Authenticatable
 
     public function systemUsers()
     {
-        return $this->belongsToMany(User::class, 'system_users', 'user_id', 'client_id');
+        return $this->belongsToMany(Client::class, 'system_users', 'user_id', 'client_id')->withPivot('company_id');
 
     }
 
     public function operators()
     {
 
-        return $this->belongsToMany(User::class, 'operators', 'user_id', 'worker_id');
+        return $this->belongsToMany(Worker::class, 'operators', 'user_id', 'worker_id')->withPivot('company_id');
 
     }
 

@@ -12,6 +12,7 @@ use App\Models\Module\Product;
 use App\Models\Module\XylophageControl;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class XylophageControlController extends Controller
 {
@@ -231,10 +232,13 @@ class XylophageControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Product::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -244,12 +248,15 @@ class XylophageControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Pest::create(
             [
                 "common_name"     => $name,
                 "scientific_name" => $name,
                 "is_xylophagus"   => true,
+                "company_id"      => $user->company_id,
+
             ]
         )->id;
 
@@ -259,10 +266,13 @@ class XylophageControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = AppliedTreatment::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -272,10 +282,13 @@ class XylophageControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = ConstructionType::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -285,10 +298,13 @@ class XylophageControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = AffectedElement::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 

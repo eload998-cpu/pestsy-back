@@ -1,11 +1,9 @@
 <?php
-
 namespace App\Listeners;
 
 use App\Events\AddRoleEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use App\Models\{Role,User};
+use App\Models\Role;
+use App\Models\User;
 
 class AddRoleListener
 {
@@ -27,11 +25,12 @@ class AddRoleListener
      */
     public function handle(AddRoleEvent $event)
     {
-        $user=User::find($event->user_id);
-        $role=Role::where('name',$event->role_name)->first();
+        updateConnectionSchema("administration");
+        $user = User::find($event->user_id);
+        $role = Role::where('name', $event->role_name)->first();
 
         $user->roles()->detach();
         $user->roles()->attach($role->id);
-        
+
     }
 }

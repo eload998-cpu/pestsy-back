@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
@@ -10,6 +9,7 @@ use App\Models\Module\Product;
 use App\Models\Module\Trap;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TrapController extends Controller
 {
@@ -33,7 +33,7 @@ class TrapController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $traps = $traps->whereRaw("LOWER(traps.station_number) || LOWER(traps.dose) || LOWER(traps.pheromones) || LOWER(devices.name) ILIKE '%{$search_value}%'");
+            $traps        = $traps->whereRaw("LOWER(traps.station_number) || LOWER(traps.dose) || LOWER(traps.pheromones) || LOWER(devices.name) ILIKE '%{$search_value}%'");
 
         }
 
@@ -69,7 +69,7 @@ class TrapController extends Controller
         $data = DB::transaction(function () use ($request) {
 
             $product_id = null;
-            $device_id = null;
+            $device_id  = null;
 
             if (is_string($request->product_id)) {
                 $product_id = $this->addProduct($request->product_id);
@@ -83,8 +83,8 @@ class TrapController extends Controller
                 $device_id = $request->device_id;
             }
 
-            $data = $request->all();
-            $data["device_id"] = $device_id;
+            $data               = $request->all();
+            $data["device_id"]  = $device_id;
             $data["product_id"] = $product_id;
 
             unset($data["_method"]);
@@ -94,8 +94,8 @@ class TrapController extends Controller
 
         return response()->json(
             ["success" => true,
-                "data" => [],
-                "message" => "Exito!",
+                "data"     => [],
+                "message"  => "Exito!",
             ]
         );
 
@@ -107,7 +107,7 @@ class TrapController extends Controller
         DB::transaction(function () use ($request, $id) {
 
             $product_id = null;
-            $device_id = null;
+            $device_id  = null;
 
             if (is_string($request->product_id)) {
                 $product_id = $this->addProduct($request->product_id);
@@ -121,8 +121,8 @@ class TrapController extends Controller
                 $device_id = $request->device_id;
             }
 
-            $data = $request->all();
-            $data["device_id"] = $device_id;
+            $data               = $request->all();
+            $data["device_id"]  = $device_id;
             $data["product_id"] = $product_id;
             unset($data["_method"]);
             unset($data["company_id"]);
@@ -165,10 +165,13 @@ class TrapController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Product::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -178,10 +181,13 @@ class TrapController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Device::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Permission;
@@ -29,6 +28,7 @@ class PermissionSeeder extends Seeder
             "list client",
             "create client",
             "edit client",
+            "add file client",
             "delete client",
             "create_operator",
             "create_system_user",
@@ -192,7 +192,7 @@ class PermissionSeeder extends Seeder
             "create transactions",
             "delete transactions",
 
-            "list_configuration"
+            "list_configuration",
 
         ];
 
@@ -201,7 +201,7 @@ class PermissionSeeder extends Seeder
         foreach ($permissions as $key => $value) {
             $permission_model = Permission::create(
                 [
-                    "name" => str_replace(" ", "_", $value),
+                    "name"         => str_replace(" ", "_", $value),
                     "display_name" => $value,
                 ]);
 
@@ -257,8 +257,6 @@ class PermissionSeeder extends Seeder
 
             "list management plan",
             "download management plan",
-            
-            
 
         ];
 
@@ -278,7 +276,7 @@ class PermissionSeeder extends Seeder
             [
             "list client",
             "create client",
-            
+
             "create pest",
             "list pest",
 
@@ -447,11 +445,10 @@ class PermissionSeeder extends Seeder
             "create signature",
             "edit signature",
             "delete signature",
-            
-            "pay subscription",
-            "list_configuration"
-        ];
 
+            "pay subscription",
+            "list_configuration",
+        ];
 
         $role = Role::where('name', 'fumigator')->first();
 

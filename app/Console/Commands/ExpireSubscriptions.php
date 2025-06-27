@@ -1,7 +1,9 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Events\AddRoleEvent;
 use App\Models\Administration\Company;
+use App\Models\Administration\Plan;
 use App\Models\Administration\UserSubscription;
 use App\Models\Status;
 use App\Models\StatusType;
@@ -49,37 +51,59 @@ class ExpireSubscriptions extends Command
     {
         $users = User::all();
 
-        $status_type = StatusType::where('name', 'plan')->first();
-        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'inactive')->first();
+        $user_status_type = StatusType::where('name', 'plan')->first();
+        $user_status      = Status::where('status_type_id', $user_status_type->id)->where('name', 'inactive')->first();
 
         foreach ($users as $user) {
 
             $subscription = UserSubscription::where('user_id', $user->id)->latest()->first();
 
-            $today       = Carbon::parse(Carbon::now());
-            $expire_date = Carbon::parse($subscription->end_date);
+            if ($subscription) {
+                $today       = Carbon::parse(Carbon::now());
+                $expire_date = Carbon::parse($subscription->end_date);
 
-            if ($today->gte($expire_date)) {
+                if ($today->gte($expire_date)) {
 
-                $user           = User::find($user->id);
-                $subscriptionId = $user->paypal_subscription_id;
+                    $user           = User::find($user->id);
+                    $subscriptionId = $user->paypal_subscription_id;
 
-                if (! empty($subscriptionId)) {
-                    $accessToken = $this->paypalService->getPayPalToken();
-                    $response    = $this->paypalService->cancelSubscription($subscriptionId, $accessToken,"Account with no funds");
+                    if (! empty($subscriptionId)) {
+                        $accessToken = $this->paypalService->getPayPalToken();
+                        $response    = $this->paypalService->cancelSubscription($subscriptionId, $accessToken, "Account with no funds");
+
+                    }
+
+                    $this->userService->inactivateUser($user->id);
+                    $sub            = UserSubscription::find($subscription->id);
+                    $sub->status_id = $user_status->id;
+                    $sub->save();
+
+                    if ($user->is_owner) {
+
+                        $now  = Carbon::now();
+                        $plan = Plan::where('name', 'Fumigador')->first();
+                        AddRoleEvent::dispatch($user->id, 'fumigator');
+                        $plan_status_type     = StatusType::where('name', 'plan')->first();
+                        $plan_status          = Status::where('status_type_id', $plan_status_type->id)->where('name', 'active')->first();
+                        $new_user_status_type = StatusType::where('name', 'user')->first();
+                        $new_user_status      = Status::where('status_type_id', $new_user_status_type->id)->where('name', 'active')->first();
+
+                        $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => Carbon::parse($now)->addMonths(1), 'status_id' => $plan_status->id, 'created_at' => $now]]);
+                        $user->status_id = $new_user_status->id;
+                        $user->save();
+                        $company                 = Company::find($user->company->id);
+                        $company->order_quantity = $plan->order_quantity;
+                        $company->save();
+                    } else {
+
+                        $new_user_status_type = StatusType::where('name', 'user')->first();
+                        $new_user_status      = Status::where('status_type_id', $new_user_status_type->id)->where('name', 'inoperative')->first();
+                        $user->status_id      = $new_user_status->id;
+                        $user->save();
+
+                    }
 
                 }
-
-                $this->userService->inactivateUser($user->id);
-
-                $sub = UserSubscription::find($subscription->id);
-
-                $company                 = Company::find($user->company->id);
-                $company->order_quantity = 0;
-                $company->save();
-
-                $sub->status_id = $status->id;
-                $sub->save();
             }
 
         }

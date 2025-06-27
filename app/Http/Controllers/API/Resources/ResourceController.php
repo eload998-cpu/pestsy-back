@@ -8,6 +8,7 @@ use App\Models\Module\Aplication;
 use App\Models\Module\AplicationPlace;
 use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
+use App\Models\Module\CorrectiveAction;
 use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
 use App\Models\Module\Location;
@@ -34,11 +35,17 @@ class ResourceController extends Controller
         $products             = [];
         $devices              = [];
         $locations            = [];
+        $corrective_actions   = [];
         $pests                = [];
         $applied_treatments   = [];
         $construction_types   = [];
         $affected_elements    = [];
         $desinfection_methods = [];
+
+        if ($request->corrective_action) {
+            $corrective_actions = CorrectiveAction::all();
+
+        }
 
         if ($request->aplications) {
             $aplications = Aplication::all();
@@ -95,7 +102,7 @@ class ResourceController extends Controller
 
         }
 
-        return response()->json(compact('aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
+        return response()->json(compact('corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
 
     }
 

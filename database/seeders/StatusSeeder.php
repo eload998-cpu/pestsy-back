@@ -20,7 +20,7 @@ class StatusSeeder extends Seeder
 
         $status_type = ["user", "order", "plan", "transaction", "ticket"];
 
-        $user_status = ["active", "inactive"];
+        $user_status = ["active", "inactive","inoperative"];
         $plan_status = ["active", "inactive", "pending", "canceled"];
         $order_status = ["in process", "pending", "completed", "discarded"];
         $ticket_status = ["pending", "closed", "discarded"];
