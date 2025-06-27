@@ -11,6 +11,7 @@ use App\Models\Module\Location;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LegionellaControlController extends Controller
 {
@@ -209,10 +210,13 @@ class LegionellaControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = Location::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -222,10 +226,13 @@ class LegionellaControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = DesinfectionMethod::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 
@@ -235,10 +242,13 @@ class LegionellaControlController extends Controller
     {
         $name = explode("-", $id);
         $name = $name[1];
+        $user = Auth::user();
 
         return $data = InspectionType::create(
             [
-                "name" => $name,
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 

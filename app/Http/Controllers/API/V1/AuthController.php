@@ -18,8 +18,8 @@ use App\Models\Administration\State;
 use App\Models\Status;
 use App\Models\StatusType;
 use App\Models\User;
-use App\Services\PaypalService;
 //EVENTS
+use App\Services\PaypalService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
@@ -53,14 +53,17 @@ class AuthController extends Controller
     public function preLogin(Request $request)
     {
         $status_type = StatusType::where('name', 'user')->first();
-        $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
+        $status      = Status::where('status_type_id', $status_type->id)
+            ->where('id', $user->status_id)
+            ->where('name', '!=', 'inactive')
+            ->first();
 
         $user = $this->user->where("email", "=", $request->email)->first();
 
         if (! empty($user)) {
             $company = $this->company->find($user->company_id);
 
-            if ($user->status_id != $status->id) {
+            if (empty($status)) {
                 return response()->json(['errors' => ['message' => 'Por favor renueve su suscripci贸n']], 422);
 
             }
@@ -157,22 +160,24 @@ class AuthController extends Controller
     {
 
         try {
-            $status_type = StatusType::where('name', 'user')->first();
-            $status      = Status::where('status_type_id', $status_type->id)->where('name', 'active')->first();
 
             $valid_credentials = Auth::guard('web')->attempt([
-                "email"     => $request->email,
-                "password"  => $request->password,
-                "status_id" => $status->id,
-            ]);
+                "email"    => $request->email,
+                "password" => $request->password]);
 
             $user    = $this->user->firstWhere("email", "=", $request->email);
-            $company = $this->company->find($user->company_id);
 
             if (! $request->oauth) {
                 if (! $valid_credentials) {
                     if ($user) {
-                        if ($user->status_id != $status->id) {
+
+                        $status_type = StatusType::where('name', 'user')->first();
+                        $status      = Status::where('status_type_id', $status_type->id)
+                            ->where('id', $user->status_id)
+                            ->where('name', '!=', 'inactive')
+                            ->first();
+
+                        if (empty($status)) {
                             return response()->json(['errors' => ['message' => 'Por favor renueve su suscripcion']], 422);
 
                         }
@@ -192,6 +197,7 @@ class AuthController extends Controller
                 $user->tokens->each(function ($token) {$token->delete();});
                 unset($user->tokens);
             }
+            $company = $this->company->find($user->company_id);
 
             $client_id     = config('app.client_id');
             $client_secret = config('app.client_secret');
@@ -456,6 +462,7 @@ class AuthController extends Controller
             "city_id"    => $request->city_id,
             "company_id" => $company->id,
             "status_id"  => $status->id,
+            "is_owner"   => true,
 
         ]);
 

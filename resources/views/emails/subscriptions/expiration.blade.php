@@ -39,7 +39,7 @@
                                             Le agradecemos su preferencia y estamos a su disposición para cualquier duda
                                             o sugerencia!.<br><br>
                                             Le notificamos que su cuenta en nuestra plataforma ha expirado, por lo cual hemos cancelado su suscripción, le recomendamos renovar su 
-                                            suscripción para continuar utilizando el servicio.
+                                            suscripción para continuar utilizando las características <b>premium</b> de la aplicación.
                                             
                                             </p>
 

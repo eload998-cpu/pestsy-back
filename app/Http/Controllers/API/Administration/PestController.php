@@ -83,8 +83,6 @@ class PestController extends Controller
         DB::transaction(function () use ($request) {
             $data = $request->all();
             unset($data["_method"]);
-
-            \Log::info($data);
             $pest = Pest::create($data);
 
         });

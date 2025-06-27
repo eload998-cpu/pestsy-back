@@ -24,13 +24,9 @@ return new class extends Migration
             $table->bigInteger('device_number');
             $table->bigInteger('location_id');
             $table->foreign('location_id')->references('id')->on("modules.locations")->onDelete('restrict');
-            $table->string('aceptable_cleaning');
-            $table->string('finished_cleaning');
             $table->string('bait_status');
             $table->bigInteger('dose');
             $table->string('activity');
-            $table->boolean('cleaning')->default(false)->nullable();
-            $table->boolean('bait_change')->default(false)->nullable();
             $table->text('observation');
             $table->timestamps();
         });

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,29 +8,29 @@ class RodentControl extends Model
 {
     use HasFactory;
 
-    protected $table="modules.control_of_rodents";
+    protected $table = "modules.control_of_rodents";
 
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "device_id",
         "product_id",
         "order_id",
         "device_number",
         "location_id",
-        "aceptable_cleaning",
-        "finished_cleaning",
         "bait_status",
         "dose",
         "activity",
-        "cleaning",
-        "bait_change",
-        "observation"
+        "observation",
     ];
-
 
     public function pestBitacores()
     {
-        return $this->hasMany(PestBitacore::class,'control_of_rodent_id','id');
+        return $this->hasMany(PestBitacore::class, 'control_of_rodent_id', 'id');
+    }
+
+    public function orderCorrectiveActions()
+    {
+        return $this->hasMany(OrderCorrectiveAction::class, 'control_of_rodent_id', 'id');
     }
 
     public function product()

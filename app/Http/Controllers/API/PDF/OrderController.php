@@ -51,7 +51,7 @@ class OrderController extends Controller
 
             $order->load('externalCondition');
             $order->load('internalCondition');
-            $order->load('rodentControls', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest');
+            $order->load('rodentControls', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.orderCorrectiveActions.correctiveAction');
             $order->load('fumigations', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
             $order->load('lamps');
             $order->load('traps', 'traps.product', 'traps.device');

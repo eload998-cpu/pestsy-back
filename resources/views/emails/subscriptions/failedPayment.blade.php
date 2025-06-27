@@ -38,7 +38,7 @@
                                             Estimado cliente,Deseándole éxitos en sus labores,
                                             Le agradecemos su preferencia y estamos a su disposición para cualquier duda
                                             o sugerencia!.<br><br>
-                                            Le notificamos que su pago fue rechazado, le sugerimos renovar su suscripción lo mas pronto posible para continuar disfrutando de la aplicación
+                                            Le notificamos que su pago fue rechazado, le sugerimos renovar su suscripción lo más pronto posible para continuar utilizando las características <b>premium</b> del sistema
 
                                             </p>
 

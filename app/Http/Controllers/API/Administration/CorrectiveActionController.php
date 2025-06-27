@@ -2,22 +2,22 @@
 namespace App\Http\Controllers\API\Administration;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Administration\Device\CreateDeviceRequest;
-use App\Http\Requests\Administration\Device\UpdateDeviceRequest;
-use App\Models\Module\Device;
+use App\Http\Requests\Administration\CorrectiveAction\CreateCorrectiveActionRequest;
+use App\Http\Requests\Administration\CorrectiveAction\UpdateCorrectiveActionRequest;
+use App\Models\Module\CorrectiveAction;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DeviceController extends Controller
+class CorrectiveActionController extends Controller
 {
 
-    private $device;
+    private $correctiveAction;
     private $paginate_size = 6;
 
-    public function __construct(Device $device)
+    public function __construct(CorrectiveAction $correctiveAction)
     {
-        $this->device = $device;
+        $this->correctiveAction = $correctiveAction;
 
     }
 
@@ -28,34 +28,34 @@ class DeviceController extends Controller
      */
     public function index(Request $request)
     {
-        $devices = $this->device;
-        $user    = Auth::user();
+        $correctiveActions = $this->correctiveAction;
+        $user                = Auth::user();
 
         if ($request->search) {
-            $search_value = $request->search;
-            $devices      = $devices->whereRaw("LOWER(devices.name) ILIKE '%{$search_value}%'");
+            $search_value        = $request->search;
+            $correctiveActions = $correctiveActions->whereRaw("LOWER(corrective_actions.name) ILIKE '%{$search_value}%'");
 
         }
-        $devices = $devices->whereNull('company_id')
+        $correctiveActions = $correctiveActions->whereNull('company_id')
             ->orWhere('company_id', $user->company_id);
 
         if ($request->sort) {
             switch ($request->sortBy) {
 
                 case 'name':
-                    $devices = $devices->orderBy("name", $request->sort);
+                    $correctiveActions = $correctiveActions->orderBy("name", $request->sort);
                     break;
             }
 
         } else {
-            $devices = $devices->orderBy("devices.created_at", "desc");
+            $correctiveActions = $correctiveActions->orderBy("corrective_actions.created_at", "desc");
 
         }
 
-        $devices = $devices->paginate($this->paginate_size);
-        $devices = parsePaginator($devices);
+        $correctiveActions = $correctiveActions->paginate($this->paginate_size);
+        $correctiveActions = parsePaginator($correctiveActions);
 
-        return response()->json($devices);
+        return response()->json($correctiveActions);
     }
 
     /**
@@ -74,11 +74,11 @@ class DeviceController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(CreateDeviceRequest $request)
+    public function store(CreatecorrectiveActionRequest $request)
     {
         DB::transaction(function () use ($request) {
 
-            $device = Device::create($request->all());
+            $correctiveAction = correctiveAction::create($request->all());
 
         });
 
@@ -94,15 +94,15 @@ class DeviceController extends Controller
     public function show($id)
     {
 
-        $user   = Auth::user();
-        $device = Device::where('id', $id)->where('company_id', $user->company->id)->first();
+        $user               = Auth::user();
+        $correctiveAction = correctiveAction::where('id', $id)->where('company_id', $user->company->id)->first();
 
-        if (empty($device)) {
+        if (empty($correctiveAction)) {
             abort(401);
 
         }
 
-        return response()->json(['success' => true, 'data' => $device]);
+        return response()->json(['success' => true, 'data' => $correctiveAction]);
 
     }
 
@@ -124,7 +124,7 @@ class DeviceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateDeviceRequest $request, $id)
+    public function update(UpdatecorrectiveActionRequest $request, $id)
     {
 
         DB::transaction(function () use ($request, $id) {
@@ -132,7 +132,7 @@ class DeviceController extends Controller
             $data = $request->all();
             unset($data["_method"]);
 
-            $device = Device::where('id', $id)->update($data);
+            $correctiveAction = correctiveAction::where('id', $id)->update($data);
 
         });
 
@@ -151,11 +151,11 @@ class DeviceController extends Controller
         $user      = Auth::user();
         $user_role = $user->roles()->first()->name;
 
-        $device = Device::where('id', $id)->where('is_general', false);
+        $correctiveAction = correctiveAction::where('id', $id)->where('is_general', false);
         if ($user_role == "super_administrator") {
-            $device = $device->orWhere('is_general', true);
+            $correctiveAction = $correctiveAction->orWhere('is_general', true);
         }
-        $device = $device->delete();
+        $correctiveAction = $correctiveAction->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

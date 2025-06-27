@@ -107,6 +107,7 @@ Route::group([
     Route::resource('/ubicaciones', 'LocationController');
     Route::resource('/aplicaciones', 'AplicationController');
     Route::resource('/metodos-de-desinfeccion', 'DesinfectionMethodController');
+    Route::resource('/acciones-correctivas', 'CorrectiveActionController');
     Route::resource('/elementos-afectados', 'AffectedElementController');
     Route::resource('/tipo-de-construcciones', 'ConstructionTypeController');
     Route::resource('/tratamientos-aplicados', 'AppliedTreatmentController');
@@ -119,9 +120,9 @@ Route::group([
     Route::resource('/productos', 'ProductController');
     Route::resource('/orders', 'OrderController');
     Route::post('/orders/check-order', 'OrderController@checkOrder');
-    Route::post('/orders/finalizar', 'OrderController@finish');
-    Route::post('/orders/reenviar/{id}', 'OrderController@resend');
-    Route::post('/orders/pendiente', 'OrderController@pending');
+    Route::post('/orders/finalizar', 'OrderController@finish')->middleware('active-user');;
+    Route::post('/orders/reenviar/{id}', 'OrderController@resend')->middleware('active-user');;
+    Route::post('/orders/pendiente', 'OrderController@pending')->middleware('active-user');;
     Route::post('/listar-ordenes', 'OrderController@index');
     Route::post('/orders/daily-orders', 'OrderController@dailyOrders');
 

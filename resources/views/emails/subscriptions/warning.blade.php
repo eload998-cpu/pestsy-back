@@ -26,85 +26,85 @@
                                 <td>
                                     <div class="text">
                                         <p
-                                            style="                                          
-                                          font-family: Open Sans, Roboto, sans-serif;                                                                               
-                                          font-style: normal;                                          
-                                          font-weight: 400;                                          
-                                          font-size: 22px;                                          
+                                            style="
+                                          font-family: Open Sans, Roboto, sans-serif;
+                                          font-style: normal;
+                                          font-weight: 400;
+                                          font-size: 22px;
                                           line-height: 29px;
-                                          max-width: 500px; 
+                                          max-width: 500px;
                                           text-align: center;">
                                             Estimado cliente,
 
                                             Deseándole éxitos en sus labores,
                                             Le agradecemos su preferencia y estamos a su disposición para cualquier duda
                                             o sugerencia!<br>
-                                            Le notificamos que su cuenta en nuestra plataforma esta por expirar.<br><br>
+                                            Le notificamos que su suscripción esta por expirar.<br><br>
 
                                             <b>Su subscripción caduca el {{ $end_date }}</b><br> le recomendamos renovar
                                             su
-                                            suscripción lo mas pronto posible para continuar utilizando el servicio.
+                                            suscripción lo más pronto posible para continuar utilizando las características <b>premium</b> del sistema.
                                         </p>
 
 
                                     </div>
 
                                     <a title="pagar" href="https://pestsy.castilloapp.com/home/suscripciones"
-                                        style="                                       
-                                    font-family: Poppins, Roboto;                                       
-                                    font-style: normal;                                       
-                                    font-weight: 600;                                       
-                                    font-size: 24px;                                       
-                                    width: 500px;                                       
-                                    height: 50px;                                       
-                                    text-align: center;                                       
-                                    background: #006DB6;                                       
-                                    color:#FFFFFF;                                       
-                                    border-radius: 30px;                                       
-                                    text-decoration:none;                                       
-                                    text-underline:none;                                       
-                                    display: block;                                       
-                                    margin:auto;                                       
-                                    margin-bottom: 50px;                                       
+                                        style="
+                                    font-family: Poppins, Roboto;
+                                    font-style: normal;
+                                    font-weight: 600;
+                                    font-size: 24px;
+                                    width: 500px;
+                                    height: 50px;
+                                    text-align: center;
+                                    background: #006DB6;
+                                    color:#FFFFFF;
+                                    border-radius: 30px;
+                                    text-decoration:none;
+                                    text-underline:none;
+                                    display: block;
+                                    margin:auto;
+                                    margin-bottom: 50px;
                                     line-height: 50px;"
                                         target="_blank">
                                         ¡Ingresa aquí para renovar!
                                     </a>
                                     <div
-                                        style="                                       
-                                    max-width: 500px;                                       
-                                    margin: auto;                                       
-                                    text-align: center;                                       
-                                    font-family: Open Sans, Roboto, sans-serif;                                       
-                                    font-style: normal;                                       
-                                    font-weight: 400;                                       
-                                    font-size: 20px;                                       
-                                    line-height: 32px;                                       
-                                    text-align: center;                                       
-                                    color: #23272B;                                       
-                                    margin-bottom: 30px;                                       
+                                        style="
+                                    max-width: 500px;
+                                    margin: auto;
+                                    text-align: center;
+                                    font-family: Open Sans, Roboto, sans-serif;
+                                    font-style: normal;
+                                    font-weight: 400;
+                                    font-size: 20px;
+                                    line-height: 32px;
+                                    text-align: center;
+                                    color: #23272B;
+                                    margin-bottom: 30px;
                                     ">
                                         <p
-                                            style="                                          
-                                       margin-bottom: 0px;  
-                                       font-family: Open Sans, Roboto, sans-serif;                                         
-                                       font-style: normal;                                          
-                                       font-weight: 400;                                           
+                                            style="
+                                       margin-bottom: 0px;
+                                       font-family: Open Sans, Roboto, sans-serif;
+                                       font-style: normal;
+                                       font-weight: 400;
                                        ">
                                             Si presentas problemas al acceder, puedes copiar <br />
                                             y pegar el siguiente enlace en tu navegador:
                                         </p>
                                         <p
-                                            style="                                         
-                                       margin-top: 5px;                                          
-                                       color: #1A84B4;                                          
+                                            style="
+                                       margin-top: 5px;
+                                       color: #1A84B4;
                                        ">
                                             https://pestsy.castilloapp.com/home/suscripciones
                                         </p>
                                         <p
-                                            style="                                          
-                                       font-weight: 600;    
-                                       font-family: Open Sans, Roboto, sans-serif;                                       
+                                            style="
+                                       font-weight: 600;
+                                       font-family: Open Sans, Roboto, sans-serif;
                                        ">
                                             Recuerda tener a la mano tu usuario y <br />
                                             contraseña para realizar <br />

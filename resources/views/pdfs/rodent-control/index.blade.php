@@ -16,7 +16,6 @@
       <th class="text-center">Producto</th>
       <th class="text-center">Dosis</th>
       <th class="text-center">Ubicacion</th>
-      <th class="text-center">Limpieza</th>
 
     </tr>
     </thead>
@@ -30,26 +29,12 @@
             <td class="text-center">{{$rodent_control["product"]["name"]}}</td>
             <td class="text-center">{{$rodent_control["dose"]}}</td>
             <td class="text-center">{{$rodent_control["location"]["name"]}}</td>
-            <td class="text-center">{{translate_done_not_done($rodent_control["cleaning"]?'done':'not done')}}</td>
-     
 
-        </tr>
-        
-        <tr style="width=100%">
-            <td colspan="2">
-            <b>  Se realizó limpieza:</b>{{translate_yes_no($rodent_control["finished_cleaning"])}}
-            </td>
-            <td colspan="2">
-            <b> Cambio de cebo:</b>{{translate_done_not_done($rodent_control["bait_change"]?'done':'not done')}}
-            </td>
 
-            <td colspan="2">
-            <b> Actividad:</b>{{translate_monitoring_activities($rodent_control["activity"])}}
-            </td>
         </tr>
 
         <tr style="width=100%">
-         <td colspan="7"><b>Observaciones: </b>{{$rodent_control["observation"]}}</td> 
+         <td colspan="7"><b>Observaciones: </b>{{$rodent_control["observation"]}}</td>
         </tr>
 
         @if(!empty($rodent_control["pest_bitacores"]))
@@ -70,15 +55,33 @@
                         <td class="text-center">{{$pest_bitacore["quantity"]}}</td>
                     </tr>
                      @endforeach
-          
+
                     </tbody>
                 </table>
-            </td> 
+            </td>
         </tr>
         @endif
-    
-    
+
+
+        @if(!empty($rodent_control["order_corrective_actions"]))
+        <tr>
+            <td colspan="7" style="padding: 10px;">
+                <strong>Acciones correctivas:</strong>
+                @php
+                    $actions = collect($rodent_control["order_corrective_actions"])
+                                ->pluck('corrective_action.name')
+                                ->filter()
+                                ->implode(', ');
+                @endphp
+
+                <span>{{ $actions }}</span>
+            </td>
+        </tr>
+        @endif
+
+
         @endforeach
+
     </tbody>
 </table>
 
