@@ -52,13 +52,13 @@ class AuthController extends Controller
 
     public function preLogin(Request $request)
     {
+        $user = $this->user->where("email", "=", $request->email)->first();
+
         $status_type = StatusType::where('name', 'user')->first();
         $status      = Status::where('status_type_id', $status_type->id)
             ->where('id', $user->status_id)
             ->where('name', '!=', 'inactive')
             ->first();
-
-        $user = $this->user->where("email", "=", $request->email)->first();
 
         if (! empty($user)) {
             $company = $this->company->find($user->company_id);
@@ -165,7 +165,7 @@ class AuthController extends Controller
                 "email"    => $request->email,
                 "password" => $request->password]);
 
-            $user    = $this->user->firstWhere("email", "=", $request->email);
+            $user = $this->user->firstWhere("email", "=", $request->email);
 
             if (! $request->oauth) {
                 if (! $valid_credentials) {
