@@ -182,7 +182,7 @@ Route::group([
     Route::group([
         'prefix' => 'configuraciones',
     ], function () {
-        Route::post('/eliminar-cuenta', 'Configuration\ConfigurationController@destroyModule');
+        Route::post('/eliminar-cuenta', 'Configuration\ConfigurationController@deleteAccountRequest');
         Route::post('/cancelar-suscripcion', 'PaypalController@cancelSubscription');
 
     });

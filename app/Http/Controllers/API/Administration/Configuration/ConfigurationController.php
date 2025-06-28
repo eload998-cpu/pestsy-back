@@ -3,12 +3,15 @@ namespace App\Http\Controllers\API\Administration\Configuration;
 
 use App\Http\Controllers\Controller;
 use App\Models\Administration\Company;
+use App\Models\Administration\DeleteAccountRequest;
 use App\Models\Administration\DeletedAccount;
 use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DeleteAccountRequestEmail;
 
 class ConfigurationController extends Controller
 {
@@ -80,6 +83,20 @@ class ConfigurationController extends Controller
      */
     public function update(UpdateAplicationRequest $request, $id)
     {
+
+    }
+
+    public function deleteAccountRequest(Request $request)
+    {
+        $user = Auth::user();
+        DeleteAccountRequest::create([
+            "company_id" => $user->company_id,
+            "reason"     => $request->reason,
+        ]);
+
+        Mail::to($user->email)->send(new DeleteAccountRequestEmail);
+
+        return response()->json(['success' => true, 'message' => 'Solicitud recibida con exito']);
 
     }
 
