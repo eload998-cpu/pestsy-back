@@ -26,6 +26,11 @@ class Company extends Model
         "logo_src",
     ];
 
+    public function deleteAccountRequest()
+    {
+        return $this->hasOne(DeleteAccountRequest::class, 'company_id', 'id');
+    }
+
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = strtolower($value);

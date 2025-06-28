@@ -395,9 +395,11 @@ class AuthController extends Controller
         $company = $this->company->find($user->company_id);
 
         $user->load('roles.permissions');
-        $user["subscription"] = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
-        $user["country_name"] = $user->city->state->country->name;
-        $user_role            = $user->roles()->first()->name;
+        $user["subscription"]           = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
+        $user["country_name"]           = $user->city->state->country->name;
+        $user["delete_account_request"] = ! empty($company->deleteAccountRequest) ? true : false;
+
+        $user_role = $user->roles()->first()->name;
         switch ($user_role) {
 
             case 'operator':
