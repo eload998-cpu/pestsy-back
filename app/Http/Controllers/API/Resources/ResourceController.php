@@ -125,7 +125,7 @@ class ResourceController extends Controller
     public function getDolarPrice(Request $request)
     {
         try {
-            $response         = Http::get("https://pydolarve.org/api/v1/dollar?page=criptodolar")->json();
+            $response         = Http::get("https://pydolarve.org/api/v1/dollar")->json();
             $response["rate"] = "BCV";
             return response()->json($response["monitors"]["bcv"]);
         } catch (\Exception $e) {
