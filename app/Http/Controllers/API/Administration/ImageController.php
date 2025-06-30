@@ -44,11 +44,11 @@ class ImageController extends Controller
             'order_id' => $request->order_id,
         ])->count();
 
-        if ($countImages > $this->maxImagesNumber) {
+        if ($countImages >= $this->maxImagesNumber) {
             return response()->json(
                 ["success" => false,
                     "data"     => [],
-                    "message"  => "Solo puede añadir un maximo de {$this->maxImagesNumber}",
+                    "message"  => "Solo puede añadir un maximo de {$this->maxImagesNumber} imagenes",
                 ]
             );
         }
