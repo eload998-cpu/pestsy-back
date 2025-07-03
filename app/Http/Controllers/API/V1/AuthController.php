@@ -54,13 +54,14 @@ class AuthController extends Controller
     {
         $user = $this->user->where("email", "=", $request->email)->first();
 
-        $status_type = StatusType::where('name', 'user')->first();
-        $status      = Status::where('status_type_id', $status_type->id)
-            ->where('id', $user->status_id)
-            ->where('name', '!=', 'inactive')
-            ->first();
-
         if (! empty($user)) {
+
+            $status_type = StatusType::where('name', 'user')->first();
+            $status      = Status::where('status_type_id', $status_type->id)
+                ->where('id', $user->status_id)
+                ->where('name', '!=', 'inactive')
+                ->first();
+
             $company = $this->company->find($user->company_id);
 
             if (empty($status)) {
