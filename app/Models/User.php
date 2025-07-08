@@ -183,7 +183,9 @@ class User extends Authenticatable
 
     public function getProfilePhotoLogoSrcAttribute()
     {
-        return $this->company->logo ? config("app.url") . "/" . $this->company->logo : null;
+        return $this->company && $this->company->logo
+        ? config("app.url") . "/" . $this->company->logo
+        : null;
     }
     //HELPERS
 
