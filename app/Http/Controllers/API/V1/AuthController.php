@@ -370,7 +370,7 @@ class AuthController extends Controller
 
                 $company->direction = ($request->company_direction) ? $request->company_direction : null;
 
-                if ($request->logo) {
+                if ($request->logo && $request->logo != "null") {
 
                     $company->logo = saveFileInStorageAndReturnPath($request->logo, "administracion/usuarios/company");
                 }
