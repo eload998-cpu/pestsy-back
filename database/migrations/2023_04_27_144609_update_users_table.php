@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('administration.users', function (Blueprint $table) {
             $table->boolean('tutorial_done')->default(false);
+            $table->boolean('order_tutorial_done')->default(false);
+
         });
     }
 
@@ -27,6 +29,8 @@ return new class extends Migration
     {
         Schema::table('administration.users', function (Blueprint $table) {
             $table->dropColumn('tutorial_done');
+            $table->dropColumn('order_tutorial_done');
+
         });
     }
 };

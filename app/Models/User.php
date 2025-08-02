@@ -44,6 +44,8 @@ class User extends Authenticatable
         'active_subscription',
         'verify_paypal_subscription',
         'is_owner',
+        'tutorial_done',
+        'order_tutorial_done'
     ];
 
     /**
