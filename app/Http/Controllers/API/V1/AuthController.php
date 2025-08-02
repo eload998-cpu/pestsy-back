@@ -510,10 +510,20 @@ class AuthController extends Controller
 
     }
 
-    public function skipTutorial()
+    public function skipTutorial(Request $request)
     {
-        $user                = User::find(auth()->user()->id);
-        $user->tutorial_done = true;
+        $user = User::find(auth()->user()->id);
+
+        switch ($request->type) {
+            case 'all':
+                $user->tutorial_done       = true;
+                $user->order_tutorial_done = true;
+                break;
+
+            case 'order':
+                $user->order_tutorial_done = true;
+                break;
+        }
         $user->save();
         return response()->json(['success' => true, 'data' => $user, 'message' => 'Exito!']);
 
