@@ -19,6 +19,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -424,7 +425,7 @@ class OrderController extends Controller
         return $client = Client::create(
             [
                 "first_name" => $client_name[0],
-                "email"      => $email_name . "@mail.com",
+                "email"      => $email_name . Str::random(8) . "@mail.com",
                 "date"       => Carbon::now(),
                 "company_id" => $user->company_id,
             ]
@@ -443,7 +444,7 @@ class OrderController extends Controller
         return $worker = Worker::create(
             [
                 "first_name" => $worker_name[0],
-                "email"      => $email_name . "@mail.com",
+                "email"      => $email_name . Str::random(8) . "@mail.com",
                 "date"       => Carbon::now(),
                 "company_id" => $user->company_id,
 
@@ -624,7 +625,9 @@ class OrderController extends Controller
         updateConnectionSchema("modules");
         $id = $user->id;
 
-        $company->order_quantity = $user->company->order_quantity - 1;
+        if ($user->tutorial_done) {
+            $company->order_quantity = $user->company->order_quantity - 1;
+        }
         $company->save();
 
         foreach ($order->client->emails as $e) {
