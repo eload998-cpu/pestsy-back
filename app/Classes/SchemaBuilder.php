@@ -315,7 +315,7 @@ class SchemaBuilder
             $table->foreign('product_id')->references('id')->on("{$schema_name}.products")->onDelete('restrict');
             $table->bigInteger('order_id');
             $table->foreign('order_id')->references('id')->on("{$schema_name}.orders")->onDelete('cascade');
-            $table->bigInteger('device_number');
+            $table->string('device_number');
             $table->bigInteger('location_id');
             $table->foreign('location_id')->references('id')->on("{$schema_name}.locations")->onDelete('restrict');
             $table->string('aceptable_cleaning');

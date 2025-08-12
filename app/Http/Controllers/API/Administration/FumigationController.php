@@ -7,11 +7,14 @@ use App\Http\Requests\Administration\Order\Fumigation\UpdateFumigationRequest;
 use App\Models\Module\Aplication;
 use App\Models\Module\AplicationPlace;
 use App\Models\Module\Fumigation;
+use App\Models\Module\Location;
 use App\Models\Module\Product;
+use App\Models\Module\Worker;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class FumigationController extends Controller
 {
@@ -34,13 +37,13 @@ class FumigationController extends Controller
 
         $fumigations = $fumigations
             ->leftJoin('products', 'fumigations.product_id', 'products.id')
-            ->leftJoin('aplication_places', 'fumigations.aplication_place_id', 'aplication_places.id')
+            ->leftJoin('locations', 'fumigations.location_id', 'locations.id')
             ->leftJoin('aplications', 'fumigations.aplication_id', 'aplications.id')
-            ->select('fumigations.id', 'aplications.name as aplication_name', 'aplication_places.name as aplication_place_name', 'products.name as product_name', 'fumigations.dose as fumigation_dose');
+            ->select('fumigations.id', 'aplications.name as aplication_name', 'locations.name as location_name', 'products.name as product_name', 'fumigations.dose as fumigation_dose');
 
         if ($request->search) {
             $search_value = $request->search;
-            $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(aplication_places.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
+            $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(locations.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
 
@@ -57,8 +60,8 @@ class FumigationController extends Controller
                     $fumigations = $fumigations->orderBy("aplications.name", $request->sort);
                     break;
 
-                case 'aplication_places':
-                    $fumigations = $fumigations->orderBy("aplication_places.name", $request->sort);
+                case 'locations':
+                    $fumigations = $fumigations->orderBy("locations.name", $request->sort);
                     break;
 
                 case 'products':
@@ -81,9 +84,10 @@ class FumigationController extends Controller
     {
         $data = DB::transaction(function () use ($request) {
 
-            $aplication_id       = null;
-            $aplication_place_id = null;
-            $product_id          = null;
+            $aplication_id = null;
+            $location_id   = null;
+            $product_id    = null;
+            $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
                 $aplication_id = $this->addApplication($request->aplication_id);
@@ -91,10 +95,10 @@ class FumigationController extends Controller
                 $aplication_id = $request->aplication_id;
             }
 
-            if (is_string($request->aplication_place_id)) {
-                $aplication_place_id = $this->addApplicationPlace($request->aplication_place_id);
+            if (is_string($request->location_id)) {
+                $location_id = $this->addLocation($request->location_id);
             } else {
-                $aplication_place_id = $request->aplication_place_id;
+                $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
@@ -103,13 +107,21 @@ class FumigationController extends Controller
                 $product_id = $request->product_id;
             }
 
+            if (is_string($request->worker_id)) {
+                $worker_id = $this->addWorker($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
             Fumigation::create(
                 [
-                    "aplication_id"       => $aplication_id,
-                    "aplication_place_id" => $aplication_place_id,
-                    "product_id"          => $product_id,
-                    "dose"                => $request->dose,
-                    "order_id"            => $request->order_id,
+                    "aplication_id"    => $aplication_id,
+                    "location_id"      => $location_id,
+                    "product_id"       => $product_id,
+                    "dose"             => $request->dose,
+                    "order_id"         => $request->order_id,
+                    "worker_id"        => $worker_id,
+                    "application_time" => $request->application_time,
                 ]);
         });
 
@@ -129,9 +141,10 @@ class FumigationController extends Controller
 
             $data = $request->all();
 
-            $aplication_id       = null;
-            $aplication_place_id = null;
-            $product_id          = null;
+            $aplication_id = null;
+            $location_id   = null;
+            $product_id    = null;
+            $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
                 $aplication_id = $this->addApplication($request->aplication_id);
@@ -139,10 +152,10 @@ class FumigationController extends Controller
                 $aplication_id = $request->aplication_id;
             }
 
-            if (is_string($request->aplication_place_id)) {
-                $aplication_place_id = $this->addApplicationPlace($request->aplication_place_id);
+            if (is_string($request->location_id)) {
+                $location_id = $this->addLocation($request->location_id);
             } else {
-                $aplication_place_id = $request->aplication_place_id;
+                $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
@@ -151,9 +164,16 @@ class FumigationController extends Controller
                 $product_id = $request->product_id;
             }
 
-            $data["aplication_id"]       = $aplication_id;
-            $data["aplication_place_id"] = $aplication_place_id;
-            $data["product_id"]          = $product_id;
+            if (is_string($request->worker_id)) {
+                $worker_id = $this->addWorker($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
+            $data["aplication_id"] = $aplication_id;
+            $data["location_id"]   = $location_id;
+            $data["product_id"]    = $product_id;
+            $data["worker_id"]     = $worker_id;
 
             unset($data["_method"]);
             unset($data["company_id"]);
@@ -177,7 +197,7 @@ class FumigationController extends Controller
 
         $model = Fumigation::find($id);
         $model->load('aplication');
-        $model->load('aplicationPlace');
+        $model->load('location');
         $model->load('product');
 
         return response()->json(['success' => true, 'data' => $model]);
@@ -208,6 +228,20 @@ class FumigationController extends Controller
                 "name"       => $name,
                 "company_id" => $user->company_id,
 
+            ]
+        )->id;
+
+    }
+
+    private function addLocation($id)
+    {
+        $name        = explode("-", $id);
+        $name        = $name[1];
+        $user        = Auth::user();
+        return $data = Location::create(
+            [
+                "name"       => $name,
+                "company_id" => $user->company_id,
             ]
         )->id;
 
@@ -244,4 +278,25 @@ class FumigationController extends Controller
         )->id;
 
     }
+
+    private function addWorker($worker_name)
+    {
+
+        $user = Auth::user();
+
+        $worker_name   = explode("-", $worker_name);
+        $worker_name   = explode(" ", $worker_name[1]);
+        $email_name    = str_replace(" ", "_", $worker_name[0]);
+        return $worker = Worker::create(
+            [
+                "first_name" => $worker_name[0],
+                "email"      => $email_name . Str::random(8) . "@mail.com",
+                "date"       => Carbon::now(),
+                "company_id" => $user->company_id,
+
+            ]
+        )->id;
+
+    }
+
 }

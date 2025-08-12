@@ -28,6 +28,9 @@ class Worker extends Model
         "direction",
         "code",
         "company_id",
+        "certification_title",
+        "certification_date",
+        "certifying_entity",
     ];
 
     public function setEmailAttribute($value)

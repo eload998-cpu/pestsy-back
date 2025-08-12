@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Http\Requests\Administration\Order\Fumigation;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\ValidOwner;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateFumigationRequest extends FormRequest
 {
@@ -20,10 +19,12 @@ class UpdateFumigationRequest extends FormRequest
     public function attributes()
     {
         return [
-            'aplication_id'=>'Aplicación',
-            'aplication_place_id'=>'Lugar de aplicación',
-            'product_id'=>'Producto',
-            'dose'=>'Dosis'
+            'aplication_id'    => 'Aplicación',
+            'location_id'      => 'Ubicación',
+            'product_id'       => 'Producto',
+            'dose'             => 'Dosis',
+            'worker_id'        => 'Técnico responsable',
+            'application_time' => 'Hora de aplicación',
         ];
     }
 
@@ -35,14 +36,16 @@ class UpdateFumigationRequest extends FormRequest
     public function rules()
     {
         return [
-            'aplication_id'=>'required',
-            'aplication_place_id'=>'required',
-            'product_id'=>'required',
-            'dose'=>'required',
-            'order_id' => [
+            'aplication_id'    => 'required',
+            'location_id'      => 'required',
+            'product_id'       => 'required',
+            'dose'             => 'required',
+            'order_id'         => [
                 'required',
                 new ValidOwner,
-            ]
+            ],
+            'worker_id'        => 'required',
+            'application_time' => 'required',
         ];
     }
 }

@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Http\Requests\Administration\Order\Trap;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\ValidOwner;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTrapRequest extends FormRequest
 {
@@ -20,10 +19,13 @@ class UpdateTrapRequest extends FormRequest
     public function attributes()
     {
         return [
-            'station_number' => 'Numero de estación',
-            'device_id' => 'Dispositivo',
-            'product_id' => 'Producto',
-            'dose' => 'Dosis',
+            'station_number'   => 'Numero de estación',
+            'device_id'        => 'Dispositivo',
+            'product_id'       => 'Producto',
+            'dose'             => 'Dosis',
+            'worker_id'        => 'Técnico responsable',
+            'location_id'      => 'Ubicación',
+            'application_time' => 'Hora de aplicación',
 
         ];
     }
@@ -35,14 +37,17 @@ class UpdateTrapRequest extends FormRequest
     public function rules()
     {
         return [
-            'station_number' => 'required',
-            'device_id' => 'required',
-            'product_id' => 'required',
-            'dose' => 'required',
-            'order_id' => [
+            'station_number'   => 'required',
+            'device_id'        => 'required',
+            'product_id'       => 'required',
+            'dose'             => 'required',
+            'order_id'         => [
                 'required',
                 new ValidOwner,
-            ]
+            ],
+            'worker_id'        => 'required',
+            'location_id'      => 'required',
+            'application_time' => 'required',
         ];
     }
 }

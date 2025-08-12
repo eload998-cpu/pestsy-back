@@ -19,6 +19,9 @@
             <th class="text-center">Dispositivo</th>
             <th class="text-center">Producto</th>
             <th class="text-center">Dosis</th>
+            <th class="text-center">Lugar aplicación</th>
+            <th class="text-center">Técnico responsable</th>
+            <th class="text-center">Hora aplicación </th>
             </tr>
         </thead>
 
@@ -31,8 +34,28 @@
                     <td class="text-center">{{$trap["device"]["name"]}}</td>
                     <td class="text-center">{{$trap["product"]["name"]}}</td>
                     <td class="text-center">{{$trap["dose"]}}</td>
+                    <td class="text-center">{{$trap["aplication_place"]["name"]}}</td>
+                    <td class="text-center">{{$trap["worker"]["full_name"]}}</td>
+                    <td class="text-center">{{\Carbon\Carbon::parse($trap["application_time"])->format('h:i A')}}</td>
+
                 </tr>
-               
+
+                     @if(!empty($trap["corrective_actions"]))
+                <tr>
+                    <td colspan="7" style="padding: 10px;">
+                        <strong>Acciones correctivas:</strong>
+                        @php
+                            $actions = collect($trap["corrective_actions"])
+                                        ->pluck('corrective_action.name')
+                                        ->filter()
+                                        ->implode(', ');
+                        @endphp
+
+                        <span>{{ $actions }}</span>
+                    </td>
+                </tr>
+                @endif
+
             @endforeach
             </tbody>
     </table>

@@ -7,13 +7,16 @@ use App\Http\Requests\Administration\Order\RodentControl\UpdateRodentControlRequ
 use App\Models\Module\CorrectiveAction;
 use App\Models\Module\Device;
 use App\Models\Module\Location;
-use App\Models\Module\OrderCorrectiveAction;
+use App\Models\Module\RodentControlCorrectiveAction;
 use App\Models\Module\PestBitacore;
 use App\Models\Module\Product;
 use App\Models\Module\RodentControl;
+use App\Models\Module\Worker;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class RodentControlController extends Controller
 {
@@ -94,6 +97,7 @@ class RodentControlController extends Controller
             $device_id         = null;
             $location_id       = null;
             $corrective_action = null;
+            $worker_id         = null;
 
             if (is_string($request->product_id)) {
                 $product_id = $this->addProduct($request->product_id);
@@ -113,17 +117,25 @@ class RodentControlController extends Controller
                 $location_id = $request->location_id;
             }
 
+            if (is_string($request->worker_id)) {
+                $worker_id = $this->addWorker($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
             $rodent_control = RodentControl::create(
                 [
-                    "device_id"     => $device_id,
-                    "product_id"    => $product_id,
-                    "order_id"      => $request->order_id,
-                    "device_number" => $request->device_number,
-                    "location_id"   => $location_id,
-                    "bait_status"   => $request->bait_status,
-                    "dose"          => $request->dose,
-                    "activity"      => $request->activity,
-                    "observation"   => $request->observation,
+                    "device_id"        => $device_id,
+                    "product_id"       => $product_id,
+                    "order_id"         => $request->order_id,
+                    "device_number"    => $request->device_number,
+                    "location_id"      => $location_id,
+                    "bait_status"      => $request->bait_status,
+                    "dose"             => $request->dose,
+                    "activity"         => $request->activity,
+                    "observation"      => $request->observation,
+                    "worker_id"        => $worker_id,
+                    "application_time" => $request->application_time,
                 ]
             );
 
@@ -143,7 +155,7 @@ class RodentControlController extends Controller
                     $correctiveActionId = $value;
                 }
 
-                OrderCorrectiveAction::create([
+                RodentControlCorrectiveAction::create([
                     "control_of_rodent_id" => $rodent_control->id,
                     "corrective_action_id" => $correctiveActionId,
                 ]);
@@ -167,6 +179,7 @@ class RodentControlController extends Controller
             $product_id  = null;
             $device_id   = null;
             $location_id = null;
+            $worker_id   = null;
 
             if (is_string($request->product_id)) {
                 $product_id = $this->addProduct($request->product_id);
@@ -186,17 +199,25 @@ class RodentControlController extends Controller
                 $location_id = $request->location_id;
             }
 
+            if (is_string($request->worker_id)) {
+                $worker_id = $this->addWorker($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
             $rodent_control = RodentControl::where('id', $id)->update(
                 [
-                    "device_id"     => $device_id,
-                    "product_id"    => $product_id,
-                    "order_id"      => $request->order_id,
-                    "device_number" => $request->device_number,
-                    "location_id"   => $location_id,
-                    "bait_status"   => $request->bait_status,
-                    "dose"          => $request->dose,
-                    "activity"      => $request->activity,
-                    "observation"   => $request->observation,
+                    "device_id"        => $device_id,
+                    "product_id"       => $product_id,
+                    "order_id"         => $request->order_id,
+                    "device_number"    => $request->device_number,
+                    "location_id"      => $location_id,
+                    "bait_status"      => $request->bait_status,
+                    "dose"             => $request->dose,
+                    "activity"         => $request->activity,
+                    "observation"      => $request->observation,
+                    "application_time" => $request->application_time,
+                    "worker_id"        => $worker_id,
                 ]
             );
 
@@ -210,7 +231,7 @@ class RodentControlController extends Controller
                     ]);
             }
 
-            OrderCorrectiveAction::where('control_of_rodent_id', $id)->delete();
+            RodentControlCorrectiveAction::where('control_of_rodent_id', $id)->delete();
             foreach ($request->correctiveActions as $key => $value) {
                 if (is_string($value)) {
                     $correctiveActionId = $this->addCorrectiveAction($value);
@@ -218,7 +239,7 @@ class RodentControlController extends Controller
                     $correctiveActionId = $value;
                 }
 
-                OrderCorrectiveAction::create([
+                RodentControlCorrectiveAction::create([
                     "control_of_rodent_id" => $id,
                     "corrective_action_id" => $correctiveActionId,
                 ]);
@@ -240,7 +261,7 @@ class RodentControlController extends Controller
     {
         $model = RodentControl::find($id);
         $model->load('pestBitacores');
-        $model->load('orderCorrectiveActions');
+        $model->load('correctiveActions');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -315,6 +336,26 @@ class RodentControlController extends Controller
             [
                 "name"       => $name,
                 "company_id" => $user->company_id,
+            ]
+        )->id;
+
+    }
+    
+    private function addWorker($worker_name)
+    {
+
+        $user = Auth::user();
+
+        $worker_name   = explode("-", $worker_name);
+        $worker_name   = explode(" ", $worker_name[1]);
+        $email_name    = str_replace(" ", "_", $worker_name[0]);
+        return $worker = Worker::create(
+            [
+                "first_name" => $worker_name[0],
+                "email"      => $email_name . Str::random(8) . "@mail.com",
+                "date"       => Carbon::now(),
+                "company_id" => $user->company_id,
+
             ]
         )->id;
 

@@ -51,10 +51,10 @@ class OrderController extends Controller
 
             $order->load('externalCondition');
             $order->load('internalCondition');
-            $order->load('rodentControls', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.orderCorrectiveActions.correctiveAction');
-            $order->load('fumigations', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
-            $order->load('lamps');
-            $order->load('traps', 'traps.product', 'traps.device');
+            $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
+            $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
+            $order->load('lamps', 'lamps.worker', 'lamps.correctiveActions.correctiveAction');
+            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.aplicationPlace', 'traps.device');
             $order->load('infestationGrade');
         }
 
@@ -62,13 +62,13 @@ class OrderController extends Controller
         $order->load('signatures');
         $order->load('images');
 
-        $order = $order->toArray();
-
+        $orderProducts        = $this->getProducts($order);
+        $order                = $order->toArray();
         $user_role            = $user->roles()->first()->name;
         $user["subscription"] = $user->subscriptions()->latest()->first();
         $order["logo"]        = $user->company->logo;
+        $order["products"]    = $orderProducts;
 
-        //return $order;
         $PDFOptions = ['enable_remote' => true];
 
         $file_name = $order["order_number"] . ".pdf";
@@ -85,6 +85,55 @@ class OrderController extends Controller
         return response()->stream(function () use ($pdf) {
             echo $pdf->output();
         }, 200, $headers);
+    }
+
+    private function getProducts(Order $order)
+    {
+
+        $rcProducts = $order->rodentControls
+            ->map(function ($rc) {
+                $p = $rc->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $rc->dose;
+                return $p;
+            })
+            ->filter();
+
+        $trapProducts = $order->traps
+            ->map(function ($trap) {
+                $p = $trap->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $trap->dose;
+                return $p;
+            })
+            ->filter();
+
+        $fumigationProducts = $order->fumigations
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $allProducts = $rcProducts
+            ->merge($trapProducts)
+            ->merge($fumigationProducts)
+            ->unique('id')
+            ->values();
+
+        return $allProducts;
+
     }
 
 }

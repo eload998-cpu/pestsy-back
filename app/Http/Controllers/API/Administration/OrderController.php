@@ -353,6 +353,7 @@ class OrderController extends Controller
                         "green_areas"        => $request->external_conditions["green_areas"],
                         "waste"              => $request->external_conditions["waste"],
                         "nesting"            => $request->external_conditions["nesting"],
+                        "product_storage"    => $request->external_conditions["product_storage"],
                     ]);
 
                 $internal_condition = InternalCondition::updateOrCreate(

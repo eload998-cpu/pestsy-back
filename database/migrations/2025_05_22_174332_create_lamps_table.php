@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('order_id');
             $table->foreign('order_id')->references('id')->on("modules.orders")->onDelete('cascade');
             $table->string('lamp_not_working');
-            $table->integer('station_number');
+            $table->string('station_number');
             $table->string('rubbery_iron_changed');
             $table->string('fluorescent_change')->nullable();
             $table->string('observation')->nullable();

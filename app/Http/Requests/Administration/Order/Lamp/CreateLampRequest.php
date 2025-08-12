@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Administration\Order\Lamp;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,16 +18,17 @@ class CreateLampRequest extends FormRequest
     public function attributes()
     {
         return [
-            'lamp_not_working'=>'Lampara en mal funcionamiento',
-            'fluorescent_change'=>'Cambio de fluorescente',
-            'station_number'=>'Numero de estación',
-            'observation'=>'Observacion',
-            'quantity_replaced'=>'Cantidad reemplazada'
-
+            'lamp_not_working'   => 'Lampara en mal funcionamiento',
+            'fluorescent_change' => 'Cambio de fluorescente',
+            'station_number'     => 'Numero de estación',
+            'observation'        => 'Observacion',
+            'quantity_replaced'  => 'Cantidad reemplazada',
+            'application_time'   => 'Hora de aplicación',
+            'worker_id'          => 'Trabajador',
+            'location_id'        => 'Ubicación',
 
         ];
     }
-
 
     /**
      * Get the validation rules that apply to the request.
@@ -38,11 +38,14 @@ class CreateLampRequest extends FormRequest
     public function rules()
     {
         return [
-            'fluorescent_change'=>'required',
-            'lamp_not_working'=>'required',
-            'station_number'=>'required',
-            'observation'=>'required',
-            'quantity_replaced'=>'required_if:fluorescent_change,yes'
+            'fluorescent_change' => 'required',
+            'lamp_not_working'   => 'required',
+            'station_number'     => 'required',
+            'observation'        => 'required',
+            'quantity_replaced'  => 'required_if:fluorescent_change,yes',
+            'application_time'   => 'required',
+            'worker_id'          => 'required',
+            'location_id'        => 'required',
 
         ];
     }

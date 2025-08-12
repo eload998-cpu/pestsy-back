@@ -496,7 +496,7 @@
 
     <!--XYLOPHAGE-->
 
-        @include('pdfs.xylophage.index')
+    @include('pdfs.xylophage.index')
 
     <!-- -->
 
@@ -509,6 +509,12 @@
     <!--INTERNAL CONDITIONS-->
 
     @include('pdfs.internal-conditions.index')
+
+    <!-- -->
+
+    <!--EXTERNAL CONDITIONS-->
+
+    @include('pdfs.external-conditions.index')
 
     <!-- -->
 
@@ -563,6 +569,20 @@
     @include('pdfs.signatures.index')
 
     <!-- -->
+    
+    <!--PRODUCTS-->
+
+    @include('pdfs.products.index')
+
+    <!-- -->
+
+    <!--TECHNICIAN INFO-->
+
+    @include('pdfs.technician-info.index')
+
+    <!-- -->
+
+
 
 
 

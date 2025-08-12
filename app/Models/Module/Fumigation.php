@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,26 +8,32 @@ class Fumigation extends Model
 {
     use HasFactory;
 
-    protected $table="modules.fumigations";
+    protected $table = "modules.fumigations";
 
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "aplication_id",
-        "aplication_place_id",
+        "location_id",
         "product_id",
         "dose",
-        "order_id"
+        "order_id",
+        "application_time",
+        "worker_id",
     ];
 
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
 
     public function aplication()
     {
         return $this->belongsTo(Aplication::class);
     }
 
-    public function aplicationPlace()
+    public function location()
     {
-        return $this->belongsTo(AplicationPlace::class);
+        return $this->belongsTo(Location::class);
     }
 
     public function product()

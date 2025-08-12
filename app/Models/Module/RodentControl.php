@@ -21,16 +21,22 @@ class RodentControl extends Model
         "dose",
         "activity",
         "observation",
+        "application_time",
+        "worker_id",
     ];
 
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
     public function pestBitacores()
     {
         return $this->hasMany(PestBitacore::class, 'control_of_rodent_id', 'id');
     }
 
-    public function orderCorrectiveActions()
+    public function CorrectiveActions()
     {
-        return $this->hasMany(OrderCorrectiveAction::class, 'control_of_rodent_id', 'id');
+        return $this->hasMany(RodentControlCorrectiveAction::class, 'control_of_rodent_id', 'id');
     }
 
     public function product()

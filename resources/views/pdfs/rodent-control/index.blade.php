@@ -16,7 +16,8 @@
       <th class="text-center">Producto</th>
       <th class="text-center">Dosis</th>
       <th class="text-center">Ubicacion</th>
-
+      <th class="text-center">Técnico responsable</th>
+      <th class="text-center">Hora aplicación </th>
     </tr>
     </thead>
 
@@ -29,7 +30,8 @@
             <td class="text-center">{{$rodent_control["product"]["name"]}}</td>
             <td class="text-center">{{$rodent_control["dose"]}}</td>
             <td class="text-center">{{$rodent_control["location"]["name"]}}</td>
-
+            <td class="text-center">{{$rodent_control["worker"]["full_name"]}}</td>
+            <td class="text-center">{{\Carbon\Carbon::parse($rodent_control["application_time"])->format('h:i A')}}</td>
 
         </tr>
 

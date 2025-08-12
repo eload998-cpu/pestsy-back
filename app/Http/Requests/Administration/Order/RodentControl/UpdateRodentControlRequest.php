@@ -29,7 +29,9 @@ class UpdateRodentControlRequest extends FormRequest
             'bait_status'=>'Estado del cebo',
             'dose'=>'Dosis',
             'activity'=>'Actividad',
-            'observation'=>'Observaciones'
+            'observation'=>'Observaciones',
+            'application_time'=>'Hora de aplicación',
+            'worker_id'=>'Técnico responsable',
            
         ];
     }
@@ -57,7 +59,9 @@ class UpdateRodentControlRequest extends FormRequest
             'observation'=>'required',
             'bitacores'=>[
                 new ValidBitacores($this->all())
-            ]
+            ],
+            'application_time'=>'required',
+            'worker_id'=>'required',
         ];
     }
 }

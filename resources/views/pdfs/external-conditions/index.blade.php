@@ -49,4 +49,12 @@
     </div>
 </div>
 
+<div class="row clearfix ">
+    <div class="col-xs-6">
+        <span><b>Productos almacenados en área segura, ventilada y señalizada: </b></span>{{translate_conditions($order["external_condition"]["product_storage"])}}
+    </div>
+
+
+</div>
+
 @endif

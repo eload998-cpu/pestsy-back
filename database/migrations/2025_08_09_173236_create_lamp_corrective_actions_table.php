@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('modules.rodent_control_corrective_actions', function (Blueprint $table) {
+        Schema::create('modules.lamp_corrective_actions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('control_of_rodent_id')->nullable();
-            $table->foreign('control_of_rodent_id')->references('id')->on("modules.control_of_rodents")->onDelete('cascade');
+            $table->bigInteger('lamp_id')->nullable();
+            $table->foreign('lamp_id')->references('id')->on("modules.lamps")->onDelete('cascade');
             $table->bigInteger('corrective_action_id')->nullable();
             $table->foreign('corrective_action_id')->references('id')->on("modules.corrective_actions")->onDelete('cascade');
             $table->timestamps();
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('modules.rodent_control_corrective_actions');
+        Schema::dropIfExists('modules.lamp_corrective_actions');
     }
 };

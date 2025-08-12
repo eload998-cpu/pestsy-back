@@ -19,8 +19,8 @@ return new class extends Migration
             $table->foreign('order_id')->references('id')->on("modules.orders")->onDelete('cascade');
             $table->bigInteger('aplication_id');
             $table->foreign('aplication_id')->references('id')->on("modules.aplications")->onDelete('restrict');
-            $table->bigInteger('aplication_place_id');
-            $table->foreign('aplication_place_id')->references('id')->on("modules.aplication_places")->onDelete('restrict');
+            $table->bigInteger('location_id');
+            $table->foreign('location_id')->references('id')->on("modules.locations")->onDelete('restrict');
             $table->bigInteger('product_id');
             $table->foreign('product_id')->references('id')->on("modules.products")->onDelete('restrict');
             $table->bigInteger('dose');

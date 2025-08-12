@@ -33,17 +33,33 @@ class ProductController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $products     = $products->whereRaw("LOWER(products.name) ILIKE '%{$search_value}%'");
-
+            $products     = $products->where(function ($q) use ($search_value) {
+                $q->where('products.name', 'ILIKE', "%{$search_value}%")
+                    ->orWhere('products.registration_code', 'ILIKE', "%{$search_value}%")
+                    ->orWhereRaw(
+                        "TO_CHAR(products.expiration_date, 'DD/MM/YYYY') ILIKE ?",
+                        ["%{$search_value}%"]
+                    );
+            });
         }
-        $products = $products->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+        $products = $products->where(function ($query) use ($user) {
+            $query->where('company_id', $user->company->id)
+                ->orWhere('is_general', true);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
 
                 case 'name':
                     $products = $products->orderBy("name", $request->sort);
+                    break;
+
+                case 'registration_code':
+                    $products = $products->orderByRaw("registration_code {$request->sort} NULLS LAST");
+                    break;
+
+                case 'expiration_date':
+                    $products = $products->orderByRaw("expiration_date {$request->sort} NULLS LAST");
                     break;
             }
 

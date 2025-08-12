@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,10 +8,10 @@ class ExternalCondition extends Model
 {
     use HasFactory;
 
-    protected $table="modules.external_conditions";
+    protected $table = "modules.external_conditions";
 
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "obsolete_machinery",
         "sewer_system",
         "debris",
@@ -21,7 +20,8 @@ class ExternalCondition extends Model
         "green_areas",
         "waste",
         "nesting",
-        "order_id"
+        "product_storage",
+        "order_id",
     ];
 
 }
