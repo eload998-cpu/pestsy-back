@@ -7,11 +7,13 @@ use App\Http\Requests\Administration\Order\XylophageControl\UpdateXylophageContr
 use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
 use App\Models\Module\ConstructionType;
+use App\Models\Module\CorrectiveAction;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
 use App\Models\Module\Product;
 use App\Models\Module\Worker;
 use App\Models\Module\XylophageControl;
+use App\Models\Module\XylophagusControlCorrectiveAction;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -162,6 +164,19 @@ class XylophageControlController extends Controller
                 ]
             );
 
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = $this->addCorrectiveAction($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                XylophagusControlCorrectiveAction::create([
+                    "xylophagus_control_id" => $xylophage_control->id,
+                    "corrective_action_id"  => $correctiveActionId,
+                ]);
+            }
+
         });
 
         return response()->json(
@@ -226,6 +241,20 @@ class XylophageControlController extends Controller
                 $worker_id = $request->worker_id;
             }
 
+            XylophagusControlCorrectiveAction::where('xylophagus_control_id', $id)->delete();
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = $this->addCorrectiveAction($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                XylophagusControlCorrectiveAction::create([
+                    "xylophagus_control_id" => $id,
+                    "corrective_action_id"  => $correctiveActionId,
+                ]);
+            }
+
             $xylophage_control = XylophageControl::where('id', $id)->update(
                 [
                     "pest_id"                 => $pest_id,
@@ -272,6 +301,7 @@ class XylophageControlController extends Controller
     public function show($id)
     {
         $model = XylophageControl::find($id);
+        $model->load('correctiveActions');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -296,6 +326,22 @@ class XylophageControlController extends Controller
         $user = Auth::user();
 
         return $data = Product::create(
+            [
+                "name"       => $name,
+                "company_id" => $user->company_id,
+
+            ]
+        )->id;
+
+    }
+
+    private function addCorrectiveAction($id)
+    {
+        $name = explode("-", $id);
+        $name = $name[1];
+        $user = Auth::user();
+
+        return $data = CorrectiveAction::create(
             [
                 "name"       => $name,
                 "company_id" => $user->company_id,

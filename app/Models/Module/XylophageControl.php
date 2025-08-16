@@ -64,4 +64,9 @@ class XylophageControl extends Model
         return $this->belongsTo(AffectedElement::class);
     }
 
+    public function correctiveActions()
+    {
+        return $this->hasMany(XylophagusControlCorrectiveAction::class, 'xylophagus_control_id', 'id');
+    }
+
 }
