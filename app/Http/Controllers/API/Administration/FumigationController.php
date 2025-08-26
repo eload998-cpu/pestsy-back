@@ -4,17 +4,15 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Fumigation\CreateFumigationRequest;
 use App\Http\Requests\Administration\Order\Fumigation\UpdateFumigationRequest;
-use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
 use App\Models\Module\Fumigation;
-use App\Models\Module\Location;
-use App\Models\Module\Product;
-use App\Models\Module\Worker;
-use Carbon\Carbon;
+use App\Models\Module\FumigationCorrectiveAction;
+use App\Services\ApplicationService;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\ProductService;
+use App\Services\WorkerService;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class FumigationController extends Controller
 {
@@ -70,7 +68,7 @@ class FumigationController extends Controller
             }
 
         } else {
-            $fumigations = $fumigations->orderBy("aplications.created_at", "desc");
+            $fumigations = $fumigations->orderBy("fumigations.created_at", "DESC");
 
         }
 
@@ -90,30 +88,30 @@ class FumigationController extends Controller
             $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->worker_id)) {
-                $worker_id = $this->addWorker($request->worker_id);
+                $worker_id = WorkerService::add($request->worker_id);
             } else {
                 $worker_id = $request->worker_id;
             }
 
-            Fumigation::create(
+            $fumigation = Fumigation::create(
                 [
                     "aplication_id"    => $aplication_id,
                     "location_id"      => $location_id,
@@ -123,6 +121,19 @@ class FumigationController extends Controller
                     "worker_id"        => $worker_id,
                     "application_time" => $request->application_time,
                 ]);
+
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                FumigationCorrectiveAction::create([
+                    "fumigation_id"        => $fumigation->id,
+                    "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
         });
 
         return response()->json(
@@ -147,25 +158,25 @@ class FumigationController extends Controller
             $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->worker_id)) {
-                $worker_id = $this->addWorker($request->worker_id);
+                $worker_id = WorkerService::add($request->worker_id);
             } else {
                 $worker_id = $request->worker_id;
             }
@@ -174,11 +185,25 @@ class FumigationController extends Controller
             $data["location_id"]   = $location_id;
             $data["product_id"]    = $product_id;
             $data["worker_id"]     = $worker_id;
-
             unset($data["_method"]);
             unset($data["company_id"]);
+            unset($data["correctiveActions"]);
 
             $fumigation = Fumigation::where('id', $id)->update($data);
+
+            FumigationCorrectiveAction::where('fumigation_id', $id)->delete();
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                FumigationCorrectiveAction::create([
+                    "fumigation_id"        => $id,
+                    "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
 
         });
 
@@ -199,7 +224,7 @@ class FumigationController extends Controller
         $model->load('aplication');
         $model->load('location');
         $model->load('product');
-
+        $model->load('correctiveActions');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -213,89 +238,11 @@ class FumigationController extends Controller
     public function destroy($id)
     {
         $fumigation = Fumigation::destroy($id);
+
+        FumigationCorrectiveAction::where([
+            "fumigation_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
-
-    }
-
-    private function addApplication($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Aplication::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addLocation($id)
-    {
-        $name        = explode("-", $id);
-        $name        = $name[1];
-        $user        = Auth::user();
-        return $data = Location::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-            ]
-        )->id;
-
-    }
-
-    private function addApplicationPlace($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AplicationPlace::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addProduct($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Product::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addWorker($worker_name)
-    {
-
-        $user = Auth::user();
-
-        $worker_name   = explode("-", $worker_name);
-        $worker_name   = explode(" ", $worker_name[1]);
-        $email_name    = str_replace(" ", "_", $worker_name[0]);
-        return $worker = Worker::create(
-            [
-                "first_name" => $worker_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
 
     }
 

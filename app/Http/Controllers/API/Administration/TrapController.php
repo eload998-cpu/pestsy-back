@@ -4,18 +4,14 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Trap\CreateTrapRequest;
 use App\Http\Requests\Administration\Order\Trap\UpdateTrapRequest;
-use App\Models\Module\AplicationPlace;
-use App\Models\Module\CorrectiveAction;
-use App\Models\Module\Device;
-use App\Models\Module\Location;
-use App\Models\Module\Product;
 use App\Models\Module\Trap;
 use App\Models\Module\TrapCorrectiveAction;
-use App\Models\Module\Worker;
-use Carbon\Carbon;
+use App\Services\CorrectiveActionService;
+use App\Services\DeviceService;
+use App\Services\LocationService;
+use App\Services\ProductService;
+use App\Services\WorkerService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class TrapController extends Controller
 {
@@ -60,7 +56,7 @@ class TrapController extends Controller
             }
 
         } else {
-            $traps = $traps->orderBy("traps.created_at", "desc");
+            $traps = $traps->orderBy("traps.created_at", "DESC");
 
         }
 
@@ -79,25 +75,25 @@ class TrapController extends Controller
         $location_id = null;
 
         if (is_string($request->product_id)) {
-            $product_id = $this->addProduct($request->product_id);
+            $product_id = ProductService::add($request->product_id);
         } else {
             $product_id = $request->product_id;
         }
 
         if (is_string($request->device_id)) {
-            $device_id = $this->addDevice($request->device_id);
+            $device_id = DeviceService::add($request->device_id);
         } else {
             $device_id = $request->device_id;
         }
 
         if (is_string($request->worker_id)) {
-            $worker_id = $this->addWorker($request->worker_id);
+            $worker_id = WorkerService::add($request->worker_id);
         } else {
             $worker_id = $request->worker_id;
         }
 
         if (is_string($request->location_id)) {
-            $location_id = $this->addLocation($request->location_id);
+            $location_id = LocationService::add($request->location_id);
         } else {
             $location_id = $request->location_id;
         }
@@ -113,7 +109,7 @@ class TrapController extends Controller
 
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
-                $correctiveActionId = $this->addCorrectiveAction($value);
+                $correctiveActionId = CorrectiveActionService::add($value);
             } else {
                 $correctiveActionId = $value;
             }
@@ -133,58 +129,6 @@ class TrapController extends Controller
 
     }
 
-    private function addApplicationPlace($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AplicationPlace::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addCorrectiveAction($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = CorrectiveAction::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addWorker($worker_name)
-    {
-
-        $user = Auth::user();
-
-        $worker_name   = explode("-", $worker_name);
-        $worker_name   = explode(" ", $worker_name[1]);
-        $email_name    = str_replace(" ", "_", $worker_name[0]);
-        return $worker = Worker::create(
-            [
-                "first_name" => $worker_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
     public function update(UpdateTrapRequest $request, $id)
     {
 
@@ -194,25 +138,25 @@ class TrapController extends Controller
         $worker_id   = null;
 
         if (is_string($request->product_id)) {
-            $product_id = $this->addProduct($request->product_id);
+            $product_id = ProductService::add($request->product_id);
         } else {
             $product_id = $request->product_id;
         }
 
         if (is_string($request->device_id)) {
-            $device_id = $this->addDevice($request->device_id);
+            $device_id = DeviceService::add($request->device_id);
         } else {
             $device_id = $request->device_id;
         }
 
         if (is_string($request->worker_id)) {
-            $worker_id = $this->addWorker($request->worker_id);
+            $worker_id = WorkerService::add($request->worker_id);
         } else {
             $worker_id = $request->worker_id;
         }
 
         if (is_string($request->location_id)) {
-            $location_id = $this->addLocation($request->location_id);
+            $location_id = LocationService::add($request->location_id);
         } else {
             $location_id = $request->location_id;
         }
@@ -232,7 +176,7 @@ class TrapController extends Controller
         TrapCorrectiveAction::where('trap_id', $id)->delete();
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
-                $correctiveActionId = $this->addCorrectiveAction($value);
+                $correctiveActionId = CorrectiveActionService::add($value);
             } else {
                 $correctiveActionId = $value;
             }
@@ -270,53 +214,11 @@ class TrapController extends Controller
     public function destroy($id)
     {
         $trap = Trap::destroy($id);
+        TrapCorrectiveAction::where([
+            "trap_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
-    private function addProduct($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Product::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addLocation($id)
-    {
-        $name        = explode("-", $id);
-        $name        = $name[1];
-        $user        = Auth::user();
-        return $data = Location::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-            ]
-        )->id;
-
-    }
-
-    private function addDevice($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Device::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
 }

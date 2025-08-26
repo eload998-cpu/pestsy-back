@@ -3,8 +3,6 @@ namespace Database\Seeders;
 
 use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
-use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
 use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
@@ -24,13 +22,11 @@ class MasterSeeder extends Seeder
     {
 
         Aplication::truncate();
-        AplicationPlace::truncate();
         Device::truncate();
         Location::truncate();
         Pest::truncate();
         Product::truncate();
         AffectedElement::truncate();
-        AppliedTreatment::truncate();
         ConstructionType::truncate();
         DesinfectionMethod::truncate();
 
@@ -64,16 +60,6 @@ class MasterSeeder extends Seeder
                             Aplication::create([
                                 "name"       => $row["nombre"],
                                 "is_general" => true,
-                            ]);
-
-                            break;
-
-                        case 'lugar_aplicaciones':
-
-                            AplicationPlace::create([
-                                "name"       => $row["nombre"],
-                                "is_general" => true,
-
                             ]);
 
                             break;
@@ -140,15 +126,6 @@ class MasterSeeder extends Seeder
 
                             break;
 
-                        case 'tratamientos_aplicados':
-
-                            AppliedTreatment::create([
-                                "name"       => $row["nombre"],
-                                "is_general" => true,
-
-                            ]);
-
-                            break;
 
                         case 'metodos_desinfeccion':
 

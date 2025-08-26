@@ -45,4 +45,9 @@ class Fumigation extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function correctiveActions()
+    {
+        return $this->hasMany(FumigationCorrectiveAction::class, 'fumigation_id', 'id');
+    }
 }

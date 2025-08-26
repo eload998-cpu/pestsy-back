@@ -14,12 +14,13 @@ use App\Models\Module\Worker;
 use App\Models\Status;
 use App\Models\StatusType;
 use App\Models\User;
+use App\Services\ClientService;
+use App\Services\WorkerService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -307,13 +308,13 @@ class OrderController extends Controller
             $worker_id   = null;
 
             if (is_string($request->client_id)) {
-                $client_id = $this->addClient($request->client_id);
+                $client_id = ClientService::add($request->client_id);
             } else {
                 $client_id = $request->client_id;
             }
 
             if (is_string($request->worker_id)) {
-                $worker_id = $this->addWorker($request->worker_id);
+                $worker_id = WorkerService::add($request->worker_id);
             } else {
                 $worker_id = $request->worker_id;
             }
@@ -414,45 +415,6 @@ class OrderController extends Controller
             ]);
     }
 
-    private function addClient($client_id)
-    {
-
-        $user = Auth::user();
-
-        $client_name = explode("-", $client_id);
-        $client_name = explode(" ", $client_name[1]);
-        $email_name  = str_replace(" ", "_", $client_name[0]);
-
-        return $client = Client::create(
-            [
-                "first_name" => $client_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-            ]
-        )->id;
-
-    }
-
-    private function addWorker($worker_name)
-    {
-
-        $user = Auth::user();
-
-        $worker_name   = explode("-", $worker_name);
-        $worker_name   = explode(" ", $worker_name[1]);
-        $email_name    = str_replace(" ", "_", $worker_name[0]);
-        return $worker = Worker::create(
-            [
-                "first_name" => $worker_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
     /**
      * Display the specified resource.
      *

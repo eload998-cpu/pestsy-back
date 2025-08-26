@@ -17,7 +17,6 @@ class Trap extends Model
         "product_id",
         "dose",
         "pheromones",
-        "aplication_place_id",
         "application_time",
         "worker_id",
         "order_id",

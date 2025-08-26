@@ -4,14 +4,15 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\LegionellaControl\CreateLegionellaControlRequest;
 use App\Http\Requests\Administration\Order\LegionellaControl\UpdateLegionellaControlRequest;
-use App\Models\Module\DesinfectionMethod;
-use App\Models\Module\InspectionType;
 use App\Models\Module\LegionellaControl;
-use App\Models\Module\Location;
+use App\Models\Module\LegionellaControlCorrectiveAction;
+use App\Services\ApplicationService;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\WorkerService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class LegionellaControlController extends Controller
 {
@@ -31,13 +32,13 @@ class LegionellaControlController extends Controller
         $legionella_controls = $this->legionella_control
             ->leftJoin('orders', 'control_of_legionella.order_id', 'orders.id')
             ->leftJoin('locations', 'control_of_legionella.location_id', 'locations.id')
-            ->leftJoin('desinfection_methods', 'control_of_legionella.desinfection_method_id', 'desinfection_methods.id')
-            ->select('control_of_legionella.*', 'locations.name as location_name', 'desinfection_methods.name as desinfection_method_name')
+            ->leftJoin('aplications', 'control_of_legionella.aplication_id', 'aplications.id')
+            ->select('control_of_legionella.*', 'locations.name as location_name', 'aplications.name as desinfection_method_name')
             ->where('orders.id', $request->order_id);
 
         if ($request->search) {
             $search_value        = $request->search;
-            $legionella_controls = $legionella_controls->whereRaw("LOWER(control_of_legionella.last_treatment_date) || LOWER(control_of_legionella.next_treatment_date) || LOWER(locations.name) || LOWER(desinfection_methods.name) ILIKE '%{$search_value}%'");
+            $legionella_controls = $legionella_controls->whereRaw("LOWER(control_of_legionella.last_treatment_date) || LOWER(control_of_legionella.next_treatment_date) || LOWER(locations.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
 
@@ -46,7 +47,7 @@ class LegionellaControlController extends Controller
 
                 case 'desinfection_method_name':
                     $sortOrder           = ($request->sort == "ASC") ? "DESC" : "ASC";
-                    $legionella_controls = $legionella_controls->orderBy("desinfection_methods.name", $sortOrder);
+                    $legionella_controls = $legionella_controls->orderBy("aplications.name", $sortOrder);
                     break;
 
                 case 'location_name':
@@ -69,7 +70,7 @@ class LegionellaControlController extends Controller
             }
 
         } else {
-            $legionella_controls = $legionella_controls->orderBy("control_of_legionella.created_at", "desc");
+            $legionella_controls = $legionella_controls->orderBy("control_of_legionella.created_at", "DESC");
 
         }
 
@@ -84,19 +85,26 @@ class LegionellaControlController extends Controller
 
         $data = DB::transaction(function () use ($request) {
 
-            $location_id            = null;
-            $desinfection_method_id = null;
+            $location_id    = null;
+            $application_id = null;
+            $worker_id      = null;
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
-            if (is_string($request->desinfection_method_id)) {
-                $desinfection_method_id = $this->addDesinfectionMethod($request->desinfection_method_id);
+            if (is_string($request->application_id)) {
+                $application_id = ApplicationService::add($request->location_id);
             } else {
-                $desinfection_method_id = $request->desinfection_method_id;
+                $application_id = $request->application_id;
+            }
+
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
             }
 
             if ($request->code == "") {
@@ -108,7 +116,7 @@ class LegionellaControlController extends Controller
             $legionella_control = LegionellaControl::create(
                 [
                     "location_id"             => $location_id,
-                    "desinfection_method_id"  => $desinfection_method_id,
+                    "aplication_id"           => $application_id,
                     "inspection_result"       => $request->inspection_result,
                     "last_treatment_date"     => $request->last_treatment_date,
                     "next_treatment_date"     => $request->next_treatment_date,
@@ -118,8 +126,24 @@ class LegionellaControlController extends Controller
                     "residual_chlorine_level" => $request->residual_chlorine_level,
                     "observation"             => $request->observation,
                     "order_id"                => $request->order_id,
+                    "within_critical_limits"  => $request->within_critical_limits,
+                    "worker_id"               => $worker_id,
+
                 ]
             );
+
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                LegionellaControlCorrectiveAction::create([
+                    "legionella_control_id" => $legionella_control->id,
+                    "corrective_action_id"  => $correctiveActionId,
+                ]);
+            }
 
         });
 
@@ -137,19 +161,26 @@ class LegionellaControlController extends Controller
 
         DB::transaction(function () use ($request, $id) {
 
-            $location_id            = null;
-            $desinfection_method_id = null;
+            $location_id    = null;
+            $application_id = null;
+            $worker_id      = null;
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
-            if (is_string($request->desinfection_method_id)) {
-                $desinfection_method_id = $this->addDesinfectionMethod($request->desinfection_method_id);
+            if (is_string($request->application_id)) {
+                $application_id = ApplicationService::add($request->location_id);
             } else {
-                $desinfection_method_id = $request->desinfection_method_id;
+                $application_id = $request->application_id;
+            }
+
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
             }
 
             if ($request->code == "") {
@@ -158,10 +189,24 @@ class LegionellaControlController extends Controller
                 $code = $request->code;
             }
 
+            LegionellaControlCorrectiveAction::where('legionella_control_id', $id)->delete();
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                LegionellaControlCorrectiveAction::create([
+                    "legionella_control_id" => $id,
+                    "corrective_action_id"  => $correctiveActionId,
+                ]);
+            }
+
             $legionella_control = LegionellaControl::where('id', $id)->update(
                 [
                     "location_id"             => $location_id,
-                    "desinfection_method_id"  => $desinfection_method_id,
+                    "aplication_id"           => $application_id,
                     "inspection_result"       => $request->inspection_result,
                     "last_treatment_date"     => $request->last_treatment_date,
                     "next_treatment_date"     => $request->next_treatment_date,
@@ -171,6 +216,8 @@ class LegionellaControlController extends Controller
                     "residual_chlorine_level" => $request->residual_chlorine_level,
                     "observation"             => $request->observation,
                     "order_id"                => $request->order_id,
+                    "within_critical_limits"  => $request->within_critical_limits,
+                    "worker_id"               => $worker_id,
                 ]
             );
 
@@ -189,6 +236,7 @@ class LegionellaControlController extends Controller
     public function show($id)
     {
         $model = LegionellaControl::find($id);
+        $model->load('correctiveActions');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -202,55 +250,8 @@ class LegionellaControlController extends Controller
     public function destroy($id)
     {
         $legionella_control = LegionellaControl::destroy($id);
+        LegionellaControlCorrectiveAction::where("legionella_control_id", $id)->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
-
-    }
-
-    private function addLocation($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Location::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addDesinfectionMethod($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = DesinfectionMethod::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addInspectionType($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = InspectionType::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
 
     }
 

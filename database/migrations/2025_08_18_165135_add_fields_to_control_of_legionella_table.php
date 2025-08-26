@@ -13,11 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('modules.traps', function (Blueprint $table) {
+        Schema::table('modules.control_of_legionella', function (Blueprint $table) {
+
+            $table->boolean('within_critical_limits')->default(false);
+            
             $table->bigInteger('worker_id')->nullable();
             $table->foreign('worker_id')->references('id')->on("modules.workers")->onDelete('restrict');
-            $table->string('application_time')->nullable();
 
+            $table->bigInteger('aplication_id')->nullable();
+            $table->foreign('aplication_id')->references('id')->on("modules.aplications")->onDelete('restrict');
         });
     }
 
@@ -28,10 +32,11 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('modules.traps', function (Blueprint $table) {
-            $table->dropColumn('worker_id');
-            $table->dropColumn('application_time');
+        Schema::table('modules.control_of_legionella', function (Blueprint $table) {
 
+            $table->dropColumn('within_critical_limits');
+            $table->dropColumn('aplication_id');
+            $table->dropColumn('worker_id');
         });
     }
 };

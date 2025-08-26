@@ -5,8 +5,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Administration\Plan;
 use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
-use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
 use App\Models\Module\CorrectiveAction;
 use App\Models\Module\DesinfectionMethod;
@@ -69,14 +67,6 @@ class ResourceController extends Controller
                 ->get();
         }
 
-        if ($request->aplication_places) {
-            $aplication_places = AplicationPlace::where(function ($query) use ($user) {
-                $query->where('company_id', $user->company->id)
-                    ->orWhere('is_general', true);
-            })
-                ->get();
-
-        }
 
         if ($request->products) {
             $products = Product::where(function ($query) use ($user) {
@@ -125,15 +115,6 @@ class ResourceController extends Controller
 
         if ($request->pests) {
             $pests = Pest::where(function ($query) use ($user) {
-                $query->where('company_id', $user->company->id)
-                    ->orWhere('is_general', true);
-            })
-                ->get();
-
-        }
-
-        if ($request->applied_treatments) {
-            $applied_treatments = AppliedTreatment::where(function ($query) use ($user) {
                 $query->where('company_id', $user->company->id)
                     ->orWhere('is_general', true);
             })

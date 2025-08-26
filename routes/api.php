@@ -110,13 +110,11 @@ Route::group([
     Route::resource('/acciones-correctivas', 'CorrectiveActionController');
     Route::resource('/elementos-afectados', 'AffectedElementController');
     Route::resource('/tipo-de-construcciones', 'ConstructionTypeController');
-    Route::resource('/tratamientos-aplicados', 'AppliedTreatmentController');
 
     Route::resource('/transacciones', 'TransactionController');
     Route::resource('/usuarios', 'UserController');
     Route::post('/usuarios/cambiar-contrasena', 'UserController@changePassword');
 
-    Route::resource('/lugares-de-aplicacion', 'AplicationPlaceController');
     Route::resource('/productos', 'ProductController');
     Route::resource('/orders', 'OrderController');
     Route::post('/orders/check-order', 'OrderController@checkOrder');

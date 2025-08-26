@@ -4,19 +4,18 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\XylophageControl\CreateXylophageControlRequest;
 use App\Http\Requests\Administration\Order\XylophageControl\UpdateXylophageControlRequest;
-use App\Models\Module\AffectedElement;
-use App\Models\Module\Aplication;
-use App\Models\Module\ConstructionType;
-use App\Models\Module\CorrectiveAction;
-use App\Models\Module\Location;
-use App\Models\Module\Pest;
-use App\Models\Module\Product;
-use App\Models\Module\Worker;
 use App\Models\Module\XylophageControl;
 use App\Models\Module\XylophagusControlCorrectiveAction;
+use App\Services\AffectedElementService;
+use App\Services\ApplicationService;
+use App\Services\ConstructionTypeService;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\PestService;
+use App\Services\ProductService;
+use App\Services\WorkerService;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class XylophageControlController extends Controller
 {
@@ -67,7 +66,7 @@ class XylophageControlController extends Controller
             }
 
         } else {
-            $xylophage_controls = $xylophage_controls->orderBy("control_of_xylophages.created_at", "desc");
+            $xylophage_controls = $xylophage_controls->orderBy("control_of_xylophages.created_at", "DESC");
 
         }
 
@@ -91,43 +90,43 @@ class XylophageControlController extends Controller
             $location_id          = null;
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->pest_id)) {
-                $pest_id = $this->addPest($request->pest_id);
+                $pest_id = PestService::add($request->pest_id);
             } else {
                 $pest_id = $request->pest_id;
             }
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->construction_type_id)) {
-                $construction_type_id = $this->addConstructionType($request->construction_type_id);
+                $construction_type_id = ConstructionTypeService::add($request->construction_type_id);
             } else {
                 $construction_type_id = $request->construction_type_id;
             }
 
             if (is_string($request->affected_element_id)) {
-                $affected_element_id = $this->addAffectedElement($request->affected_element_id);
+                $affected_element_id = AffectedElementService::add($request->affected_element_id);
             } else {
                 $affected_element_id = $request->affected_element_id;
             }
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
             if (is_string($request->worker_id)) {
-                $worker_id = $this->addWorker($request->worker_id);
+                $worker_id = WorkerService::add($request->worker_id);
             } else {
                 $worker_id = $request->worker_id;
             }
@@ -166,7 +165,7 @@ class XylophageControlController extends Controller
 
             foreach ($request->correctiveActions as $key => $value) {
                 if (is_string($value)) {
-                    $correctiveActionId = $this->addCorrectiveAction($value);
+                    $correctiveActionId = CorrectiveActionService::add($value);
                 } else {
                     $correctiveActionId = $value;
                 }
@@ -200,43 +199,43 @@ class XylophageControlController extends Controller
             $affected_element_id  = null;
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->pest_id)) {
-                $pest_id = $this->addPest($request->pest_id);
+                $pest_id = PestService::add($request->pest_id);
             } else {
                 $pest_id = $request->pest_id;
             }
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->construction_type_id)) {
-                $construction_type_id = $this->addConstructionType($request->construction_type_id);
+                $construction_type_id = ConstructionTypeService::add($request->construction_type_id);
             } else {
                 $construction_type_id = $request->construction_type_id;
             }
 
             if (is_string($request->affected_element_id)) {
-                $affected_element_id = $this->addAffectedElement($request->affected_element_id);
+                $affected_element_id = AffectedElementService::add($request->affected_element_id);
             } else {
                 $affected_element_id = $request->affected_element_id;
             }
 
             if (is_string($request->location_id)) {
-                $location_id = $this->addLocation($request->location_id);
+                $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
             }
 
             if (is_string($request->worker_id)) {
-                $worker_id = $this->addWorker($request->worker_id);
+                $worker_id = WorkerService::add($request->worker_id);
             } else {
                 $worker_id = $request->worker_id;
             }
@@ -244,7 +243,7 @@ class XylophageControlController extends Controller
             XylophagusControlCorrectiveAction::where('xylophagus_control_id', $id)->delete();
             foreach ($request->correctiveActions as $key => $value) {
                 if (is_string($value)) {
-                    $correctiveActionId = $this->addCorrectiveAction($value);
+                    $correctiveActionId = CorrectiveActionService::add($value);
                 } else {
                     $correctiveActionId = $value;
                 }
@@ -315,139 +314,11 @@ class XylophageControlController extends Controller
     public function destroy($id)
     {
         $xylophage_control = XylophageControl::destroy($id);
+        XylophagusControlCorrectiveAction::where([
+            "xylophagus_control_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
-    private function addProduct($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Product::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addCorrectiveAction($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = CorrectiveAction::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addApplication($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Aplication::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addPest($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Pest::create(
-            [
-                "common_name"     => $name,
-                "scientific_name" => $name,
-                "is_xylophagus"   => true,
-                "company_id"      => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addLocation($id)
-    {
-        $name        = explode("-", $id);
-        $name        = $name[1];
-        $user        = Auth::user();
-        return $data = Location::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-            ]
-        )->id;
-
-    }
-
-    private function addWorker($worker_name)
-    {
-
-        $user = Auth::user();
-
-        $worker_name   = explode("-", $worker_name);
-        $worker_name   = explode(" ", $worker_name[1]);
-        $email_name    = str_replace(" ", "_", $worker_name[0]);
-        return $worker = Worker::create(
-            [
-                "first_name" => $worker_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addConstructionType($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = ConstructionType::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addAffectedElement($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AffectedElement::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
 }

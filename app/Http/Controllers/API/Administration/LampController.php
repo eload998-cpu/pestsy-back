@@ -4,15 +4,12 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Lamp\CreateLampRequest;
 use App\Http\Requests\Administration\Order\Lamp\UpdateLampRequest;
-use App\Models\Module\CorrectiveAction;
 use App\Models\Module\Lamp;
 use App\Models\Module\LampCorrectiveAction;
-use App\Models\Module\Location;
-use App\Models\Module\Worker;
-use Carbon\Carbon;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\WorkerService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class LampController extends Controller
 {
@@ -52,7 +49,7 @@ class LampController extends Controller
             }
 
         } else {
-            $lamps = $lamps->orderBy("lamps.created_at", "desc");
+            $lamps = $lamps->orderBy("lamps.created_at", "DESC");
 
         }
 
@@ -70,13 +67,13 @@ class LampController extends Controller
         $data = $request->all();
 
         if (is_string($request->worker_id)) {
-            $worker_id = $this->addWorker($request->worker_id);
+            $worker_id = WorkerService::add($request->worker_id);
         } else {
             $worker_id = $request->worker_id;
         }
 
         if (is_string($request->location_id)) {
-            $location_id = $this->addLocation($request->location_id);
+            $location_id = LocationService::add($request->location_id);
         } else {
             $location_id = $request->location_id;
         }
@@ -91,7 +88,7 @@ class LampController extends Controller
 
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
-                $correctiveActionId = $this->addCorrectiveAction($value);
+                $correctiveActionId = CorrectiveActionService::add($value);
             } else {
                 $correctiveActionId = $value;
             }
@@ -111,56 +108,6 @@ class LampController extends Controller
 
     }
 
-    private function addLocation($id)
-    {
-        $name        = explode("-", $id);
-        $name        = $name[1];
-        $user        = Auth::user();
-        return $data = Location::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-            ]
-        )->id;
-
-    }
-
-    private function addCorrectiveAction($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = CorrectiveAction::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addWorker($worker_name)
-    {
-
-        $user = Auth::user();
-
-        $worker_name   = explode("-", $worker_name);
-        $worker_name   = explode(" ", $worker_name[1]);
-        $email_name    = str_replace(" ", "_", $worker_name[0]);
-        return $worker = Worker::create(
-            [
-                "first_name" => $worker_name[0],
-                "email"      => $email_name . Str::random(8) . "@mail.com",
-                "date"       => Carbon::now(),
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
     public function update(UpdateLampRequest $request, $id)
     {
         $worker_id   = null;
@@ -169,13 +116,13 @@ class LampController extends Controller
         $data = $request->all();
 
         if (is_string($request->worker_id)) {
-            $worker_id = $this->addWorker($request->worker_id);
+            $worker_id = WorkerService::add($request->worker_id);
         } else {
             $worker_id = $request->worker_id;
         }
 
         if (is_string($request->location_id)) {
-            $location_id = $this->addLocation($request->location_id);
+            $location_id = LocationService::add($request->location_id);
         } else {
             $location_id = $request->location_id;
         }
@@ -192,7 +139,7 @@ class LampController extends Controller
         LampCorrectiveAction::where('lamp_id', $id)->delete();
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
-                $correctiveActionId = $this->addCorrectiveAction($value);
+                $correctiveActionId = CorrectiveActionService::add($value);
             } else {
                 $correctiveActionId = $value;
             }
@@ -231,6 +178,9 @@ class LampController extends Controller
     public function destroy($id)
     {
         $lamp = Lamp::destroy($id);
+        LampCorrectiveAction::where([
+            "lamp_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }

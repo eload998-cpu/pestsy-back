@@ -22,8 +22,6 @@ return new class extends Migration
             $table->foreign('order_id')->references('id')->on("modules.orders")->onUpdate('cascade')->onDelete('cascade');
             $table->bigInteger('location_id');
             $table->foreign('location_id')->references('id')->on("modules.locations")->onUpdate('cascade')->onDelete('cascade');
-            $table->bigInteger('desinfection_method_id');
-            $table->foreign('desinfection_method_id')->references('id')->on("modules.desinfection_methods")->onUpdate('cascade')->onDelete('cascade');
             $table->date('last_treatment_date')->nullable();
             $table->date('next_treatment_date')->nullable();
             $table->string('inspection_result')->nullable();

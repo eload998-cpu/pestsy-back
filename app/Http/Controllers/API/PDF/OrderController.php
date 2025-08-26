@@ -38,7 +38,7 @@ class OrderController extends Controller
         $order->load('worker');
 
         if ($order->service_type == "Xilofago") {
-            $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.pest', 'xylophageControl.appliedTreatment', 'xylophageControl.constructionType', 'xylophageControl.affectedElement');
+            $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.pest', 'xylophageControl.application', 'xylophageControl.constructionType', 'xylophageControl.affectedElement');
 
         }
 
@@ -52,9 +52,9 @@ class OrderController extends Controller
             $order->load('externalCondition');
             $order->load('internalCondition');
             $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
-            $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.aplicationPlace', 'fumigations.product');
+            $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product');
             $order->load('lamps', 'lamps.worker', 'lamps.correctiveActions.correctiveAction');
-            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.aplicationPlace', 'traps.device');
+            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
             $order->load('infestationGrade');
         }
 

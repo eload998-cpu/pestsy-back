@@ -82,7 +82,7 @@ class ExpireSubscriptions extends Command
 
                         $now  = Carbon::now();
                         $plan = Plan::where('name', 'Fumigador')->first();
-                        AddRoleEvent::dispatch($user->id, 'fumigator');
+                        //AddRoleEvent::dispatch($user->id, 'fumigator');
                         $plan_status_type     = StatusType::where('name', 'plan')->first();
                         $plan_status          = Status::where('status_type_id', $plan_status_type->id)->where('name', 'active')->first();
                         $new_user_status_type = StatusType::where('name', 'user')->first();
