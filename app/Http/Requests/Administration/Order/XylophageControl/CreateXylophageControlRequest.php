@@ -31,6 +31,7 @@ class CreateXylophageControlRequest extends FormRequest
             'treated_area_value'   => 'Área tratada',
             'treated_area_unit'    => 'Unidad',
             'observation'          => 'Observaciones',
+            'worker_id'            => 'Técnico que ejecuta',
 
         ];
     }
@@ -46,6 +47,7 @@ class CreateXylophageControlRequest extends FormRequest
             'pest_id'              => 'required',
             'product_id'           => 'required',
             'order_id'             => 'required',
+            'worker_id'             => 'required',
             'aplication_id'        => 'required',
             'construction_type_id' => 'required',
             'affected_element_id'  => 'required',

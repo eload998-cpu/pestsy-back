@@ -564,12 +564,7 @@
 
 
 
-    <!--SIGNATURES-->
 
-    @include('pdfs.signatures.index')
-
-    <!-- -->
-    
     <!--PRODUCTS-->
 
     @include('pdfs.products.index')
@@ -582,7 +577,12 @@
 
     <!-- -->
 
+    <!--SIGNATURES-->
 
+    @include('pdfs.signatures.index')
+
+    <!-- -->
+    
 
 
 

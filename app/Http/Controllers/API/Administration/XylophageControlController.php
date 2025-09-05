@@ -133,47 +133,49 @@ class XylophageControlController extends Controller
 
             $xylophage_control = XylophageControl::create(
                 [
-                    "pest_id"                 => $pest_id,
-                    "product_id"              => $product_id,
-                    "construction_type_id"    => $construction_type_id,
-                    "affected_element_id"     => $affected_element_id,
-                    "treatment_date"          => $request->treatment_date,
-                    "next_treatment_date"     => $request->next_treatment_date,
-                    "infestation_level"       => $request->infestation_level,
-                    "observation"             => $request->observation,
-                    "order_id"                => $request->order_id,
+                    "pest_id"                    => $pest_id,
+                    "product_id"                 => $product_id,
+                    "construction_type_id"       => $construction_type_id,
+                    "affected_element_id"        => $affected_element_id,
+                    "treatment_date"             => $request->treatment_date,
+                    "next_treatment_date"        => $request->next_treatment_date,
+                    "infestation_level"          => $request->infestation_level,
+                    "observation"                => $request->observation,
+                    "order_id"                   => $request->order_id,
 
-                    "aplication_id"           => $aplication_id,
-                    "worker_id"               => $worker_id,
-                    "location_id"             => $location_id,
-                    "treated_area_value"      => $request->treated_area_value,
-                    "treated_area_unit"       => $request->treated_area_unit,
-                    "calculated_total_amount" => $request->calculated_total_amount,
-                    "calculated_total_unit"   => $request->calculated_total_unit,
-                    "pre_humidity"            => $request->pre_humidity,
-                    "pre_ventilation"         => $request->pre_ventilation,
-                    "pre_access"              => $request->pre_access,
-                    "pre_notes"               => $request->pre_notes,
-                    "post_humidity"           => $request->post_humidity,
-                    "post_ventilation"        => $request->post_ventilation,
-                    "post_access"             => $request->post_access,
-                    "post_notes"              => $request->post_notes,
-                    "dose"                    => $request->dose,
+                    "aplication_id"              => $aplication_id,
+                    "worker_id"                  => $worker_id,
+                    "location_id"                => $location_id,
+                    "treated_area_value"         => $request->treated_area_value,
+                    "treated_area_unit"          => $request->treated_area_unit,
+                    "calculated_total_amount"    => $request->calculated_total_amount,
+                    "calculated_total_unit"      => $request->calculated_total_unit,
+                    "pre_humidity"               => $request->pre_humidity,
+                    "pre_ventilation"            => $request->pre_ventilation,
+                    "pre_access"                 => $request->pre_access,
+                    "pre_notes"                  => $request->pre_notes,
+                    "post_humidity"              => $request->post_humidity,
+                    "post_ventilation"           => $request->post_ventilation,
+                    "post_access"                => $request->post_access,
+                    "post_notes"                 => $request->post_notes,
+                    "dose"                       => $request->dose,
+                    "effectiveness_verification" => $request->effectiveness_verification,
 
                 ]
             );
+            if ($request->correctiveActions) {
+                foreach ($request->correctiveActions as $key => $value) {
+                    if (is_string($value)) {
+                        $correctiveActionId = CorrectiveActionService::add($value);
+                    } else {
+                        $correctiveActionId = $value;
+                    }
 
-            foreach ($request->correctiveActions as $key => $value) {
-                if (is_string($value)) {
-                    $correctiveActionId = CorrectiveActionService::add($value);
-                } else {
-                    $correctiveActionId = $value;
+                    XylophagusControlCorrectiveAction::create([
+                        "xylophagus_control_id" => $xylophage_control->id,
+                        "corrective_action_id"  => $correctiveActionId,
+                    ]);
                 }
-
-                XylophagusControlCorrectiveAction::create([
-                    "xylophagus_control_id" => $xylophage_control->id,
-                    "corrective_action_id"  => $correctiveActionId,
-                ]);
             }
 
         });
@@ -241,47 +243,51 @@ class XylophageControlController extends Controller
             }
 
             XylophagusControlCorrectiveAction::where('xylophagus_control_id', $id)->delete();
-            foreach ($request->correctiveActions as $key => $value) {
-                if (is_string($value)) {
-                    $correctiveActionId = CorrectiveActionService::add($value);
-                } else {
-                    $correctiveActionId = $value;
-                }
 
-                XylophagusControlCorrectiveAction::create([
-                    "xylophagus_control_id" => $id,
-                    "corrective_action_id"  => $correctiveActionId,
-                ]);
+            if ($request->correctiveActions) {
+                foreach ($request->correctiveActions as $key => $value) {
+                    if (is_string($value)) {
+                        $correctiveActionId = CorrectiveActionService::add($value);
+                    } else {
+                        $correctiveActionId = $value;
+                    }
+
+                    XylophagusControlCorrectiveAction::create([
+                        "xylophagus_control_id" => $id,
+                        "corrective_action_id"  => $correctiveActionId,
+                    ]);
+                }
             }
 
             $xylophage_control = XylophageControl::where('id', $id)->update(
                 [
-                    "pest_id"                 => $pest_id,
-                    "product_id"              => $product_id,
-                    "construction_type_id"    => $construction_type_id,
-                    "affected_element_id"     => $affected_element_id,
-                    "treatment_date"          => $request->treatment_date,
-                    "next_treatment_date"     => $request->next_treatment_date,
-                    "infestation_level"       => $request->infestation_level,
-                    "observation"             => $request->observation,
-                    "order_id"                => $request->order_id,
+                    "pest_id"                    => $pest_id,
+                    "product_id"                 => $product_id,
+                    "construction_type_id"       => $construction_type_id,
+                    "affected_element_id"        => $affected_element_id,
+                    "treatment_date"             => $request->treatment_date,
+                    "next_treatment_date"        => $request->next_treatment_date,
+                    "infestation_level"          => $request->infestation_level,
+                    "observation"                => $request->observation,
+                    "order_id"                   => $request->order_id,
 
-                    "aplication_id"           => $aplication_id,
-                    "worker_id"               => $worker_id,
-                    "location_id"             => $location_id,
-                    "treated_area_value"      => $request->treated_area_value,
-                    "treated_area_unit"       => $request->treated_area_unit,
-                    "calculated_total_amount" => $request->calculated_total_amount,
-                    "calculated_total_unit"   => $request->calculated_total_unit,
-                    "pre_humidity"            => $request->pre_humidity,
-                    "pre_ventilation"         => $request->pre_ventilation,
-                    "pre_access"              => $request->pre_access,
-                    "pre_notes"               => $request->pre_notes,
-                    "post_humidity"           => $request->post_humidity,
-                    "post_ventilation"        => $request->post_ventilation,
-                    "post_access"             => $request->post_access,
-                    "post_notes"              => $request->post_notes,
-                    "dose"                    => $request->dose,
+                    "aplication_id"              => $aplication_id,
+                    "worker_id"                  => $worker_id,
+                    "location_id"                => $location_id,
+                    "treated_area_value"         => $request->treated_area_value,
+                    "treated_area_unit"          => $request->treated_area_unit,
+                    "calculated_total_amount"    => $request->calculated_total_amount,
+                    "calculated_total_unit"      => $request->calculated_total_unit,
+                    "pre_humidity"               => $request->pre_humidity,
+                    "pre_ventilation"            => $request->pre_ventilation,
+                    "pre_access"                 => $request->pre_access,
+                    "pre_notes"                  => $request->pre_notes,
+                    "post_humidity"              => $request->post_humidity,
+                    "post_ventilation"           => $request->post_ventilation,
+                    "post_access"                => $request->post_access,
+                    "post_notes"                 => $request->post_notes,
+                    "dose"                       => $request->dose,
+                    "effectiveness_verification" => $request->effectiveness_verification,
                 ]
             );
 

@@ -38,13 +38,33 @@ class OrderController extends Controller
         $order->load('worker');
 
         if ($order->service_type == "Xilofago") {
-            $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.pest', 'xylophageControl.application', 'xylophageControl.constructionType', 'xylophageControl.affectedElement');
+            $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.location', 'xylophageControl.pest', 'xylophageControl.application', 'xylophageControl.constructionType', 'xylophageControl.affectedElement', 'xylophageControl.worker', 'xylophageControl.correctiveActions.correctiveAction');
 
         }
 
         if ($order->service_type == "Legionela") {
-            $order->load('legionellaControl', 'legionellaControl.location', 'legionellaControl.desinfectionMethod');
+            $order->load('legionellaControl', 'legionellaControl.location', 'legionellaControl.application', 'legionellaControl.worker', 'legionellaControl.correctiveActions.correctiveAction');
 
+        }
+
+        if ($order->service_type == "Control de roedores") {
+
+            $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
+        }
+
+        if ($order->service_type == "Fumigación") {
+
+            $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product');
+        }
+
+        if ($order->service_type == "Monitoreo de voladores (lámparas)") {
+
+            $order->load('lamps', 'lamps.worker', 'lamps.correctiveActions.correctiveAction');
+        }
+
+        if ($order->service_type == "Monitoreo de insectos") {
+
+            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
         }
 
         if ($order->service_type == "General") {
@@ -126,9 +146,35 @@ class OrderController extends Controller
             })
             ->filter();
 
+        $xylophaguProducts = $order->xylophageControl
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $legionellaProducts = $order->legionellaControl
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
         $allProducts = $rcProducts
             ->merge($trapProducts)
             ->merge($fumigationProducts)
+            ->merge($xylophaguProducts)
+            ->merge($legionellaProducts)
             ->unique('id')
             ->values();
 

@@ -9,6 +9,7 @@ use App\Models\Module\LegionellaControlCorrectiveAction;
 use App\Services\ApplicationService;
 use App\Services\CorrectiveActionService;
 use App\Services\LocationService;
+use App\Services\ProductService;
 use App\Services\WorkerService;
 use Carbon\Carbon;
 use DB;
@@ -83,11 +84,13 @@ class LegionellaControlController extends Controller
     public function store(CreateLegionellaControlRequest $request)
     {
 
-        $data = DB::transaction(function () use ($request) {
+        try {
 
+            \Log::info("acaa");
             $location_id    = null;
             $application_id = null;
             $worker_id      = null;
+            $product_id     = null;
 
             if (is_string($request->location_id)) {
                 $location_id = LocationService::add($request->location_id);
@@ -113,6 +116,12 @@ class LegionellaControlController extends Controller
                 $code = $request->code;
             }
 
+            if (is_string($request->product_id)) {
+                $product_id = ProductService::add($request->product_id);
+            } else {
+                $product_id = $request->product_id;
+            }
+
             $legionella_control = LegionellaControl::create(
                 [
                     "location_id"             => $location_id,
@@ -128,6 +137,7 @@ class LegionellaControlController extends Controller
                     "order_id"                => $request->order_id,
                     "within_critical_limits"  => $request->within_critical_limits,
                     "worker_id"               => $worker_id,
+                    "product_id"              => $product_id,
 
                 ]
             );
@@ -145,14 +155,16 @@ class LegionellaControlController extends Controller
                 ]);
             }
 
-        });
-
-        return response()->json(
-            ["success" => true,
-                "data"     => [],
-                "message"  => "Exito!",
-            ]
-        );
+            return response()->json(
+                ["success" => true,
+                    "data"     => [],
+                    "message"  => "Exito!",
+                ]
+            );
+        } catch (\Exception $err) {
+            \Log::info($err);
+            throw $err;
+        }
 
     }
 
@@ -164,11 +176,18 @@ class LegionellaControlController extends Controller
             $location_id    = null;
             $application_id = null;
             $worker_id      = null;
+            $product_id     = null;
 
             if (is_string($request->location_id)) {
                 $location_id = LocationService::add($request->location_id);
             } else {
                 $location_id = $request->location_id;
+            }
+
+            if (is_string($request->product_id)) {
+                $product_id = ProductService::add($request->product_id);
+            } else {
+                $product_id = $request->product_id;
             }
 
             if (is_string($request->application_id)) {
@@ -218,6 +237,7 @@ class LegionellaControlController extends Controller
                     "order_id"                => $request->order_id,
                     "within_critical_limits"  => $request->within_critical_limits,
                     "worker_id"               => $worker_id,
+                    "product_id"              => $product_id,
                 ]
             );
 

@@ -25,6 +25,7 @@ class LegionellaControl extends Model
         "aplication_id",
         "worker_id",
         "within_critical_limits",
+        "product_id",
 
     ];
 
@@ -35,11 +36,21 @@ class LegionellaControl extends Model
 
     public function application()
     {
-        return $this->belongsTo(Aplication::class);
+        return $this->belongsTo(Aplication::class, 'aplication_id', 'id');
     }
 
     public function correctiveActions()
     {
         return $this->hasMany(LegionellaControlCorrectiveAction::class, 'legionella_control_id', 'id');
+    }
+
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 }

@@ -37,6 +37,7 @@ class XylophageControl extends Model
         "location_id",
         "worker_id",
         "aplication_id",
+        "effectiveness_verification"
     ];
 
     public function product()
@@ -51,7 +52,7 @@ class XylophageControl extends Model
 
     public function application()
     {
-        return $this->belongsTo(Aplication::class);
+        return $this->belongsTo(Aplication::class, 'aplication_id', 'id');
     }
 
     public function constructionType()
@@ -67,6 +68,16 @@ class XylophageControl extends Model
     public function correctiveActions()
     {
         return $this->hasMany(XylophagusControlCorrectiveAction::class, 'xylophagus_control_id', 'id');
+    }
+
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 
 }

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('modules.legionella_control_corrective_actions', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('legionella_control_id')->nullable();
-            $table->foreign('legionella_control_id')->references('id')->on("modules.control_of_xylophages")->onDelete('cascade');
+            $table->foreign('legionella_control_id')->references('id')->on("modules.control_of_legionella")->onDelete('cascade');
             $table->bigInteger('corrective_action_id')->nullable();
             $table->foreign('corrective_action_id')->references('id')->on("modules.corrective_actions")->onDelete('cascade');
             $table->timestamps();
