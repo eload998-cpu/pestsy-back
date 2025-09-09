@@ -22,8 +22,9 @@ class DatabaseSeeder extends Seeder
             //PlanPaypalIdSeeder::class,
             //ClientSeeder::class,
             //WorkerSeeder::class
-            MasterSeeder::class,
+            //MasterSeeder::class,
             //CorrectiveActionSeeder::class,
+            SafetyControlSeeder::class,
 
         ]);
 

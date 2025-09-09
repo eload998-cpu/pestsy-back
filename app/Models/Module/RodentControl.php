@@ -22,6 +22,8 @@ class RodentControl extends Model
         "activity",
         "observation",
         "application_time",
+        "infestation_level",
+        "aplication_id",
         "worker_id",
     ];
 
@@ -52,6 +54,11 @@ class RodentControl extends Model
     public function location()
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function application()
+    {
+        return $this->belongsTo(Aplication::class, 'aplication_id', 'id');
     }
 
 }

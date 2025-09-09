@@ -12,6 +12,7 @@ use App\Models\Module\Device;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
 use App\Models\Module\Product;
+use App\Models\Module\SafetyControl;
 use App\Models\Module\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,7 @@ class ResourceController extends Controller
         $affected_elements    = [];
         $desinfection_methods = [];
         $workers              = [];
+        $safety_controls      = [];
 
         if ($request->workers) {
             $workers = Worker::where(function ($query) use ($user) {
@@ -66,7 +68,6 @@ class ResourceController extends Controller
             })
                 ->get();
         }
-
 
         if ($request->products) {
             $products = Product::where(function ($query) use ($user) {
@@ -140,7 +141,16 @@ class ResourceController extends Controller
 
         }
 
-        return response()->json(compact('workers', 'corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
+        if ($request->safety_controls) {
+            $safety_controls = SafetyControl::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
+
+        }
+
+        return response()->json(compact('safety_controls', 'workers', 'corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
 
     }
 

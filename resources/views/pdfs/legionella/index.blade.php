@@ -12,10 +12,6 @@
             <span><b>Peligro controlado: legionela – CCP: dosis, área tratada, método aplicado</b></span>
 
         </div>
-
-
-
-
     </div>
 
 
@@ -73,6 +69,13 @@
                 <tr style="width=100%">
                 <td colspan="6"><b>Observación: </b>{{$legionellaControl["observation"]}}</td>
                 </tr>
+
+
+                  @if($loop->iteration % 2 === 0 && !$loop->last)
+                        <tr>
+                            <td colspan="6" style="page-break-after: always;"></td>
+                        </tr>
+                  @endif
                 @endforeach
 
             </tbody>

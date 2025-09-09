@@ -72,16 +72,16 @@ class OrderMail extends Mailable
         $order->load('user');
         $order->load('client');
         $order->load('worker');
-        $order->load('externalCondition');
-        $order->load('internalCondition');
-        $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest');
-        $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product');
-        $order->load('lamps', 'lamps.worker', 'lamps.location', 'lamps.correctiveActions');
-        $order->load('traps', 'traps.correctiveActions', 'traps.worker', 'traps.location', 'traps.product', 'traps.device');
-        $order->load('infestationGrade');
         $order->load('observations');
         $order->load('signatures');
         $order->load('images');
+        $order->load('externalCondition');
+        $order->load('internalCondition');
+        $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.application', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
+        $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product', 'fumigations.correctiveActions.correctiveAction', 'fumigations.safetyControls.safetyControl');
+        $order->load('lamps', 'lamps.worker', 'lamps.product', 'lamps.correctiveActions.correctiveAction');
+        $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
+        $order->load('infestationGrade');
 
         $order = $order->toArray();
 

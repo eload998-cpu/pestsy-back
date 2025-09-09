@@ -22,6 +22,8 @@ class Trap extends Model
         "order_id",
         "condition",
         "location_id",
+        "within_critical_limits",
+        "pheromones_state",
     ];
 
     public function worker()

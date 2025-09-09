@@ -19,6 +19,7 @@ class Fumigation extends Model
         "order_id",
         "application_time",
         "worker_id",
+        "within_critical_limits",
     ];
 
     public function worker()
@@ -49,5 +50,10 @@ class Fumigation extends Model
     public function correctiveActions()
     {
         return $this->hasMany(FumigationCorrectiveAction::class, 'fumigation_id', 'id');
+    }
+
+    public function safetyControls()
+    {
+        return $this->hasMany(FumigationSafetyControl::class, 'fumigation_id', 'id');
     }
 }

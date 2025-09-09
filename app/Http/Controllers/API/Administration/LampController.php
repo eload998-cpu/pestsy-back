@@ -8,6 +8,7 @@ use App\Models\Module\Lamp;
 use App\Models\Module\LampCorrectiveAction;
 use App\Services\CorrectiveActionService;
 use App\Services\LocationService;
+use App\Services\ProductService;
 use App\Services\WorkerService;
 use Illuminate\Http\Request;
 
@@ -78,11 +79,18 @@ class LampController extends Controller
             $location_id = $request->location_id;
         }
 
+        if (is_string($request->product_id)) {
+            $product_id = ProductService::add($request->product_id);
+        } else {
+            $product_id = $request->product_id;
+        }
+
         unset($data["_method"]);
         unset($data["corrective_actions"]);
 
         $data["worker_id"]   = $worker_id;
         $data["location_id"] = $location_id;
+        $data["product_id"]  = $product_id;
 
         $lamp = Lamp::create($data);
 
@@ -127,12 +135,19 @@ class LampController extends Controller
             $location_id = $request->location_id;
         }
 
+        if (is_string($request->product_id)) {
+            $product_id = ProductService::add($request->product_id);
+        } else {
+            $product_id = $request->product_id;
+        }
+
         unset($data["_method"]);
         unset($data["company_id"]);
         unset($data["corrective_actions"]);
 
         $data["worker_id"]   = $worker_id;
         $data["location_id"] = $location_id;
+        $data["product_id"]  = $product_id;
 
         $lamp = Lamp::where('id', $id)->update($data);
 

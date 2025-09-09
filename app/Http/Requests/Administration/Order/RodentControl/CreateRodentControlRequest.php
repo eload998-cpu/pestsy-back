@@ -32,6 +32,8 @@ class CreateRodentControlRequest extends FormRequest
             'observation'=>'Observaciones',
             'application_time'=>'Hora de aplicación',
             'worker_id'=>'Técnico responsable',
+            'aplication_id'=>'Método de aplicación',
+            'infestation_level'=>'Nivel de infestación',
          
         ];
     }
@@ -59,6 +61,8 @@ class CreateRodentControlRequest extends FormRequest
             ],
             'application_time'=>'required',
             'worker_id'=>'required',
+            'aplication_id'=>'required',
+            'infestation_level'=>'required',
 
         ];
     }

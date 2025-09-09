@@ -107,6 +107,12 @@
                 </tr>
                 @endif
 
+                  @if($loop->iteration % 2 === 0 && !$loop->last)
+                        <tr>
+                            <td colspan="6" style="page-break-after: always;"></td>
+                        </tr>
+                  @endif
+
                 @endforeach
 
             </tbody>

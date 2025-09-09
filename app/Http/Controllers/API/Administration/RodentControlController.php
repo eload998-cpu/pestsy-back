@@ -122,17 +122,20 @@ class RodentControlController extends Controller
 
             $rodent_control = RodentControl::create(
                 [
-                    "device_id"        => $device_id,
-                    "product_id"       => $product_id,
-                    "order_id"         => $request->order_id,
-                    "device_number"    => $request->device_number,
-                    "location_id"      => $location_id,
-                    "bait_status"      => $request->bait_status,
-                    "dose"             => $request->dose,
-                    "activity"         => $request->activity,
-                    "observation"      => $request->observation,
-                    "worker_id"        => $worker_id,
-                    "application_time" => $request->application_time,
+                    "device_id"         => $device_id,
+                    "product_id"        => $product_id,
+                    "order_id"          => $request->order_id,
+                    "device_number"     => $request->device_number,
+                    "location_id"       => $location_id,
+                    "bait_status"       => $request->bait_status,
+                    "dose"              => $request->dose,
+                    "activity"          => $request->activity,
+                    "observation"       => $request->observation,
+                    "worker_id"         => $worker_id,
+                    "application_time"  => $request->application_time,
+                    "infestation_level" => $request->infestation_level,
+                    "aplication_id"     => $request->aplication_id,
+
                 ]
             );
 
@@ -204,17 +207,19 @@ class RodentControlController extends Controller
 
             $rodent_control = RodentControl::where('id', $id)->update(
                 [
-                    "device_id"        => $device_id,
-                    "product_id"       => $product_id,
-                    "order_id"         => $request->order_id,
-                    "device_number"    => $request->device_number,
-                    "location_id"      => $location_id,
-                    "bait_status"      => $request->bait_status,
-                    "dose"             => $request->dose,
-                    "activity"         => $request->activity,
-                    "observation"      => $request->observation,
-                    "application_time" => $request->application_time,
-                    "worker_id"        => $worker_id,
+                    "device_id"         => $device_id,
+                    "product_id"        => $product_id,
+                    "order_id"          => $request->order_id,
+                    "device_number"     => $request->device_number,
+                    "location_id"       => $location_id,
+                    "bait_status"       => $request->bait_status,
+                    "dose"              => $request->dose,
+                    "activity"          => $request->activity,
+                    "observation"       => $request->observation,
+                    "application_time"  => $request->application_time,
+                    "worker_id"         => $worker_id,
+                    "infestation_level" => $request->infestation_level,
+                    "aplication_id"     => $request->aplication_id,
                 ]
             );
 

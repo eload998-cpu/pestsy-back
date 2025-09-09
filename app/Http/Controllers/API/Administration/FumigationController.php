@@ -6,6 +6,7 @@ use App\Http\Requests\Administration\Order\Fumigation\CreateFumigationRequest;
 use App\Http\Requests\Administration\Order\Fumigation\UpdateFumigationRequest;
 use App\Models\Module\Fumigation;
 use App\Models\Module\FumigationCorrectiveAction;
+use App\Models\Module\FumigationSafetyControl;
 use App\Services\ApplicationService;
 use App\Services\CorrectiveActionService;
 use App\Services\LocationService;
@@ -113,13 +114,14 @@ class FumigationController extends Controller
 
             $fumigation = Fumigation::create(
                 [
-                    "aplication_id"    => $aplication_id,
-                    "location_id"      => $location_id,
-                    "product_id"       => $product_id,
-                    "dose"             => $request->dose,
-                    "order_id"         => $request->order_id,
-                    "worker_id"        => $worker_id,
-                    "application_time" => $request->application_time,
+                    "aplication_id"          => $aplication_id,
+                    "location_id"            => $location_id,
+                    "product_id"             => $product_id,
+                    "dose"                   => $request->dose,
+                    "order_id"               => $request->order_id,
+                    "worker_id"              => $worker_id,
+                    "application_time"       => $request->application_time,
+                    "within_critical_limits" => $request->within_critical_limits,
                 ]);
 
             foreach ($request->correctiveActions as $key => $value) {
@@ -132,6 +134,14 @@ class FumigationController extends Controller
                 FumigationCorrectiveAction::create([
                     "fumigation_id"        => $fumigation->id,
                     "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
+
+            foreach ($request->safetyControls as $key => $value) {
+
+                FumigationSafetyControl::create([
+                    "fumigation_id"     => $fumigation->id,
+                    "safety_control_id" => $value,
                 ]);
             }
         });
@@ -185,13 +195,21 @@ class FumigationController extends Controller
             $data["location_id"]   = $location_id;
             $data["product_id"]    = $product_id;
             $data["worker_id"]     = $worker_id;
-            unset($data["_method"]);
-            unset($data["company_id"]);
-            unset($data["correctiveActions"]);
 
-            $fumigation = Fumigation::where('id', $id)->update($data);
+            $fumigation = Fumigation::where('id', $id)->update([
+                "aplication_id"          => $aplication_id,
+                "location_id"            => $location_id,
+                "product_id"             => $product_id,
+                "dose"                   => $request->dose,
+                "order_id"               => $request->order_id,
+                "worker_id"              => $worker_id,
+                "application_time"       => $request->application_time,
+                "within_critical_limits" => $request->within_critical_limits,
+            ]);
 
             FumigationCorrectiveAction::where('fumigation_id', $id)->delete();
+            FumigationSafetyControl::where('fumigation_id', $id)->delete();
+
             foreach ($request->correctiveActions as $key => $value) {
                 if (is_string($value)) {
                     $correctiveActionId = CorrectiveActionService::add($value);
@@ -202,6 +220,14 @@ class FumigationController extends Controller
                 FumigationCorrectiveAction::create([
                     "fumigation_id"        => $id,
                     "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
+
+            foreach ($request->safetyControls as $key => $value) {
+
+                FumigationSafetyControl::create([
+                    "fumigation_id"     => $id,
+                    "safety_control_id" => $value,
                 ]);
             }
 
@@ -225,6 +251,7 @@ class FumigationController extends Controller
         $model->load('location');
         $model->load('product');
         $model->load('correctiveActions');
+        $model->load('safetyControls');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -240,6 +267,10 @@ class FumigationController extends Controller
         $fumigation = Fumigation::destroy($id);
 
         FumigationCorrectiveAction::where([
+            "fumigation_id" => $id,
+        ])->delete();
+
+        FumigationSafetyControl::where([
             "fumigation_id" => $id,
         ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);

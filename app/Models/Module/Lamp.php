@@ -23,6 +23,8 @@ class Lamp extends Model
         "application_time",
         "worker_id",
         "location_id",
+        "product_id",
+        "within_critical_limits",
 
     ];
 
@@ -36,9 +38,14 @@ class Lamp extends Model
         return $this->hasMany(LampCorrectiveAction::class, 'lamp_id', 'id');
     }
 
-      public function location()
+    public function location()
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
 }
