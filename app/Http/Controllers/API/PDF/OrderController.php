@@ -146,6 +146,18 @@ class OrderController extends Controller
             })
             ->filter();
 
+        $lampProducts = $order->lamps
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
         $xylophaguProducts = $order->xylophageControl
             ->map(function ($fum) {
                 $p = $fum->product;
@@ -175,6 +187,7 @@ class OrderController extends Controller
             ->merge($fumigationProducts)
             ->merge($xylophaguProducts)
             ->merge($legionellaProducts)
+            ->merge($lampProducts)
             ->unique('id')
             ->values();
 

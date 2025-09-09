@@ -83,12 +83,16 @@ class OrderMail extends Mailable
         $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
         $order->load('infestationGrade');
 
+        $orderProducts = $this->getProducts($order);
+
         $order = $order->toArray();
 
         $user_role            = $user->roles()->first()->name;
         $user["subscription"] = $user->subscriptions()->latest()->first();
         $order["logo"]        = $user->company->logo;
-        $PDFOptions           = ['enable_remote' => true];
+        $order["products"]    = $orderProducts;
+
+        $PDFOptions = ['enable_remote' => true];
 
         // share data to view
         $pdf = PDF::setOptions($PDFOptions)->loadView('pdfs.index', ["order" => $order]);
@@ -98,5 +102,93 @@ class OrderMail extends Mailable
             Attachment::fromData(fn() => $pdf->output(), $order["order_number"] . '.pdf')
                 ->withMime('application/pdf'),
         ];
+    }
+
+    private function getProducts(Order $order)
+    {
+
+        $rcProducts = $order->rodentControls
+            ->map(function ($rc) {
+                $p = $rc->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $rc->dose;
+                return $p;
+            })
+            ->filter();
+
+        $trapProducts = $order->traps
+            ->map(function ($trap) {
+                $p = $trap->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $trap->dose;
+                return $p;
+            })
+            ->filter();
+
+        $fumigationProducts = $order->fumigations
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $lampProducts = $order->lamps
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $xylophaguProducts = $order->xylophageControl
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $legionellaProducts = $order->legionellaControl
+            ->map(function ($fum) {
+                $p = $fum->product;
+                if (! $p) {
+                    return null;
+                }
+
+                $p->dose = $fum->dose;
+                return $p;
+            })
+            ->filter();
+
+        $allProducts = $rcProducts
+            ->merge($trapProducts)
+            ->merge($fumigationProducts)
+            ->merge($xylophaguProducts)
+            ->merge($legionellaProducts)
+            ->merge($lampProducts)
+            ->unique('id')
+            ->values();
+
+        return $allProducts;
+
     }
 }

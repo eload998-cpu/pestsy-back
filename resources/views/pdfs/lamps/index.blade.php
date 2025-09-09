@@ -35,6 +35,11 @@
                 </tr>
 
                 <tr style="width=100%">
+                <td><b>Producto aplicado: </b>{{$lamp["product"]["name"]}}</td>
+                <td><b>Dentro de límites críticos: </b>{{$lamp["within_critical_limits"] ? 'Si':'No'}}</td>
+                </tr>
+
+                <tr style="width=100%">
                   <td colspan="7"><b>Observaciones: </b>{{$lamp["observation"]}}</td>
                 </tr>
 
