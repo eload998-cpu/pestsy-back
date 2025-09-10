@@ -15,13 +15,29 @@ class XylophageControl extends Model
         "order_id",
         "pest_id",
         "product_id",
-        "applied_treatment_id",
         "construction_type_id",
         "affected_element_id",
         "infestation_level",
         "observation",
         "treatment_date",
         "next_treatment_date",
+        "treated_area_value",
+        "treated_area_unit",
+        "calculated_total_amount",
+        "calculated_total_unit",
+        "pre_humidity",
+        "pre_ventilation",
+        "pre_access",
+        "pre_notes",
+        "post_humidity",
+        "post_ventilation",
+        "post_access",
+        "post_notes",
+        "dose",
+        "location_id",
+        "worker_id",
+        "aplication_id",
+        "effectiveness_verification"
     ];
 
     public function product()
@@ -34,9 +50,9 @@ class XylophageControl extends Model
         return $this->belongsTo(Pest::class);
     }
 
-    public function appliedTreatment()
+    public function application()
     {
-        return $this->belongsTo(AppliedTreatment::class);
+        return $this->belongsTo(Aplication::class, 'aplication_id', 'id');
     }
 
     public function constructionType()
@@ -47,6 +63,21 @@ class XylophageControl extends Model
     public function affectedElement()
     {
         return $this->belongsTo(AffectedElement::class);
+    }
+
+    public function correctiveActions()
+    {
+        return $this->hasMany(XylophagusControlCorrectiveAction::class, 'xylophagus_control_id', 'id');
+    }
+
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 
 }

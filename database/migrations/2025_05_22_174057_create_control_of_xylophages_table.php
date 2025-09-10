@@ -22,9 +22,6 @@ return new class extends Migration
             $table->bigInteger('construction_type_id');
             $table->foreign('construction_type_id')->references('id')->on("modules.construction_types")->onDelete('cascade');
 
-            $table->bigInteger('applied_treatment_id');
-            $table->foreign('applied_treatment_id')->references('id')->on("modules.applied_treatments")->onDelete('cascade');
-
             $table->bigInteger('product_id');
             $table->foreign('product_id')->references('id')->on("modules.products")->onDelete('cascade');
 

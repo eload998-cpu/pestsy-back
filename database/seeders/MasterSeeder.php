@@ -3,8 +3,6 @@ namespace Database\Seeders;
 
 use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
-use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
 use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
@@ -24,13 +22,11 @@ class MasterSeeder extends Seeder
     {
 
         Aplication::truncate();
-        AplicationPlace::truncate();
         Device::truncate();
         Location::truncate();
         Pest::truncate();
         Product::truncate();
         AffectedElement::truncate();
-        AppliedTreatment::truncate();
         ConstructionType::truncate();
         DesinfectionMethod::truncate();
 
@@ -62,15 +58,8 @@ class MasterSeeder extends Seeder
                         case 'aplicaciones':
 
                             Aplication::create([
-                                "name" => $row["nombre"],
-                            ]);
-
-                            break;
-
-                        case 'lugar_aplicaciones':
-
-                            AplicationPlace::create([
-                                "name" => $row["nombre"],
+                                "name"       => $row["nombre"],
+                                "is_general" => true,
                             ]);
 
                             break;
@@ -78,7 +67,9 @@ class MasterSeeder extends Seeder
                         case 'dispositivos':
 
                             Device::create([
-                                "name" => $row["nombre"],
+                                "name"       => $row["nombre"],
+                                "is_general" => true,
+
                             ]);
 
                             break;
@@ -88,6 +79,7 @@ class MasterSeeder extends Seeder
                             Pest::create([
                                 "scientific_name" => $row["nombre_cientifico"],
                                 "common_name"     => $row["nombre_comun"],
+                                "is_general"      => true,
                                 "is_xylophagus"   => isset($row["is_xylophagus"]) ? true : false,
                             ]);
 
@@ -99,6 +91,8 @@ class MasterSeeder extends Seeder
                                 "name"              => $row["nombre"],
                                 "code"              => $row["numero_de_registro"],
                                 "active_ingredient" => $row["ingrediente_activo"],
+                                "is_general"        => true,
+
                             ]);
 
                             break;
@@ -106,7 +100,9 @@ class MasterSeeder extends Seeder
                         case 'ubicaciones':
 
                             Location::create([
-                                "name" => $row["ubicacion"],
+                                "name"       => $row["ubicacion"],
+                                "is_general" => true,
+
                             ]);
 
                             break;
@@ -114,30 +110,29 @@ class MasterSeeder extends Seeder
                         case 'elementos_afectados':
 
                             AffectedElement::create([
-                                "name" => $row["nombre"],
+                                "name"       => $row["nombre"],
+                                "is_general" => true,
+
                             ]);
 
                             break;
                         case 'tipos_de_construccion':
 
                             ConstructionType::create([
-                                "name" => $row["nombre"],
+                                "name"       => $row["nombre"],
+                                "is_general" => true,
+
                             ]);
 
                             break;
 
-                        case 'tratamientos_aplicados':
-
-                            AppliedTreatment::create([
-                                "name" => $row["nombre"],
-                            ]);
-
-                            break;
 
                         case 'metodos_desinfeccion':
 
                             DesinfectionMethod::create([
-                                "name" => $row["nombre"],
+                                "name"       => $row["nombre"],
+                                "is_general" => true,
+
                             ]);
 
                             break;

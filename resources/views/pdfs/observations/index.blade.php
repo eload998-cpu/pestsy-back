@@ -14,7 +14,7 @@
 
                 @foreach($order["observations"] as $observation)
                 <tr>
-                    <td class="">* {{$observation["observation"]}}</td>
+                    <td class="">- {{$observation["observation"]}}</td>
                 </tr>
 
                 @endforeach

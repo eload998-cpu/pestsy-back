@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models\Module;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,11 +8,10 @@ class Lamp extends Model
 {
     use HasFactory;
 
+    protected $table = "modules.lamps";
 
-    protected $table="modules.lamps";
-
-    protected $fillable=
-    [
+    protected $fillable =
+        [
         "station_number",
         "lamp_not_working",
         "rubbery_iron_changed",
@@ -21,7 +19,33 @@ class Lamp extends Model
         "quantity_replaced",
         "fluorescent_change",
         "observation",
-        "order_id"
+        "order_id",
+        "application_time",
+        "worker_id",
+        "location_id",
+        "product_id",
+        "within_critical_limits",
+
     ];
+
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
+
+    public function correctiveActions()
+    {
+        return $this->hasMany(LampCorrectiveAction::class, 'lamp_id', 'id');
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
 
 }

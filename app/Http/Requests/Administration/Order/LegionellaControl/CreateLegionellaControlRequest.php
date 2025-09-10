@@ -21,7 +21,7 @@ class CreateLegionellaControlRequest extends FormRequest
         return [
             'order_id'                => 'Orden',
             'location_id'             => 'Instalacion',
-            'desinfection_method_id'  => 'Metodo de desinfeccion',
+            'application_id'          => 'Metodo de desinfeccion',
             'inspection_result'       => 'resultado inspeccion',
             'last_treatment_date'     => 'ultima fecha de tratamiento',
             'next_treatment_date'     => 'proxima fecha de tratamiento',
@@ -29,6 +29,7 @@ class CreateLegionellaControlRequest extends FormRequest
             'sample_required'         => 'Requiere muestra',
             'water_temperature'       => 'Temperatura del agua',
             'residual_chlorine_level' => 'Nivel de cloro residual',
+            'within_critical_limits'  => 'límites críticos',
             'observation'             => 'Observaciones',
 
         ];
@@ -45,7 +46,7 @@ class CreateLegionellaControlRequest extends FormRequest
         return [
             'order_id'                => 'required',
             'location_id'             => 'required',
-            'desinfection_method_id'  => 'required',
+            'application_id'          => 'required',
             'inspection_result'       => 'required',
             'last_treatment_date'     => 'required',
             'next_treatment_date'     => 'required',
@@ -54,7 +55,8 @@ class CreateLegionellaControlRequest extends FormRequest
             'water_temperature'       => 'nullable|numeric',
             'residual_chlorine_level' => 'nullable|numeric',
             'observation'             => 'nullable|required',
-
+            'within_critical_limits'  => 'boolean',
+            'worker_id'               => 'required',
         ];
     }
 
@@ -63,6 +65,12 @@ class CreateLegionellaControlRequest extends FormRequest
         if ($this->has('sample_required')) {
             $this->merge([
                 'sample_required' => filter_var($this->sample_required, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        if ($this->has('within_critical_limits')) {
+            $this->merge([
+                'within_critical_limits' => filter_var($this->within_critical_limits, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
     }

@@ -19,15 +19,20 @@ class UpdateXylophageControlRequest extends FormRequest
     public function attributes()
     {
         return [
-            'pest_id'              => 'Tipo de xilofago',
+            'pest_id'              => 'Xilofago',
             'product_id'           => 'Producto',
             'order_id'             => 'Orden',
-            'applied_treatment_id' => 'Tratamiento aplicado',
+            'aplication_id'        => 'Tratamiento aplicado',
             'construction_type_id' => 'Tipo de construccion',
             'affected_element_id'  => 'Elemento afectado',
             'treatment_date'       => 'Fecha de tratamiento',
             'next_treatment_date'  => 'Proxima fecha de tratamiento',
+            'dose'                 => 'Dosis',
+            'treated_area_value'   => 'Área tratada',
+            'treated_area_unit'    => 'Unidad',
             'observation'          => 'Observaciones',
+            'worker_id'            => 'Técnico que ejecuta',
+
         ];
     }
 
@@ -42,16 +47,19 @@ class UpdateXylophageControlRequest extends FormRequest
         return [
             'pest_id'              => 'required',
             'product_id'           => 'required',
+            'worker_id'            => 'required',
             'order_id'             => [
                 'required',
                 new ValidOwner,
             ],
-            'applied_treatment_id' => 'required',
             'construction_type_id' => 'required',
             'affected_element_id'  => 'required',
             'treatment_date'       => 'required',
             'next_treatment_date'  => 'required',
             'observation'          => 'required',
+            'dose'                 => 'required',
+            'treated_area_value'   => 'required',
+            'treated_area_unit'    => 'required',
 
         ];
 

@@ -14,7 +14,6 @@ class LegionellaControl extends Model
         [
         "order_id",
         "location_id",
-        "desinfection_method_id",
         "inspection_result",
         "last_treatment_date",
         "next_treatment_date",
@@ -23,6 +22,10 @@ class LegionellaControl extends Model
         "water_temperature",
         "residual_chlorine_level",
         "observation",
+        "aplication_id",
+        "worker_id",
+        "within_critical_limits",
+        "product_id",
 
     ];
 
@@ -31,11 +34,23 @@ class LegionellaControl extends Model
         return $this->belongsTo(Location::class);
     }
 
-    public function desinfectionMethod()
+    public function application()
     {
-        return $this->belongsTo(DesinfectionMethod::class);
+        return $this->belongsTo(Aplication::class, 'aplication_id', 'id');
     }
 
+    public function correctiveActions()
+    {
+        return $this->hasMany(LegionellaControlCorrectiveAction::class, 'legionella_control_id', 'id');
+    }
 
+    public function worker()
+    {
+        return $this->belongsTo(Worker::class);
+    }
 
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'id');
+    }
 }

@@ -4,14 +4,16 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Fumigation\CreateFumigationRequest;
 use App\Http\Requests\Administration\Order\Fumigation\UpdateFumigationRequest;
-use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
 use App\Models\Module\Fumigation;
-use App\Models\Module\Product;
+use App\Models\Module\FumigationCorrectiveAction;
+use App\Models\Module\FumigationSafetyControl;
+use App\Services\ApplicationService;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\ProductService;
+use App\Services\WorkerService;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class FumigationController extends Controller
 {
@@ -34,13 +36,13 @@ class FumigationController extends Controller
 
         $fumigations = $fumigations
             ->leftJoin('products', 'fumigations.product_id', 'products.id')
-            ->leftJoin('aplication_places', 'fumigations.aplication_place_id', 'aplication_places.id')
+            ->leftJoin('locations', 'fumigations.location_id', 'locations.id')
             ->leftJoin('aplications', 'fumigations.aplication_id', 'aplications.id')
-            ->select('fumigations.id', 'aplications.name as aplication_name', 'aplication_places.name as aplication_place_name', 'products.name as product_name', 'fumigations.dose as fumigation_dose');
+            ->select('fumigations.id', 'aplications.name as aplication_name', 'locations.name as location_name', 'products.name as product_name', 'fumigations.dose as fumigation_dose');
 
         if ($request->search) {
             $search_value = $request->search;
-            $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(aplication_places.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
+            $fumigations  = $fumigations->whereRaw("LOWER(fumigations.dose) || LOWER(products.name) || LOWER(locations.name) || LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
 
@@ -57,8 +59,8 @@ class FumigationController extends Controller
                     $fumigations = $fumigations->orderBy("aplications.name", $request->sort);
                     break;
 
-                case 'aplication_places':
-                    $fumigations = $fumigations->orderBy("aplication_places.name", $request->sort);
+                case 'locations':
+                    $fumigations = $fumigations->orderBy("locations.name", $request->sort);
                     break;
 
                 case 'products':
@@ -67,7 +69,7 @@ class FumigationController extends Controller
             }
 
         } else {
-            $fumigations = $fumigations->orderBy("aplications.created_at", "desc");
+            $fumigations = $fumigations->orderBy("fumigations.created_at", "DESC");
 
         }
 
@@ -81,36 +83,67 @@ class FumigationController extends Controller
     {
         $data = DB::transaction(function () use ($request) {
 
-            $aplication_id       = null;
-            $aplication_place_id = null;
-            $product_id          = null;
+            $aplication_id = null;
+            $location_id   = null;
+            $product_id    = null;
+            $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
-            if (is_string($request->aplication_place_id)) {
-                $aplication_place_id = $this->addApplicationPlace($request->aplication_place_id);
+            if (is_string($request->location_id)) {
+                $location_id = LocationService::add($request->location_id);
             } else {
-                $aplication_place_id = $request->aplication_place_id;
+                $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
-            Fumigation::create(
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
+            $fumigation = Fumigation::create(
                 [
-                    "aplication_id"       => $aplication_id,
-                    "aplication_place_id" => $aplication_place_id,
-                    "product_id"          => $product_id,
-                    "dose"                => $request->dose,
-                    "order_id"            => $request->order_id,
+                    "aplication_id"          => $aplication_id,
+                    "location_id"            => $location_id,
+                    "product_id"             => $product_id,
+                    "dose"                   => $request->dose,
+                    "order_id"               => $request->order_id,
+                    "worker_id"              => $worker_id,
+                    "application_time"       => $request->application_time,
+                    "within_critical_limits" => $request->within_critical_limits,
                 ]);
+
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                FumigationCorrectiveAction::create([
+                    "fumigation_id"        => $fumigation->id,
+                    "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
+
+            foreach ($request->safetyControls as $key => $value) {
+
+                FumigationSafetyControl::create([
+                    "fumigation_id"     => $fumigation->id,
+                    "safety_control_id" => $value,
+                ]);
+            }
         });
 
         return response()->json(
@@ -129,36 +162,74 @@ class FumigationController extends Controller
 
             $data = $request->all();
 
-            $aplication_id       = null;
-            $aplication_place_id = null;
-            $product_id          = null;
+            $aplication_id = null;
+            $location_id   = null;
+            $product_id    = null;
+            $worker_id     = null;
 
             if (is_string($request->aplication_id)) {
-                $aplication_id = $this->addApplication($request->aplication_id);
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
                 $aplication_id = $request->aplication_id;
             }
 
-            if (is_string($request->aplication_place_id)) {
-                $aplication_place_id = $this->addApplicationPlace($request->aplication_place_id);
+            if (is_string($request->location_id)) {
+                $location_id = LocationService::add($request->location_id);
             } else {
-                $aplication_place_id = $request->aplication_place_id;
+                $location_id = $request->location_id;
             }
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
-            $data["aplication_id"]       = $aplication_id;
-            $data["aplication_place_id"] = $aplication_place_id;
-            $data["product_id"]          = $product_id;
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
 
-            unset($data["_method"]);
-            unset($data["company_id"]);
+            $data["aplication_id"] = $aplication_id;
+            $data["location_id"]   = $location_id;
+            $data["product_id"]    = $product_id;
+            $data["worker_id"]     = $worker_id;
 
-            $fumigation = Fumigation::where('id', $id)->update($data);
+            $fumigation = Fumigation::where('id', $id)->update([
+                "aplication_id"          => $aplication_id,
+                "location_id"            => $location_id,
+                "product_id"             => $product_id,
+                "dose"                   => $request->dose,
+                "order_id"               => $request->order_id,
+                "worker_id"              => $worker_id,
+                "application_time"       => $request->application_time,
+                "within_critical_limits" => $request->within_critical_limits,
+            ]);
+
+            FumigationCorrectiveAction::where('fumigation_id', $id)->delete();
+            FumigationSafetyControl::where('fumigation_id', $id)->delete();
+
+            foreach ($request->correctiveActions as $key => $value) {
+                if (is_string($value)) {
+                    $correctiveActionId = CorrectiveActionService::add($value);
+                } else {
+                    $correctiveActionId = $value;
+                }
+
+                FumigationCorrectiveAction::create([
+                    "fumigation_id"        => $id,
+                    "corrective_action_id" => $correctiveActionId,
+                ]);
+            }
+
+            foreach ($request->safetyControls as $key => $value) {
+
+                FumigationSafetyControl::create([
+                    "fumigation_id"     => $id,
+                    "safety_control_id" => $value,
+                ]);
+            }
 
         });
 
@@ -177,9 +248,10 @@ class FumigationController extends Controller
 
         $model = Fumigation::find($id);
         $model->load('aplication');
-        $model->load('aplicationPlace');
+        $model->load('location');
         $model->load('product');
-
+        $model->load('correctiveActions');
+        $model->load('safetyControls');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -193,55 +265,16 @@ class FumigationController extends Controller
     public function destroy($id)
     {
         $fumigation = Fumigation::destroy($id);
+
+        FumigationCorrectiveAction::where([
+            "fumigation_id" => $id,
+        ])->delete();
+
+        FumigationSafetyControl::where([
+            "fumigation_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
-    private function addApplication($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Aplication::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addApplicationPlace($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AplicationPlace::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addProduct($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Product::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
 }

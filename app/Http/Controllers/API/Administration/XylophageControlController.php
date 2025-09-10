@@ -4,15 +4,18 @@ namespace App\Http\Controllers\API\Administration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\XylophageControl\CreateXylophageControlRequest;
 use App\Http\Requests\Administration\Order\XylophageControl\UpdateXylophageControlRequest;
-use App\Models\Module\AffectedElement;
-use App\Models\Module\AppliedTreatment;
-use App\Models\Module\ConstructionType;
-use App\Models\Module\Pest;
-use App\Models\Module\Product;
 use App\Models\Module\XylophageControl;
+use App\Models\Module\XylophagusControlCorrectiveAction;
+use App\Services\AffectedElementService;
+use App\Services\ApplicationService;
+use App\Services\ConstructionTypeService;
+use App\Services\CorrectiveActionService;
+use App\Services\LocationService;
+use App\Services\PestService;
+use App\Services\ProductService;
+use App\Services\WorkerService;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class XylophageControlController extends Controller
 {
@@ -63,7 +66,7 @@ class XylophageControlController extends Controller
             }
 
         } else {
-            $xylophage_controls = $xylophage_controls->orderBy("control_of_xylophages.created_at", "desc");
+            $xylophage_controls = $xylophage_controls->orderBy("control_of_xylophages.created_at", "DESC");
 
         }
 
@@ -80,54 +83,100 @@ class XylophageControlController extends Controller
 
             $product_id           = null;
             $pest_id              = null;
-            $applied_treatment_id = null;
+            $aplication_id        = null;
             $construction_type_id = null;
             $affected_element_id  = null;
+            $worker_id            = null;
+            $location_id          = null;
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->pest_id)) {
-                $pest_id = $this->addPest($request->pest_id);
+                $pest_id = PestService::add($request->pest_id);
             } else {
                 $pest_id = $request->pest_id;
             }
 
-            if (is_string($request->applied_treatment_id)) {
-                $applied_treatment_id = $this->addAppliedTreatment($request->applied_treatment_id);
+            if (is_string($request->aplication_id)) {
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
-                $applied_treatment_id = $request->applied_treatment_id;
+                $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->construction_type_id)) {
-                $construction_type_id = $this->addConstructionType($request->construction_type_id);
+                $construction_type_id = ConstructionTypeService::add($request->construction_type_id);
             } else {
                 $construction_type_id = $request->construction_type_id;
             }
 
             if (is_string($request->affected_element_id)) {
-                $affected_element_id = $this->addAffectedElement($request->affected_element_id);
+                $affected_element_id = AffectedElementService::add($request->affected_element_id);
             } else {
                 $affected_element_id = $request->affected_element_id;
             }
 
+            if (is_string($request->location_id)) {
+                $location_id = LocationService::add($request->location_id);
+            } else {
+                $location_id = $request->location_id;
+            }
+
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
             $xylophage_control = XylophageControl::create(
                 [
-                    "pest_id"              => $pest_id,
-                    "product_id"           => $product_id,
-                    "applied_treatment_id" => $applied_treatment_id,
-                    "construction_type_id" => $construction_type_id,
-                    "affected_element_id"  => $affected_element_id,
-                    "treatment_date"       => $request->treatment_date,
-                    "next_treatment_date"  => $request->next_treatment_date,
-                    "infestation_level"    => $request->infestation_level,
-                    "observation"          => $request->observation,
-                    "order_id"             => $request->order_id,
+                    "pest_id"                    => $pest_id,
+                    "product_id"                 => $product_id,
+                    "construction_type_id"       => $construction_type_id,
+                    "affected_element_id"        => $affected_element_id,
+                    "treatment_date"             => $request->treatment_date,
+                    "next_treatment_date"        => $request->next_treatment_date,
+                    "infestation_level"          => $request->infestation_level,
+                    "observation"                => $request->observation,
+                    "order_id"                   => $request->order_id,
+
+                    "aplication_id"              => $aplication_id,
+                    "worker_id"                  => $worker_id,
+                    "location_id"                => $location_id,
+                    "treated_area_value"         => $request->treated_area_value,
+                    "treated_area_unit"          => $request->treated_area_unit,
+                    "calculated_total_amount"    => $request->calculated_total_amount,
+                    "calculated_total_unit"      => $request->calculated_total_unit,
+                    "pre_humidity"               => $request->pre_humidity,
+                    "pre_ventilation"            => $request->pre_ventilation,
+                    "pre_access"                 => $request->pre_access,
+                    "pre_notes"                  => $request->pre_notes,
+                    "post_humidity"              => $request->post_humidity,
+                    "post_ventilation"           => $request->post_ventilation,
+                    "post_access"                => $request->post_access,
+                    "post_notes"                 => $request->post_notes,
+                    "dose"                       => $request->dose,
+                    "effectiveness_verification" => $request->effectiveness_verification,
+
                 ]
             );
+            if ($request->correctiveActions) {
+                foreach ($request->correctiveActions as $key => $value) {
+                    if (is_string($value)) {
+                        $correctiveActionId = CorrectiveActionService::add($value);
+                    } else {
+                        $correctiveActionId = $value;
+                    }
+
+                    XylophagusControlCorrectiveAction::create([
+                        "xylophagus_control_id" => $xylophage_control->id,
+                        "corrective_action_id"  => $correctiveActionId,
+                    ]);
+                }
+            }
 
         });
 
@@ -147,52 +196,98 @@ class XylophageControlController extends Controller
 
             $product_id           = null;
             $pest_id              = null;
-            $applied_treatment_id = null;
+            $aplication_id        = null;
             $construction_type_id = null;
             $affected_element_id  = null;
 
             if (is_string($request->product_id)) {
-                $product_id = $this->addProduct($request->product_id);
+                $product_id = ProductService::add($request->product_id);
             } else {
                 $product_id = $request->product_id;
             }
 
             if (is_string($request->pest_id)) {
-                $pest_id = $this->addPest($request->pest_id);
+                $pest_id = PestService::add($request->pest_id);
             } else {
                 $pest_id = $request->pest_id;
             }
 
-            if (is_string($request->applied_treatment_id)) {
-                $applied_treatment_id = $this->addAppliedTreatment($request->applied_treatment_id);
+            if (is_string($request->aplication_id)) {
+                $aplication_id = ApplicationService::add($request->aplication_id);
             } else {
-                $applied_treatment_id = $request->applied_treatment_id;
+                $aplication_id = $request->aplication_id;
             }
 
             if (is_string($request->construction_type_id)) {
-                $construction_type_id = $this->addConstructionType($request->construction_type_id);
+                $construction_type_id = ConstructionTypeService::add($request->construction_type_id);
             } else {
                 $construction_type_id = $request->construction_type_id;
             }
 
             if (is_string($request->affected_element_id)) {
-                $affected_element_id = $this->addAffectedElement($request->affected_element_id);
+                $affected_element_id = AffectedElementService::add($request->affected_element_id);
             } else {
                 $affected_element_id = $request->affected_element_id;
             }
 
+            if (is_string($request->location_id)) {
+                $location_id = LocationService::add($request->location_id);
+            } else {
+                $location_id = $request->location_id;
+            }
+
+            if (is_string($request->worker_id)) {
+                $worker_id = WorkerService::add($request->worker_id);
+            } else {
+                $worker_id = $request->worker_id;
+            }
+
+            XylophagusControlCorrectiveAction::where('xylophagus_control_id', $id)->delete();
+
+            if ($request->correctiveActions) {
+                foreach ($request->correctiveActions as $key => $value) {
+                    if (is_string($value)) {
+                        $correctiveActionId = CorrectiveActionService::add($value);
+                    } else {
+                        $correctiveActionId = $value;
+                    }
+
+                    XylophagusControlCorrectiveAction::create([
+                        "xylophagus_control_id" => $id,
+                        "corrective_action_id"  => $correctiveActionId,
+                    ]);
+                }
+            }
+
             $xylophage_control = XylophageControl::where('id', $id)->update(
                 [
-                    "pest_id"              => $pest_id,
-                    "product_id"           => $product_id,
-                    "applied_treatment_id" => $applied_treatment_id,
-                    "construction_type_id" => $construction_type_id,
-                    "affected_element_id"  => $affected_element_id,
-                    "treatment_date"       => $request->treatment_date,
-                    "next_treatment_date"  => $request->next_treatment_date,
-                    "infestation_level"    => $request->infestation_level,
-                    "observation"          => $request->observation,
-                    "order_id"             => $request->order_id,
+                    "pest_id"                    => $pest_id,
+                    "product_id"                 => $product_id,
+                    "construction_type_id"       => $construction_type_id,
+                    "affected_element_id"        => $affected_element_id,
+                    "treatment_date"             => $request->treatment_date,
+                    "next_treatment_date"        => $request->next_treatment_date,
+                    "infestation_level"          => $request->infestation_level,
+                    "observation"                => $request->observation,
+                    "order_id"                   => $request->order_id,
+
+                    "aplication_id"              => $aplication_id,
+                    "worker_id"                  => $worker_id,
+                    "location_id"                => $location_id,
+                    "treated_area_value"         => $request->treated_area_value,
+                    "treated_area_unit"          => $request->treated_area_unit,
+                    "calculated_total_amount"    => $request->calculated_total_amount,
+                    "calculated_total_unit"      => $request->calculated_total_unit,
+                    "pre_humidity"               => $request->pre_humidity,
+                    "pre_ventilation"            => $request->pre_ventilation,
+                    "pre_access"                 => $request->pre_access,
+                    "pre_notes"                  => $request->pre_notes,
+                    "post_humidity"              => $request->post_humidity,
+                    "post_ventilation"           => $request->post_ventilation,
+                    "post_access"                => $request->post_access,
+                    "post_notes"                 => $request->post_notes,
+                    "dose"                       => $request->dose,
+                    "effectiveness_verification" => $request->effectiveness_verification,
                 ]
             );
 
@@ -211,6 +306,7 @@ class XylophageControlController extends Controller
     public function show($id)
     {
         $model = XylophageControl::find($id);
+        $model->load('correctiveActions');
         return response()->json(['success' => true, 'data' => $model]);
 
     }
@@ -224,89 +320,11 @@ class XylophageControlController extends Controller
     public function destroy($id)
     {
         $xylophage_control = XylophageControl::destroy($id);
+        XylophagusControlCorrectiveAction::where([
+            "xylophagus_control_id" => $id,
+        ])->delete();
         return response()->json(['success' => true, 'message' => 'Exito']);
 
     }
 
-    private function addProduct($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Product::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addPest($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = Pest::create(
-            [
-                "common_name"     => $name,
-                "scientific_name" => $name,
-                "is_xylophagus"   => true,
-                "company_id"      => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addAppliedTreatment($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AppliedTreatment::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addConstructionType($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = ConstructionType::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
-
-    private function addAffectedElement($id)
-    {
-        $name = explode("-", $id);
-        $name = $name[1];
-        $user = Auth::user();
-
-        return $data = AffectedElement::create(
-            [
-                "name"       => $name,
-                "company_id" => $user->company_id,
-
-            ]
-        )->id;
-
-    }
 }

@@ -11,34 +11,53 @@
 <div class="row clearfix mt-3">
 <div class="col-xs-12">
 <table class="table">
-       <thead>
-            <tr>
-            <th class="text-center">Numero</th>
-            <th class="text-center">Cambio de plancha</th>
-            <th class="text-center">Limpieza</th>
-            <th class="text-center">Lampara en mal estado</th>
-            <th class="text-center">Cambio de Fluorescente</th>
-            <th class="text-center">Cantidad</th>
-
-
-            </tr>
-        </thead>
-
+     
             <tbody>
 
                 @foreach($order["lamps"] as $lamp)
-                <tr>
-                    <td class="text-center">{{$lamp["station_number"]}}</td>
-                    <td class="text-center">{{translate_yes_no($lamp["rubbery_iron_changed"])}}</td>
-                    <td class="text-center">{{translate_yes_no($lamp["lamp_cleaning"])}}</td>
-                    <td class="text-center">{{translate_yes_no($lamp["lamp_not_working"])}}</td>
-                    <td class="text-center">{{translate_yes_no($lamp["fluorescent_change"])}}</td>
-                    <td class="text-center">{{!empty($lamp["quantity_replaced"])?$lamp["quantity_replaced"]:'Sin definir'}}</td>
-                  </tr>
 
-                  <tr style="width=100%">
+                <tr style="width=100%">
+                    <td class="text-center" colspan="6"><b>#{{ $loop->iteration }}</b></td>
+                </tr>
+
+                <tr style="width=100%">
+                <td><b>Número Estación: </b>{{$lamp["station_number"]}}</td>
+                <td><b>Cambio de plancha gomosa: </b>{{translate_yes_no($lamp["rubbery_iron_changed"])}}</td>
+                <td colspan="2"><b>Limpieza: </b>{{translate_yes_no($lamp["lamp_cleaning"])}}</td>
+                <td colspan="2"><b>Lampara en mal estado: </b>{{translate_yes_no($lamp["lamp_not_working"])}}</td>
+                </tr>
+
+                <tr style="width=100%">
+                <td><b>Cambio de Fluorescente: </b>{{translate_yes_no($lamp["fluorescent_change"])}}</td>
+                <td><b>Cantidad: </b>{{!empty($lamp["quantity_replaced"])?$lamp["quantity_replaced"]:'0'}}</td>
+                <td colspan="2"><b>Técnico responsable: </b>{{$lamp["worker"]["full_name"]}}</td>
+                <td colspan="2"><b>Hora aplicación: </b>{{\Carbon\Carbon::parse($lamp["application_time"])->format('h:i A')}}</td>
+                </tr>
+
+                <tr style="width=100%">
+                <td><b>Producto aplicado: </b>{{$lamp["product"]["name"]}}</td>
+                <td><b>Dentro de límites críticos: </b>{{$lamp["within_critical_limits"] ? 'Si':'No'}}</td>
+                </tr>
+
+                <tr style="width=100%">
                   <td colspan="7"><b>Observaciones: </b>{{$lamp["observation"]}}</td>
-                  </tr>
+                </tr>
+
+                     @if(!empty($lamp["corrective_actions"]))
+                <tr>
+                    <td colspan="7" style="padding: 10px;">
+                        <b>Acciones correctivas:</b>
+                        @php
+                            $actions = collect($lamp["corrective_actions"])
+                                        ->pluck('corrective_action.name')
+                                        ->filter()
+                                        ->implode(', ');
+                        @endphp
+
+                        <span>{{ $actions }}</span>
+                    </td>
+                </tr>
+                @endif
                 @endforeach
 
             </tbody>

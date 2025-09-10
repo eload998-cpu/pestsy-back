@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests\Administration\Order\Fumigation;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,10 +18,12 @@ class CreateFumigationRequest extends FormRequest
     public function attributes()
     {
         return [
-            'aplication_id'=>'Aplicación',
-            'aplication_place_id'=>'Lugar de aplicación',
-            'product_id'=>'Producto',
-            'dose'=>'Dosis'
+            'aplication_id'    => 'Aplicación',
+            'location_id'      => 'Ubicación',
+            'product_id'       => 'Producto',
+            'dose'             => 'Dosis',
+            'worker_id'        => 'Técnico responsable',
+            'application_time' => 'Hora de aplicación',
         ];
     }
 
@@ -34,10 +35,12 @@ class CreateFumigationRequest extends FormRequest
     public function rules()
     {
         return [
-            'aplication_id'=>'required',
-            'aplication_place_id'=>'required',
-            'product_id'=>'required',
-            'dose'=>'required'
+            'aplication_id'    => 'required',
+            'location_id'      => 'required',
+            'product_id'       => 'required',
+            'dose'             => 'required',
+            'worker_id'        => 'required',
+            'application_time' => 'required',
 
         ];
     }

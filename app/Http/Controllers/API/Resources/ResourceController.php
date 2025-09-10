@@ -5,8 +5,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Administration\Plan;
 use App\Models\Module\AffectedElement;
 use App\Models\Module\Aplication;
-use App\Models\Module\AplicationPlace;
-use App\Models\Module\AppliedTreatment;
 use App\Models\Module\ConstructionType;
 use App\Models\Module\CorrectiveAction;
 use App\Models\Module\DesinfectionMethod;
@@ -14,6 +12,8 @@ use App\Models\Module\Device;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
 use App\Models\Module\Product;
+use App\Models\Module\SafetyControl;
+use App\Models\Module\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -41,68 +41,116 @@ class ResourceController extends Controller
         $construction_types   = [];
         $affected_elements    = [];
         $desinfection_methods = [];
+        $workers              = [];
+        $safety_controls      = [];
+
+        if ($request->workers) {
+            $workers = Worker::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id);
+            })
+                ->get();
+
+        }
 
         if ($request->corrective_action) {
-            $corrective_actions = CorrectiveAction::all();
+            $corrective_actions = CorrectiveAction::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->aplications) {
-            $aplications = Aplication::all();
-
-        }
-
-        if ($request->aplication_places) {
-            $aplication_places = AplicationPlace::all();
-
+            $aplications = Aplication::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
         }
 
         if ($request->products) {
-            $products = Product::all();
+            $products = Product::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->devices) {
-            $devices = Device::all();
+            $devices = Device::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->locations) {
-            $locations = Location::all();
+            $locations = Location::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->desinfection_methods) {
-            $desinfection_methods = DesinfectionMethod::get();
+            $desinfection_methods = DesinfectionMethod::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->xylophages) {
-            $pests = Pest::where('is_xylophagus', true)->get();
-
+            $pests = Pest::where('is_xylophagus', true)
+                ->where(function ($q) use ($user) {
+                    $q->where('company_id', $user->company->id)
+                        ->orWhere('is_general', true);
+                })
+                ->get();
         }
 
         if ($request->pests) {
-            $pests = Pest::all();
-
-        }
-
-        if ($request->applied_treatments) {
-            $applied_treatments = AppliedTreatment::all();
+            $pests = Pest::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->construction_types) {
-            $construction_types = ConstructionType::all();
+            $construction_types = ConstructionType::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
         if ($request->affected_elements) {
-            $affected_elements = AffectedElement::all();
+            $affected_elements = AffectedElement::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
 
         }
 
-        return response()->json(compact('corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
+        if ($request->safety_controls) {
+            $safety_controls = SafetyControl::where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+            })
+                ->get();
+
+        }
+
+        return response()->json(compact('safety_controls', 'workers', 'corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
 
     }
 

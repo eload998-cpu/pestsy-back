@@ -17,12 +17,10 @@ return new class extends Migration
         Schema::create("modules.products", function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code')->nullable();
             $table->string('active_ingredient')->nullable();
             $table->bigInteger('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on("administration.companies")->onDelete('cascade');
             $table->boolean('is_general')->default(false);
-
             $table->timestamps();
         });
 

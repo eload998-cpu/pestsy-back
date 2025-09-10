@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create("modules.aplication_places", function (Blueprint $table) {
+        Schema::create('modules.safety_controls', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('is_general')->default(true);
             $table->bigInteger('company_id')->nullable();
             $table->foreign('company_id')->references('id')->on("administration.companies")->onDelete('cascade');
-            $table->boolean('is_general')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('modules.aplication_places');
+        Schema::dropIfExists('modules.safety_controls');
     }
 };

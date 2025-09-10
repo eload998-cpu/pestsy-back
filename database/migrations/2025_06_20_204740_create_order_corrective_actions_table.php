@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('modules.order_corrective_actions', function (Blueprint $table) {
+        Schema::create('modules.rodent_control_corrective_actions', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('control_of_rodent_id')->nullable();
             $table->foreign('control_of_rodent_id')->references('id')->on("modules.control_of_rodents")->onDelete('cascade');
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('modules.order_corrective_actions');
+        Schema::dropIfExists('modules.rodent_control_corrective_actions');
     }
 };
