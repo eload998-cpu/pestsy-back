@@ -13,7 +13,7 @@ class ClientService
     {
         $user = Auth::user();
 
-        $client_name = explode("-", $client_id);
+        $client_name = explode("-", $id);
         $client_name = explode(" ", $client_name[1]);
         $email_name  = str_replace(" ", "_", $client_name[0]);
 

@@ -13,7 +13,7 @@ class WorkerService
     {
         $user = Auth::user();
 
-        $worker_name   = explode("-", $worker_name);
+        $worker_name   = explode("-", $id);
         $worker_name   = explode(" ", $worker_name[1]);
         $email_name    = str_replace(" ", "_", $worker_name[0]);
         return $worker = Worker::create(
