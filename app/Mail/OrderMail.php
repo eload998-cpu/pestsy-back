@@ -82,6 +82,8 @@ class OrderMail extends Mailable
         $order->load('lamps', 'lamps.worker', 'lamps.product', 'lamps.correctiveActions.correctiveAction');
         $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
         $order->load('infestationGrade');
+        $order->load('legionellaControl', 'legionellaControl.location', 'legionellaControl.application', 'legionellaControl.worker', 'legionellaControl.correctiveActions.correctiveAction');
+        $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.location', 'xylophageControl.pest', 'xylophageControl.application', 'xylophageControl.constructionType', 'xylophageControl.affectedElement', 'xylophageControl.worker', 'xylophageControl.correctiveActions.correctiveAction');
 
         $orderProducts = $this->getProducts($order);
 
