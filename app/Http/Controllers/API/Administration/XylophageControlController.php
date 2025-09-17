@@ -140,7 +140,7 @@ class XylophageControlController extends Controller
                     "treatment_date"             => $request->treatment_date,
                     "next_treatment_date"        => $request->next_treatment_date,
                     "infestation_level"          => $request->infestation_level,
-                    "observation"                => $request->observation,
+                    "observation"                => $request->observation ?? null,
                     "order_id"                   => $request->order_id,
 
                     "aplication_id"              => $aplication_id,
@@ -268,7 +268,7 @@ class XylophageControlController extends Controller
                     "treatment_date"             => $request->treatment_date,
                     "next_treatment_date"        => $request->next_treatment_date,
                     "infestation_level"          => $request->infestation_level,
-                    "observation"                => $request->observation,
+                    "observation"                => $request->observation ?? null,
                     "order_id"                   => $request->order_id,
 
                     "aplication_id"              => $aplication_id,

@@ -53,7 +53,6 @@ class CreateXylophageControlRequest extends FormRequest
             'affected_element_id'  => 'required',
             'treatment_date'       => 'required',
             'next_treatment_date'  => 'required',
-            'observation'          => 'required',
             'dose'                 => 'required',
             'treated_area_value'   => 'required',
             'treated_area_unit'    => 'required',

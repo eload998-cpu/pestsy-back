@@ -537,6 +537,8 @@ class OrderController extends Controller
             $user->last_email_sent = Carbon::now();
             $user->save();
 
+            Mail::to($order->client->email)->send(new OrderMail($order, $company_name));
+
             foreach ($order->client->emails as $e) {
 
                 if (! str_contains($e->email, '@mail.com')) {

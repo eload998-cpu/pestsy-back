@@ -76,9 +76,11 @@
                 </tr>
                 @endif
 
+                @if(!empty($xylophageControl["observation"]))
                 <tr style="width=100%">
                 <td colspan="6"><b>Observación: </b>{{$xylophageControl["observation"]}}</td>
                 </tr>
+                @endif
 
                 @if(isset($xylophageControl["pre_humidity"]) || isset($xylophageControl["pre_ventilation"]) || isset($xylophageControl["pre_access"]) || isset($xylophageControl["pre_notes"])  )
                 <tr style="width=100%">
