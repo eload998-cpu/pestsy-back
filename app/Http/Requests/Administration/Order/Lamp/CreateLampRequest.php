@@ -26,6 +26,7 @@ class CreateLampRequest extends FormRequest
             'application_time'   => 'Hora de aplicación',
             'worker_id'          => 'Trabajador',
             'location_id'        => 'Ubicación',
+            'product_id'         => 'Producto',
 
         ];
     }
@@ -41,11 +42,11 @@ class CreateLampRequest extends FormRequest
             'fluorescent_change' => 'required',
             'lamp_not_working'   => 'required',
             'station_number'     => 'required',
-            'observation'        => 'required',
             'quantity_replaced'  => 'required_if:fluorescent_change,yes',
             'application_time'   => 'required',
             'worker_id'          => 'required',
             'location_id'        => 'required',
+            'product_id'         => 'required',
 
         ];
     }

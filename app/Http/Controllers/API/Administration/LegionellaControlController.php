@@ -86,7 +86,6 @@ class LegionellaControlController extends Controller
 
         try {
 
-            \Log::info("acaa");
             $location_id    = null;
             $application_id = null;
             $worker_id      = null;
@@ -133,7 +132,7 @@ class LegionellaControlController extends Controller
                     "sample_required"         => $request->sample_required,
                     "water_temperature"       => $request->water_temperature,
                     "residual_chlorine_level" => $request->residual_chlorine_level,
-                    "observation"             => $request->observation,
+                    "observation"             => $request->observation ?? null,
                     "order_id"                => $request->order_id,
                     "within_critical_limits"  => $request->within_critical_limits,
                     "worker_id"               => $worker_id,
@@ -233,7 +232,7 @@ class LegionellaControlController extends Controller
                     "sample_required"         => $request->sample_required,
                     "water_temperature"       => $request->water_temperature,
                     "residual_chlorine_level" => $request->residual_chlorine_level,
-                    "observation"             => $request->observation,
+                    "observation"             => $request->observation ?? null,
                     "order_id"                => $request->order_id,
                     "within_critical_limits"  => $request->within_critical_limits,
                     "worker_id"               => $worker_id,

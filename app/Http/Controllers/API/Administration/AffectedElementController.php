@@ -36,8 +36,11 @@ class AffectedElementController extends Controller
             $affectedElement = $affectedElement->whereRaw("LOWER(affected_elements.name) ILIKE '%{$search_value}%'");
 
         }
-        $affectedElement = $affectedElement->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+
+        $affectedElement->where(function ($q) use ($user) {
+            $q->whereNull('affected_elements.company_id')
+                ->orWhere('affected_elements.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

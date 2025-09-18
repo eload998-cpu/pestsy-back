@@ -36,8 +36,11 @@ class ConstructionTypeController extends Controller
             $constructionType = $constructionType->whereRaw("LOWER(construction_types.name) ILIKE '%{$search_value}%'");
 
         }
-        $constructionType = $constructionType->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+
+        $constructionType->where(function ($q) use ($user) {
+            $q->whereNull('construction_types.company_id')
+                ->orWhere('construction_types.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

@@ -61,10 +61,11 @@
                 </tr>
          @endif
 
+         @if(!empty($rodent_control["observation"]))
         <tr style="width=100%">
                 <td colspan="6"><b>Observación: </b>{{$rodent_control["observation"]}}</td>
         </tr>
-
+        @endif
 
         @if(!empty($rodent_control["pest_bitacores"]))
         <tr style="width=100%">

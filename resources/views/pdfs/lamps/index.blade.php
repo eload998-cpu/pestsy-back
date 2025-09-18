@@ -39,9 +39,11 @@
                 <td><b>Dentro de límites críticos: </b>{{$lamp["within_critical_limits"] ? 'Si':'No'}}</td>
                 </tr>
 
+                @if(!empty($lamp["observation"]))
                 <tr style="width=100%">
                   <td colspan="7"><b>Observaciones: </b>{{$lamp["observation"]}}</td>
                 </tr>
+                @endif
 
                      @if(!empty($lamp["corrective_actions"]))
                 <tr>

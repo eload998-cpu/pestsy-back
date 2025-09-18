@@ -73,7 +73,13 @@ class SketchController extends Controller
                 foreach ($value as $f) {
 
                     // Getting file name
-                    $name     = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
+                    $name = $f->getClientOriginalName();
+                    $base = pathinfo($name, PATHINFO_FILENAME);
+
+                    $base = preg_replace('/\(\d+\)/', '', $base);
+
+                    $base     = trim($base);
+                    $name     = substr($base, 0, 19) . '.pdf';
                     $filename = rand() . '_' . $name;
 
                     $path = Storage::disk('public')->putFileAs('files/Sketchs/' . $request->client_id, new File($f), $filename);
@@ -83,10 +89,10 @@ class SketchController extends Controller
                     $storage_link = "/storage/files/Sketchs/{$request->client_id}/{$filename}";
 
                     $file = Sketch::create([
-                        'name'      => $name,
-                        'file_url'  => $storage_link,
-                        'client_id' => $request->client_id,
-                        'company_id' =>$request->company_id
+                        'name'       => $name,
+                        'file_url'   => $storage_link,
+                        'client_id'  => $request->client_id,
+                        'company_id' => $request->company_id,
 
                     ]);
                 }

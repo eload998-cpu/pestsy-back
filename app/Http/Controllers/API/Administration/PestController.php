@@ -36,8 +36,10 @@ class PestController extends Controller
             $pests        = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
 
         }
-        $pests = $pests->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+        $pests->where(function ($q) use ($user) {
+            $q->whereNull('pests.company_id')
+                ->orWhere('pests.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

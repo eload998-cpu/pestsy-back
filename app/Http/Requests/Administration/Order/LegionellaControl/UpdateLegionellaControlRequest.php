@@ -56,7 +56,6 @@ class UpdateLegionellaControlRequest extends FormRequest
             'sample_required'         => 'boolean',
             'water_temperature'       => 'nullable|numeric',
             'residual_chlorine_level' => 'nullable|numeric',
-            'observation'             => 'nullable|required',
             'within_critical_limits'  => 'boolean',
             'worker_id'               => 'required',
         ];

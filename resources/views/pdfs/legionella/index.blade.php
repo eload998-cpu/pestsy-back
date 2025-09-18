@@ -64,11 +64,15 @@
                         <span>{{ $actions }}</span>
                     </td>
                 </tr>
-                @endif
+                @endif  
+
+                @if(!empty($legionellaControl["observation"]))
 
                 <tr style="width=100%">
                 <td colspan="6"><b>Observación: </b>{{$legionellaControl["observation"]}}</td>
                 </tr>
+
+                @endif
 
 
                   @if($loop->iteration % 2 === 0 && !$loop->last)

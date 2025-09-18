@@ -55,7 +55,6 @@ class CreateRodentControlRequest extends FormRequest
             'bait_status'=>'required',
             'dose'=>'required',
             'activity'=>'required',
-            'observation'=>'required',
             'bitacores'=>[
                 new ValidBitacores($this->all())
             ],

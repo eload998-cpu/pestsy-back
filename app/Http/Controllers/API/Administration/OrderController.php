@@ -69,9 +69,18 @@ class OrderController extends Controller
             ->select('orders.*', DB::raw("COALESCE(clients.first_name || ' ' || clients.last_name, clients.first_name) AS client_name"))
             ->with('status');
 
+        if ($request->date_1 && $request->date_2) {
+            $orders = $orders->whereBetween(DB::raw('DATE(orders.date)'), [$request->date_1, $request->date_2]);
+        }
+
         if ($request->search) {
             $search_value = $request->search;
-            $orders       = $orders->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(orders.order_number)  || LOWER(orders.date) ILIKE '%{$search_value}%'");
+            $orders       = $orders->where(function ($q) use ($search_value) {
+                $q->whereRaw("LOWER(clients.first_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(clients.last_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(orders.date) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(orders.order_number) ILIKE ?", ["%{$search_value}%"]);
+            });
 
         }
 
@@ -155,7 +164,7 @@ class OrderController extends Controller
         }
 
         $orders = Order::where('status_id', $status->id)
-            ->where('company_id', $company_id)
+            ->where('orders.company_id', $company_id)
             ->leftJoin('clients', 'orders.client_id', 'clients.id')
             ->select('orders.*', DB::raw("COALESCE(clients.first_name || ' ' || clients.last_name, clients.first_name) AS client_name"))
             ->whereBetween(DB::raw('DATE(orders.date)'), [$request->date_1, $request->date_2])
@@ -536,6 +545,8 @@ class OrderController extends Controller
             }
             $user->last_email_sent = Carbon::now();
             $user->save();
+
+            Mail::to($order->client->email)->send(new OrderMail($order, $company_name));
 
             foreach ($order->client->emails as $e) {
 
