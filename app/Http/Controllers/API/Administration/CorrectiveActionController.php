@@ -29,15 +29,17 @@ class CorrectiveActionController extends Controller
     public function index(Request $request)
     {
         $correctiveActions = $this->correctiveAction;
-        $user                = Auth::user();
+        $user              = Auth::user();
 
         if ($request->search) {
-            $search_value        = $request->search;
+            $search_value      = $request->search;
             $correctiveActions = $correctiveActions->whereRaw("LOWER(corrective_actions.name) ILIKE '%{$search_value}%'");
 
         }
-        $correctiveActions = $correctiveActions->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+        $correctiveActions->where(function ($q) use ($user) {
+            $q->whereNull('corrective_actions.company_id')
+                ->orWhere('corrective_actions.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
@@ -94,7 +96,7 @@ class CorrectiveActionController extends Controller
     public function show($id)
     {
 
-        $user               = Auth::user();
+        $user             = Auth::user();
         $correctiveAction = correctiveAction::where('id', $id)->where('company_id', $user->company->id)->first();
 
         if (empty($correctiveAction)) {

@@ -55,7 +55,13 @@ class MinSaludController extends Controller
                 foreach ($value as $f) {
 
                     // Getting file name
-                    $name     = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
+                    $name = $f->getClientOriginalName();
+                    $base = pathinfo($name, PATHINFO_FILENAME);
+
+                    $base = preg_replace('/\(\d+\)/', '', $base);
+
+                    $base     = trim($base);
+                    $name     = substr($base, 0, 19) . '.pdf';
                     $filename = rand() . '_' . $name;
 
                     $path = Storage::disk('public')->putFileAs('files/MinSalud', new File($f), $filename);

@@ -44,8 +44,14 @@ class ClientController extends Controller
         $user    = Auth::user();
 
         if ($request->search) {
+
             $search_value = $request->search;
-            $clients      = $clients->whereRaw("LOWER(clients.first_name) || LOWER(clients.last_name) || LOWER(clients.cellphone) || LOWER(clients.email)  ILIKE '%{$search_value}%'");
+            $clients      = $clients->where(function ($q) use ($search_value) {
+                $q->whereRaw("LOWER(clients.first_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(clients.last_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(clients.cellphone) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(clients.email) ILIKE ?", ["%{$search_value}%"]);
+            });
         }
         $clients = $clients->where('company_id', $user->company_id);
 
@@ -53,7 +59,7 @@ class ClientController extends Controller
             switch ($request->sortBy) {
 
                 case 'name':
-                    $clients = $clients->orderByRaw("clients.first_name || clients.last_name {$request->sort}");
+                    $clients = $clients->orderByRaw("clients.first_name ||' '||  clients.last_name {$request->sort}");
 
                     break;
 

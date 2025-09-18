@@ -36,8 +36,11 @@ class LocationController extends Controller
             $locations    = $locations->whereRaw("LOWER(locations.name) ILIKE '%{$search_value}%'");
 
         }
-        $locations = $locations->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+
+        $locations->where(function ($q) use ($user) {
+            $q->whereNull('locations.company_id')
+                ->orWhere('locations.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

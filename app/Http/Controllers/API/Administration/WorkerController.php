@@ -120,8 +120,12 @@ class WorkerController extends Controller
 
         if ($request->search) {
             $search_value = $request->search;
-            $workers      = $workers->whereRaw("LOWER(workers.first_name) || LOWER(workers.last_name) || LOWER(workers.cellphone) || LOWER(workers.email) ILIKE '%{$search_value}%'");
-
+            $workers      = $workers->where(function ($q) use ($search_value) {
+                $q->whereRaw("LOWER(workers.first_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(workers.last_name) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(workers.cellphone) ILIKE ?", ["%{$search_value}%"])
+                    ->orWhereRaw("LOWER(workers.email) ILIKE ?", ["%{$search_value}%"]);
+            });
         }
         $workers = $workers->where("company_id", $user->company_id);
 

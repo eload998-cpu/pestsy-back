@@ -59,7 +59,13 @@ class PermissionController extends Controller
                 foreach ($value as $f) {
 
                     // Getting file name
-                    $name     = substr(str_replace(".pdf", "", $f->getClientOriginalName()), 0, 19) . ".pdf";
+                    $name = $f->getClientOriginalName();
+                    $base = pathinfo($name, PATHINFO_FILENAME);
+
+                    $base = preg_replace('/\(\d+\)/', '', $base);
+
+                    $base     = trim($base);
+                    $name     = substr($base, 0, 19) . '.pdf';
                     $filename = rand() . '_' . $name;
 
                     $path = Storage::disk('public')->putFileAs('files/Permissions', new File($f), $filename);
@@ -69,9 +75,9 @@ class PermissionController extends Controller
                     $storage_link = "/storage/files/Permissions/{$filename}";
 
                     $file = Permission::create([
-                        'name'     => $name,
-                        'file_url' => $storage_link,
-                        'company_id' =>$request->company_id
+                        'name'       => $name,
+                        'file_url'   => $storage_link,
+                        'company_id' => $request->company_id,
 
                     ]);
                 }

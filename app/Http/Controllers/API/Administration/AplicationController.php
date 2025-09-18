@@ -37,8 +37,11 @@ class AplicationController extends Controller
             $aplications  = $aplications->whereRaw("LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
-        $aplications = $aplications->whereNull('company_id')
-            ->orWhere('company_id', $user->company_id);
+
+        $aplications->where(function ($q) use ($user) {
+            $q->whereNull('aplications.company_id')
+                ->orWhere('aplications.company_id', $user->company_id);
+        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
