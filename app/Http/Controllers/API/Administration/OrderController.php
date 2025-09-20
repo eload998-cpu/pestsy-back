@@ -342,7 +342,6 @@ class OrderController extends Controller
                     "arrive_time"  => $arrive_time,
                     "start_time"   => $start_time,
                     "end_time"     => $end_time,
-                    "coordinator"  => $request->coordinator,
                     "origin"       => $request->origin,
                     "status_id"    => $status->id,
                     "user_id"      => Auth::user()->id,
