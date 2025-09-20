@@ -399,7 +399,7 @@
         </div>
 
         <div class="col-xs-4 mt-2">
-            <span><b>Técnico:</b></span>
+            <span><b>Encargado:</b></span>
             {{ $order['worker']['full_name'] }}
         </div>
     </div>
@@ -412,20 +412,19 @@
         </div>
 
         <div class="col-xs-4 mt-2">
-            <span><b>Orden de servicio:</b></span> {{ $order['order_number'] }}
+            <span><b>Tipo de servicio:</b></span>
+            @if (!empty($order['service_type']))
+                {{ $order['service_type'] }}
+            @else
+                Ninguno
+            @endif
         </div>
 
         <div class="col-xs-4 mt-2">
-            <span><b>Encargado:</b></span>
-
-            @php
-                $coordinator = $order['coordinator'];
-                if (strlen($coordinator) > 15) {
-                    $coordinator = substr_replace($coordinator, '<br>', 15, 0);
-                }
-            @endphp
-            {!! $coordinator !!}
+            <span><b>Orden de servicio:</b></span> {{ $order['order_number'] }}
         </div>
+
+
     </div>
 
 
@@ -460,14 +459,7 @@
 
 
     <div class="row clearfix">
-        <div class="col-xs-4 mt-2">
-            <span><b>Tipo de servicio:</b></span>
-            @if (!empty($order['service_type']))
-                {{ $order['service_type'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
+
 
         <div class="col-xs-4 mt-2">
             <span><b>Procedencia:</b></span>
@@ -478,11 +470,7 @@
             @endif
         </div>
 
-
-    </div>
-
-    <div class="row clearfix">
-        <div class="col-xs-12 mt-2">
+        <div class="col-xs-8 mt-2">
             <span><b>Direccion:</b></span>
             @if (!empty($order['direction']))
                 {{ $order['direction'] }}
@@ -491,7 +479,10 @@
             @endif
         </div>
 
+
     </div>
+
+
 
 
     <!--XYLOPHAGE-->
@@ -582,7 +573,7 @@
     @include('pdfs.signatures.index')
 
     <!-- -->
-    
+
 
 
 

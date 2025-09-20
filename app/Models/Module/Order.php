@@ -29,7 +29,6 @@ class Order extends Model
         "arrive_time",
         "start_time",
         "end_time",
-        "coordinator",
         "origin",
         "status_id",
         "company_id",

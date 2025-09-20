@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('arrive_time')->nullable();
             $table->string('start_time')->nullable();
             $table->string('end_time')->nullable();
-            $table->string('coordinator')->nullable();
             $table->string('origin')->nullable();
 
             $table->bigInteger('status_id')->nullable();
