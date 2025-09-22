@@ -31,15 +31,16 @@ class PestController extends Controller
         $pests = $this->pest;
         $user  = Auth::user();
 
+        $pests = $pests->where(function ($q) use ($user) {
+            $q->whereNull('pests.company_id')
+                ->orWhere('pests.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value = $request->search;
             $pests        = $pests->whereRaw("LOWER(pests.common_name) || LOWER(pests.scientific_name)  ILIKE '%{$search_value}%'");
 
         }
-        $pests->where(function ($q) use ($user) {
-            $q->whereNull('pests.company_id')
-                ->orWhere('pests.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

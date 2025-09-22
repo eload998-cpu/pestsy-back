@@ -31,7 +31,7 @@ class CorrectiveActionController extends Controller
         $correctiveActions = $this->correctiveAction->newQuery();
         $user              = Auth::user();
 
-        $correctiveActions->where(function ($q) use ($user) {
+        $correctiveActions = $correctiveActions->where(function ($q) use ($user) {
             $q->whereNull('corrective_actions.company_id')
                 ->orWhere('corrective_actions.company_id', $user->company_id);
         });

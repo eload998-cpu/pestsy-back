@@ -31,16 +31,16 @@ class ConstructionTypeController extends Controller
         $constructionType = $this->constructionType;
         $user             = Auth::user();
 
+        $constructionType = $constructionType->where(function ($q) use ($user) {
+            $q->whereNull('construction_types.company_id')
+                ->orWhere('construction_types.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value     = $request->search;
             $constructionType = $constructionType->whereRaw("LOWER(construction_types.name) ILIKE '%{$search_value}%'");
 
         }
-
-        $constructionType->where(function ($q) use ($user) {
-            $q->whereNull('construction_types.company_id')
-                ->orWhere('construction_types.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

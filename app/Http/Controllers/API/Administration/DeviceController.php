@@ -31,15 +31,16 @@ class DeviceController extends Controller
         $devices = $this->device;
         $user    = Auth::user();
 
+        $devices = $devices->where(function ($q) use ($user) {
+            $q->whereNull('devices.company_id')
+                ->orWhere('devices.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value = $request->search;
             $devices      = $devices->whereRaw("LOWER(devices.name) ILIKE '%{$search_value}%'");
 
         }
-        $devices->where(function ($q) use ($user) {
-            $q->whereNull('devices.company_id')
-                ->orWhere('devices.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

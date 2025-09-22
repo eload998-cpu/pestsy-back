@@ -32,16 +32,16 @@ class AplicationController extends Controller
         $aplications = $this->aplication;
         $user        = Auth::user();
 
+        $aplications = $aplications->where(function ($q) use ($user) {
+            $q->whereNull('aplications.company_id')
+                ->orWhere('aplications.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value = $request->search;
             $aplications  = $aplications->whereRaw("LOWER(aplications.name) ILIKE '%{$search_value}%'");
 
         }
-
-        $aplications->where(function ($q) use ($user) {
-            $q->whereNull('aplications.company_id')
-                ->orWhere('aplications.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
