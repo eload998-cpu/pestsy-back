@@ -31,16 +31,16 @@ class AffectedElementController extends Controller
         $affectedElement = $this->affectedElement;
         $user            = Auth::user();
 
+        $affectedElement = $affectedElement->where(function ($q) use ($user) {
+            $q->whereNull('affected_elements.company_id')
+                ->orWhere('affected_elements.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value    = $request->search;
             $affectedElement = $affectedElement->whereRaw("LOWER(affected_elements.name) ILIKE '%{$search_value}%'");
 
         }
-
-        $affectedElement->where(function ($q) use ($user) {
-            $q->whereNull('affected_elements.company_id')
-                ->orWhere('affected_elements.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {

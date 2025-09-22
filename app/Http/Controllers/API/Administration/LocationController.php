@@ -31,16 +31,16 @@ class LocationController extends Controller
         $locations = $this->location;
         $user      = Auth::user();
 
+        $locations = $locations->where(function ($q) use ($user) {
+            $q->whereNull('locations.company_id')
+                ->orWhere('locations.company_id', $user->company_id);
+        });
+
         if ($request->search) {
             $search_value = $request->search;
             $locations    = $locations->whereRaw("LOWER(locations.name) ILIKE '%{$search_value}%'");
 
         }
-
-        $locations->where(function ($q) use ($user) {
-            $q->whereNull('locations.company_id')
-                ->orWhere('locations.company_id', $user->company_id);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
