@@ -31,9 +31,9 @@ class ProductController extends Controller
         $products = $this->product;
         $user     = Auth::user();
 
-        $products = $products->where(function ($query) use ($user) {
-            $query->where('company_id', $user->company->id)
-                ->orWhere('is_general', true);
+        $products = $products->where(function ($q) use ($user) {
+            $q->whereNull('products.company_id')
+                ->orWhere('products.company_id', $user->company_id);
         });
 
 
