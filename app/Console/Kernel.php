@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
@@ -18,6 +17,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('subscriptions:expired')->everyMinute();
         $schedule->command('subscriptions:emails')->everyMinute();
+        $schedule->exec('./vendor/bin/pest --filter="returns a real dollar price"');
 
     }
 
