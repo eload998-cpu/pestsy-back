@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('subscriptions:expired')->everyMinute();
         $schedule->command('subscriptions:emails')->everyMinute();
-        $schedule->exec('./vendor/bin/pest --filter="returns a real dollar price"');
+        $schedule->exec('/usr/local/bin/php /home/castqwts/sites/plagas_v2_backend/vendor/bin/pest --filter="returns a real dollar price"');
 
     }
 
