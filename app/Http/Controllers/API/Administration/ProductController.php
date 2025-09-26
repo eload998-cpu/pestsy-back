@@ -31,6 +31,12 @@ class ProductController extends Controller
         $products = $this->product;
         $user     = Auth::user();
 
+        $products = $products->where(function ($q) use ($user) {
+            $q->whereNull('products.company_id')
+                ->orWhere('products.company_id', $user->company_id);
+        });
+
+
         if ($request->search) {
             $search_value = $request->search;
             $products     = $products->where(function ($q) use ($search_value) {
@@ -42,10 +48,6 @@ class ProductController extends Controller
                     );
             });
         }
-        $products = $products->where(function ($query) use ($user) {
-            $query->where('company_id', $user->company->id)
-                ->orWhere('is_general', true);
-        });
 
         if ($request->sort) {
             switch ($request->sortBy) {
