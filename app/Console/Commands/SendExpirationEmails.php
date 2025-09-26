@@ -44,6 +44,8 @@ class SendExpirationEmails extends Command
 
             $subscription = UserSubscription::where('user_id', $user->id)->latest()->first();
 
+            \Log::info($subscription);
+
             $today       = Carbon::parse(Carbon::now());
             $exp_date    = Carbon::parse($subscription->end_date);
             $expire_date = Carbon::parse($subscription->end_date);
