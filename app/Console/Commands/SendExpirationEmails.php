@@ -44,36 +44,39 @@ class SendExpirationEmails extends Command
 
             $subscription = UserSubscription::where('user_id', $user->id)->latest()->first();
 
-            \Log::info($subscription);
+            \Log::info($user);
 
-            $today       = Carbon::parse(Carbon::now());
-            $exp_date    = Carbon::parse($subscription->end_date);
-            $expire_date = Carbon::parse($subscription->end_date);
-            $validation  = $expire_date->subDays(3);
+            if ($subscription) {
 
-            if ($today->gte($validation) && $subscription->status_id == $status->id && $subscription->plan->name == "Premium") {
+                $today       = Carbon::parse(Carbon::now());
+                $exp_date    = Carbon::parse($subscription->end_date);
+                $expire_date = Carbon::parse($subscription->end_date);
+                $validation  = $expire_date->subDays(3);
 
-                if ($today->gte($exp_date)) {
+                if ($today->gte($validation) && $subscription->status_id == $status->id && $subscription->plan->name == "Premium") {
 
-                    $status = Status::where('status_type_id', $status_type->id)->where('name', 'inactive')->first();
+                    if ($today->gte($exp_date)) {
 
-                    $sub = UserSubscription::find($subscription->id);
+                        $status = Status::where('status_type_id', $status_type->id)->where('name', 'inactive')->first();
 
-                    $company                 = Company::find($user->company->id);
-                    $company->order_quantity = 0;
-                    $company->save();
+                        $sub = UserSubscription::find($subscription->id);
 
-                    $sub->status_id = $status->id;
-                    $sub->save();
+                        $company                 = Company::find($user->company->id);
+                        $company->order_quantity = 0;
+                        $company->save();
 
-                    Mail::to($user->email)->send(new ExpiratedAccountEmail($user));
+                        $sub->status_id = $status->id;
+                        $sub->save();
 
-                } else {
-                    if (! $user->active_subscription) {
-                        Mail::to($user->email)->send(new WarningExpirationEmail($user, $subscription->end_date));
+                        Mail::to($user->email)->send(new ExpiratedAccountEmail($user));
+
+                    } else {
+                        if (! $user->active_subscription) {
+                            Mail::to($user->email)->send(new WarningExpirationEmail($user, $subscription->end_date));
+                        }
                     }
-                }
 
+                }
             }
 
         }
