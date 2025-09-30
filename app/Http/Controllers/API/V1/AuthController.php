@@ -306,84 +306,89 @@ class AuthController extends Controller
     public function updateProfile(UpdateProfileRequest $request)
     {
 
-        $user      = Auth::user();
-        $user_role = $user->roles()->first()->name;
+        try {
+            $user      = Auth::user();
+            $user_role = $user->roles()->first()->name;
 
-        $user = DB::transaction(function () use ($request) {
-
-            $data = array_filter($request->all());
-
-            $user    = $this->user->find(Auth::user()->id);
-            $company = Company::find($user->company_id);
-
-            if ($request->first_name) {
-                $user->first_name = $request->first_name;
-            }
-
-            if ($request->last_name) {
-                $user->last_name = $request->last_name;
-            }
-
-            if ($request->email) {
-                $user->email = $request->email;
-            }
-
-            if ($request->cellphone) {
-                $user->cellphone = $request->cellphone;
-            }
-
-            if ($request->profile_picture) {
-
-                $company->logo = saveFileInStorageAndReturnPath($request->profile_picture, "administracion/usuarios/company");
-                $company->save();
-            }
-
-            if ($request->password) {
-                $user->password = $request->password;
-            }
-
-            $user->save();
-
-            return $user;
-
-        });
-
-        if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
-
-            $company = DB::transaction(function () use ($request) {
+            $user = DB::transaction(function () use ($request) {
 
                 $data = array_filter($request->all());
 
-                $company = $this->company->find(Auth::user()->company_id);
+                $user    = $this->user->find(Auth::user()->id);
+                $company = Company::find($user->company_id);
 
-                if ($request->company_name) {
-                    $company->name = $request->company_name;
+                if ($request->first_name) {
+                    $user->first_name = $request->first_name;
                 }
 
-                if ($request->company_phone) {
-                    $company->phone = $request->company_phone;
+                if ($request->last_name) {
+                    $user->last_name = $request->last_name;
                 }
 
-                if ($request->company_email) {
-                    $company->email = $request->company_email;
+                if ($request->email) {
+                    $user->email = $request->email;
                 }
 
-                $company->direction = ($request->company_direction) ? $request->company_direction : null;
-
-                if ($request->logo && $request->logo != "null") {
-
-                    $company->logo = saveFileInStorageAndReturnPath($request->logo, "administracion/usuarios/company");
+                if ($request->cellphone) {
+                    $user->cellphone = $request->cellphone;
                 }
 
-                $company->save();
+                if ($request->profile_picture) {
 
-                return $company;
+                    $company->logo = saveFileInStorageAndReturnPath($request->profile_picture, "administracion/usuarios/company");
+                    $company->save();
+                }
+
+                if ($request->password) {
+                    $user->password = $request->password;
+                }
+
+                $user->save();
+
+                return $user;
 
             });
 
-        }
+            if ($user_role == 'fumigator' || $user_role == 'administrator' || $user_role == 'super_administrator') {
 
-        return response()->json(['success' => true, 'data' => $user, 'message' => 'Exito!']);
+                $company = DB::transaction(function () use ($request) {
+
+                    $data = array_filter($request->all());
+
+                    $company = $this->company->find(Auth::user()->company_id);
+
+                    if ($request->company_name) {
+                        $company->name = $request->company_name;
+                    }
+
+                    if ($request->company_phone) {
+                        $company->phone = $request->company_phone;
+                    }
+
+                    if ($request->company_email) {
+                        $company->email = $request->company_email;
+                    }
+
+                    $company->direction = ($request->company_direction) ? $request->company_direction : null;
+
+                    if ($request->logo && $request->logo != "null") {
+
+                        $company->logo = saveFileInStorageAndReturnPath($request->logo, "administracion/usuarios/company");
+                    }
+
+                    $company->save();
+
+                    return $company;
+
+                });
+
+            }
+
+            return response()->json(['success' => true, 'data' => $user, 'message' => 'Exito!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'data' => [], 'message' => 'Ha ocurrido un error, intente de nuevo mas tarde.']);
+
+        }
 
     }
 
