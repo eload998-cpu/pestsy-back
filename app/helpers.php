@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\InvalidImageException;
 use App\Models\Administration\UserSubscription;
 use App\Models\Status;
 use App\Models\StatusType;
@@ -207,12 +208,12 @@ if (! function_exists('optimizeImage')) {
     {
         $srcPath = $from->getRealPath();
         if ($srcPath === false || ! is_file($srcPath)) {
-            throw new \RuntimeException('Uploaded file is not readable.');
+            throw new InvalidImageException('Uploaded file is not readable.');
         }
 
         $info = @getimagesize($srcPath);
         if (! $info || empty($info['mime'])) {
-            throw new \RuntimeException('Unsupported or unreadable image.');
+            throw new InvalidImageException('Unsupported or unreadable image.');
         }
 
         switch (strtolower($info['mime'])) {
@@ -225,11 +226,19 @@ if (! function_exists('optimizeImage')) {
             case 'image/gif':
                 $img = imagecreatefromgif($srcPath);
                 break;
+
+            case 'image/webp':
+                if (! function_exists('imagecreatefromwebp')) {
+                    throw new InvalidImageException('WebP not supported in GD.');
+                }
+                $img = imagecreatefromwebp($srcPath);
+                $ext = 'webp';
+                break;
             default:
-                throw new \RuntimeException('Only JPG/PNG/GIF are supported.');
+                throw new InvalidImageException('Only JPG/PNG/GIF/WebP are supported.');
         }
         if (! $img) {
-            throw new \RuntimeException('GD failed to load image.');
+            throw new InvalidImageException('GD failed to load image.');
         }
 
         $w      = imagesx($img);

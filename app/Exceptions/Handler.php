@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Exceptions;
 
+use App\Exceptions\InvalidImageException;
 use App\Models\GlobalError;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
-use Illuminate\Database\QueryException;
 
 class Handler extends ExceptionHandler
 {
@@ -38,7 +38,6 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-
     /**
      * Register the exception handling callbacks for the application.
      *
@@ -55,14 +54,16 @@ class Handler extends ExceptionHandler
                 throw new \Illuminate\Validation\ValidationException($validator);
             }
         });
+        $this->reportable(function (InvalidImageException $e) {
 
+        });
         $this->reportable(function (Throwable $e) {
 
             $error = [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
             ];
 
             GlobalError::create(["error" => json_encode($error)]);

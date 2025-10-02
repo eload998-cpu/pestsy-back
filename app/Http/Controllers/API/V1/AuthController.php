@@ -3,6 +3,7 @@ namespace App\Http\Controllers\API\V1;
 
 use App\Classes\SchemaBuilder;
 use App\Events\AddRoleEvent;
+use App\Exceptions\InvalidImageException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\CreateUserRequest;
 use App\Http\Requests\Auth\LoginRequest;
@@ -17,15 +18,15 @@ use App\Models\Administration\Plan;
 use App\Models\Administration\State;
 use App\Models\Status;
 use App\Models\StatusType;
-use App\Models\User;
 //EVENTS
+use App\Models\User;
 use App\Services\PaypalService;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 //MAILS
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -385,9 +386,20 @@ class AuthController extends Controller
             }
 
             return response()->json(['success' => true, 'data' => $user, 'message' => 'Exito!']);
+        } catch (InvalidImageException $e) {
+            \Log::warning("Invalid image upload: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'data'    => [],
+                'message' => 'La imagen no es válida. Por favor suba un archivo JPG, PNG, GIF o WebP.',
+            ], 200);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'data' => [], 'message' => 'Ha ocurrido un error, intente de nuevo mas tarde.']);
-
+            \Log::error($e);
+            return response()->json([
+                'success' => false,
+                'data'    => [],
+                'message' => 'Ha ocurrido un error, intente de nuevo más tarde.',
+            ], 500);
         }
 
     }
