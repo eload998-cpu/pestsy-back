@@ -352,7 +352,7 @@
 
             @if ($order['logo'])
                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path($order['logo']))) }}"
-                    style="display: block; width:50px; height:50px; border-radius:50%;margin-top:20px;">
+                    style="display: block; width:50px; height:50px; object-fit:cover; border-radius:50%;margin-top:20px;">
             @else
                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/pestsy-logo.png'))) }}"
                     style="display: block; width:50px; height:50px; border-radius:50%; margin-top:20px;">
