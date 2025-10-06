@@ -407,7 +407,8 @@ class AuthController extends Controller
     public function authUser(Request $request)
     {
 
-        $user = Auth::User();
+        $user      = Auth::User();
+        $tutorials = $user->tutorials()->first();
 
         updateConnectionSchema("administration");
         $company = $this->company->find($user->company_id);
@@ -416,6 +417,7 @@ class AuthController extends Controller
         $user["subscription"]           = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
         $user["country_name"]           = $user->city->state->country->name;
         $user["delete_account_request"] = ! empty($company->deleteAccountRequest) ? true : false;
+        $user["tutorials"]              = $tutorials;
 
         $user_role = $user->roles()->first()->name;
         switch ($user_role) {
@@ -427,6 +429,7 @@ class AuthController extends Controller
                 $user                             = $user->toArray();
                 $user["last_order"]               = $last_order;
                 $user["last_system_order_number"] = $last_system_order_number;
+
                 break;
 
             case 'system_user':
