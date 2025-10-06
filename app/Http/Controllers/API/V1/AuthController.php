@@ -546,6 +546,14 @@ class AuthController extends Controller
             case 'order':
                 $user->order_tutorial_done = true;
                 break;
+
+            case 'client':
+                $user->tutorials()->update(["client_tutorial" => true]);
+                break;
+
+            case 'worker':
+                $user->tutorials()->update(["worker_tutorial" => true]);
+                break;
         }
         $user->save();
         return response()->json(['success' => true, 'data' => $user, 'message' => 'Exito!']);
