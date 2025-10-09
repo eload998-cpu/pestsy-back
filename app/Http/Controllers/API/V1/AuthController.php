@@ -18,8 +18,10 @@ use App\Models\Administration\Plan;
 use App\Models\Administration\State;
 use App\Models\Status;
 use App\Models\StatusType;
-//EVENTS
 use App\Models\User;
+
+//EVENTS
+use App\Models\UserTutorial;
 use App\Services\PaypalService;
 use Carbon\Carbon;
 use DB;
@@ -515,6 +517,12 @@ class AuthController extends Controller
         $status      = Status::where('status_type_id', $status_type->id)->where('name', ($isDeletedAccount > 0) ? 'inactive' : 'active')->first();
 
         $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => ($isDeletedAccount > 0) ? $now : Carbon::parse($now)->addMonths(1), 'status_id' => $status->id, 'created_at' => $now]]);
+
+        UserTutorial::create([
+            "user_id"         => $user->id,
+            "client_tutorial" => false,
+            "worker_tutorial" => false,
+        ]);
 
         $company                 = Company::find($user->company->id);
         $company->order_quantity = ($isDeletedAccount > 0) ? 0 : $plan->order_quantity;

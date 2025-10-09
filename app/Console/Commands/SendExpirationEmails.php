@@ -44,8 +44,6 @@ class SendExpirationEmails extends Command
 
             $subscription = UserSubscription::where('user_id', $user->id)->latest()->first();
 
-            \Log::info($user);
-
             if ($subscription) {
 
                 $today       = Carbon::parse(Carbon::now());

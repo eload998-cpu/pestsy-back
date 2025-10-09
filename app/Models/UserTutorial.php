@@ -10,4 +10,9 @@ class UserTutorial extends Model
 
     protected $table = "administration.user_tutorials";
 
+      protected $fillable=[
+        "user_id",
+        "client_tutorial",
+        "worker_tutorial"
+    ];
 }
