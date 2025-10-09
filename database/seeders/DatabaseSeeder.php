@@ -25,7 +25,8 @@ class DatabaseSeeder extends Seeder
             //MasterSeeder::class,
             //CorrectiveActionSeeder::class,
             //SafetyControlSeeder::class,
-            LocationSeeder::class,
+            //LocationSeeder::class,
+            UserTutorialSeeder::class,
 
         ]);
 
