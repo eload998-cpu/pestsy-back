@@ -45,7 +45,7 @@ class User extends Authenticatable
         'verify_paypal_subscription',
         'is_owner',
         'tutorial_done',
-        'order_tutorial_done'
+        'order_tutorial_done',
     ];
 
     /**
@@ -186,8 +186,8 @@ class User extends Authenticatable
     public function getProfilePhotoLogoSrcAttribute()
     {
         return $this->company && $this->company->logo
-        ? config("app.url") . "/" . $this->company->logo
-        : null;
+            ? config("app.url") . "/" . $this->company->logo
+            : null;
     }
     //HELPERS
 
@@ -217,6 +217,11 @@ class User extends Authenticatable
     public function hasRoles()
     {
         return $this->roles->isNotEmpty();
+    }
+
+    public function tutorials()
+    {
+        return $this->hasMany(UserTutorial::class, 'user_id', 'id');
     }
 
     private function getRolesOfThisUser()

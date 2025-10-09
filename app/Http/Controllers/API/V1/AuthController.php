@@ -18,8 +18,10 @@ use App\Models\Administration\Plan;
 use App\Models\Administration\State;
 use App\Models\Status;
 use App\Models\StatusType;
-//EVENTS
 use App\Models\User;
+
+//EVENTS
+use App\Models\UserTutorial;
 use App\Services\PaypalService;
 use Carbon\Carbon;
 use DB;
@@ -407,7 +409,8 @@ class AuthController extends Controller
     public function authUser(Request $request)
     {
 
-        $user = Auth::User();
+        $user      = Auth::User();
+        $tutorials = $user->tutorials()->first();
 
         updateConnectionSchema("administration");
         $company = $this->company->find($user->company_id);
@@ -416,6 +419,7 @@ class AuthController extends Controller
         $user["subscription"]           = $user->subscriptions()->latest('user_subscriptions.created_at')->first();
         $user["country_name"]           = $user->city->state->country->name;
         $user["delete_account_request"] = ! empty($company->deleteAccountRequest) ? true : false;
+        $user["tutorials"]              = $tutorials;
 
         $user_role = $user->roles()->first()->name;
         switch ($user_role) {
@@ -427,6 +431,7 @@ class AuthController extends Controller
                 $user                             = $user->toArray();
                 $user["last_order"]               = $last_order;
                 $user["last_system_order_number"] = $last_system_order_number;
+
                 break;
 
             case 'system_user':
@@ -513,6 +518,12 @@ class AuthController extends Controller
 
         $user->subscriptions()->attach([$plan->id => ['start_date' => $now, 'end_date' => ($isDeletedAccount > 0) ? $now : Carbon::parse($now)->addMonths(1), 'status_id' => $status->id, 'created_at' => $now]]);
 
+        UserTutorial::create([
+            "user_id"         => $user->id,
+            "client_tutorial" => false,
+            "worker_tutorial" => false,
+        ]);
+
         $company                 = Company::find($user->company->id);
         $company->order_quantity = ($isDeletedAccount > 0) ? 0 : $plan->order_quantity;
         $company->save();
@@ -542,6 +553,14 @@ class AuthController extends Controller
 
             case 'order':
                 $user->order_tutorial_done = true;
+                break;
+
+            case 'client':
+                $user->tutorials()->update(["client_tutorial" => true]);
+                break;
+
+            case 'worker':
+                $user->tutorials()->update(["worker_tutorial" => true]);
                 break;
         }
         $user->save();
