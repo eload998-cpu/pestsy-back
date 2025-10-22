@@ -1,0 +1,18 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class UserTutorial extends Model
+{
+    use HasFactory;
+
+    protected $table = "administration.user_tutorials";
+
+      protected $fillable=[
+        "user_id",
+        "client_tutorial",
+        "worker_tutorial"
+    ];
+}
