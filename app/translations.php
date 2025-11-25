@@ -62,11 +62,11 @@ if(! function_exists("translate_conditions"))
                         $result='Cumple';
                     break;
 
-                    case 'no comply':
+                    case 'no_comply':
                         $result='No cumple';
                     break;
 
-                    case 'no apply':
+                    case 'no_apply':
                         $result='No aplica';
                     break;
           

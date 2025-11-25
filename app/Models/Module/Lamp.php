@@ -25,6 +25,7 @@ class Lamp extends Model
         "location_id",
         "product_id",
         "within_critical_limits",
+        "infestation_level",
 
     ];
 
@@ -46,6 +47,11 @@ class Lamp extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function captures()
+    {
+        return $this->hasMany(LampCapture::class, 'lamp_id', 'id');
     }
 
 }

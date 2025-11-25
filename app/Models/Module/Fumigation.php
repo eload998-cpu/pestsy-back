@@ -20,6 +20,7 @@ class Fumigation extends Model
         "application_time",
         "worker_id",
         "within_critical_limits",
+        "infestation_level"
     ];
 
     public function worker()

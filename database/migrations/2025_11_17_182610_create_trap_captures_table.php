@@ -13,12 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create("modules.internal_conditions", function (Blueprint $table) {
+        Schema::create('modules.trap_captures', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->bigInteger('pest_id');
+            $table->foreign('pest_id')->references('id')->on("modules.pests")->onDelete('restrict');
+            $table->bigInteger('trap_id');
+            $table->foreign('trap_id')->references('id')->on("modules.traps")->onDelete('cascade');
+            $table->string('quantity');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('modules.internal_conditions');
+        Schema::dropIfExists('modules.trap_captures');
     }
 };

@@ -36,6 +36,8 @@ class OrderController extends Controller
         $order->load('user.company');
         $order->load('client');
         $order->load('worker');
+        $order->load('externalConditions.externalCondition');
+        $order->load('internalConditions.internalCondition');
 
         if ($order->service_type == "Xilofago") {
             $order->load('xylophageControl', 'xylophageControl.product', 'xylophageControl.location', 'xylophageControl.pest', 'xylophageControl.application', 'xylophageControl.constructionType', 'xylophageControl.affectedElement', 'xylophageControl.worker', 'xylophageControl.correctiveActions.correctiveAction');
@@ -59,22 +61,20 @@ class OrderController extends Controller
 
         if ($order->service_type == "Monitoreo de voladores (lámparas)") {
 
-            $order->load('lamps', 'lamps.worker', 'lamps.correctiveActions.correctiveAction', 'lamps.product');
+            $order->load('lamps', 'lamps.worker', 'lamps.correctiveActions.correctiveAction', 'lamps.product', 'lamps.captures.pest');
         }
 
         if ($order->service_type == "Monitoreo de insectos") {
 
-            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
+            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device', 'traps.captures.pest');
         }
 
         if ($order->service_type == "General") {
 
-            $order->load('externalCondition');
-            $order->load('internalCondition');
             $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.application', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
             $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product', 'fumigations.correctiveActions.correctiveAction', 'fumigations.safetyControls.safetyControl');
-            $order->load('lamps', 'lamps.worker', 'lamps.product', 'lamps.correctiveActions.correctiveAction');
-            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device');
+            $order->load('lamps', 'lamps.worker', 'lamps.product', 'lamps.correctiveActions.correctiveAction', 'lamps.captures.pest');
+            $order->load('traps', 'traps.correctiveActions.correctiveAction', 'traps.product', 'traps.worker', 'traps.location', 'traps.device', 'traps.captures.pest');
             $order->load('infestationGrade');
         }
 

@@ -128,14 +128,14 @@ class Order extends Model
         return $this->belongsTo(Worker::class);
     }
 
-    public function externalCondition()
+    public function externalConditions()
     {
-        return $this->hasOne(ExternalCondition::class, 'order_id', 'id');
+        return $this->hasMany(OrderExternalCondition::class, 'order_id', 'id');
     }
 
-    public function internalCondition()
+    public function internalConditions()
     {
-        return $this->hasOne(InternalCondition::class, 'order_id', 'id');
+        return $this->hasMany(OrderInternalCondition::class, 'order_id', 'id');
     }
 
     public function infestationGrade()

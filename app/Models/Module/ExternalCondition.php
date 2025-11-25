@@ -12,16 +12,9 @@ class ExternalCondition extends Model
 
     protected $fillable =
         [
-        "obsolete_machinery",
-        "sewer_system",
-        "debris",
-        "containers",
-        "spotlights",
-        "green_areas",
-        "waste",
-        "nesting",
-        "product_storage",
-        "order_id",
+        "name",
+        "company_id",
+        "is_general",
     ];
 
 }

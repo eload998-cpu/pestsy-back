@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Trap\CreateTrapRequest;
 use App\Http\Requests\Administration\Order\Trap\UpdateTrapRequest;
 use App\Models\Module\Trap;
+use App\Models\Module\TrapCapture;
 use App\Models\Module\TrapCorrectiveAction;
 use App\Services\CorrectiveActionService;
 use App\Services\DeviceService;
@@ -105,7 +106,18 @@ class TrapController extends Controller
         $data["location_id"] = $location_id;
         unset($data["corrective_actions"]);
         unset($data["_method"]);
+        unset($data["bitacores"]);
+
         $trap = Trap::create($data);
+
+        foreach ($request->bitacores as $b) {
+            TrapCapture::create(
+                [
+                    "pest_id"  => $b["pest_id"],
+                    "quantity" => $b["quantity"],
+                    "trap_id"  => $trap->id,
+                ]);
+        }
 
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
@@ -170,8 +182,19 @@ class TrapController extends Controller
         unset($data["_method"]);
         unset($data["company_id"]);
         unset($data["corrective_actions"]);
+        unset($data["bitacores"]);
 
         $trap = Trap::where('id', $id)->update($data);
+
+        TrapCapture::where('trap_id', $id)->delete();
+        foreach ($request->bitacores as $b) {
+            TrapCapture::create(
+                [
+                    "pest_id"  => $b["pest_id"],
+                    "quantity" => $b["quantity"],
+                    "trap_id"  => $id,
+                ]);
+        }
 
         TrapCorrectiveAction::where('trap_id', $id)->delete();
         foreach ($request->corrective_actions as $key => $value) {
@@ -201,6 +224,7 @@ class TrapController extends Controller
     {
         $model = Trap::find($id);
         $model->load('correctiveActions');
+        $model->load('captures');
         return response()->json(['success' => true, 'data' => $model]);
 
     }

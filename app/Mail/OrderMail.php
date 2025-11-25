@@ -75,8 +75,8 @@ class OrderMail extends Mailable
         $order->load('observations');
         $order->load('signatures');
         $order->load('images');
-        $order->load('externalCondition');
-        $order->load('internalCondition');
+        $order->load('externalConditions.externalCondition');
+        $order->load('internalConditions.internalCondition');
         $order->load('rodentControls', 'rodentControls.worker', 'rodentControls.application', 'rodentControls.device', 'rodentControls.product', 'rodentControls.location', 'rodentControls.pestBitacores.pest', 'rodentControls.correctiveActions.correctiveAction');
         $order->load('fumigations', 'fumigations.worker', 'fumigations.aplication', 'fumigations.location', 'fumigations.product', 'fumigations.correctiveActions.correctiveAction', 'fumigations.safetyControls.safetyControl');
         $order->load('lamps', 'lamps.worker', 'lamps.product', 'lamps.correctiveActions.correctiveAction');

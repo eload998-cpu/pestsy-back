@@ -27,6 +27,7 @@ Route::group([
     Route::post('/get-plans','ResourceController@getPlans');
     Route::post('/get-plan/{id}','ResourceController@getPlanDetail');
     Route::post('/get-dollar-price','ResourceController@getDolarPrice');
+    Route::post('/generate-station-number','ResourceController@generateStationNumber');
 
 });
 

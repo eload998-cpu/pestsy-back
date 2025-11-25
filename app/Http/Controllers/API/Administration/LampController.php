@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administration\Order\Lamp\CreateLampRequest;
 use App\Http\Requests\Administration\Order\Lamp\UpdateLampRequest;
 use App\Models\Module\Lamp;
+use App\Models\Module\LampCapture;
 use App\Models\Module\LampCorrectiveAction;
 use App\Services\CorrectiveActionService;
 use App\Services\LocationService;
@@ -87,12 +88,22 @@ class LampController extends Controller
 
         unset($data["_method"]);
         unset($data["corrective_actions"]);
+        unset($data["bitacores"]);
 
         $data["worker_id"]   = $worker_id;
         $data["location_id"] = $location_id;
         $data["product_id"]  = $product_id;
 
         $lamp = Lamp::create($data);
+
+        foreach ($request->bitacores as $b) {
+            LampCapture::create(
+                [
+                    "pest_id"  => $b["pest_id"],
+                    "quantity" => $b["quantity"],
+                    "lamp_id"  => $lamp->id,
+                ]);
+        }
 
         foreach ($request->corrective_actions as $key => $value) {
             if (is_string($value)) {
@@ -144,12 +155,23 @@ class LampController extends Controller
         unset($data["_method"]);
         unset($data["company_id"]);
         unset($data["corrective_actions"]);
+        unset($data["bitacores"]);
 
         $data["worker_id"]   = $worker_id;
         $data["location_id"] = $location_id;
         $data["product_id"]  = $product_id;
 
         $lamp = Lamp::where('id', $id)->update($data);
+
+        LampCapture::where('lamp_id', $id)->delete();
+        foreach ($request->bitacores as $b) {
+            LampCapture::create(
+                [
+                    "pest_id"  => $b["pest_id"],
+                    "quantity" => $b["quantity"],
+                    "lamp_id"  => $id,
+                ]);
+        }
 
         LampCorrectiveAction::where('lamp_id', $id)->delete();
         foreach ($request->corrective_actions as $key => $value) {
@@ -179,7 +201,7 @@ class LampController extends Controller
     {
         $model = Lamp::find($id);
         $model->load('correctiveActions');
-
+        $model->load('captures');
         return response()->json(['success' => true, 'data' => $model]);
 
     }

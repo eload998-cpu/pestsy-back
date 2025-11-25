@@ -122,6 +122,7 @@ class FumigationController extends Controller
                     "worker_id"              => $worker_id,
                     "application_time"       => $request->application_time,
                     "within_critical_limits" => $request->within_critical_limits,
+                    "infestation_level"      => $request->infestation_level,
                 ]);
 
             foreach ($request->correctiveActions as $key => $value) {
@@ -205,6 +206,7 @@ class FumigationController extends Controller
                 "worker_id"              => $worker_id,
                 "application_time"       => $request->application_time,
                 "within_critical_limits" => $request->within_critical_limits,
+                "infestation_level"      => $request->infestation_level,
             ]);
 
             FumigationCorrectiveAction::where('fumigation_id', $id)->delete();
