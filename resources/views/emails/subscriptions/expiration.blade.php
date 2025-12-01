@@ -1,125 +1,55 @@
 @extends('layouts.emails')
-
 @section('title', 'Su cuenta ha expirado')
-
 @section('header')
-    @include('emails.header', ['headerText' => "Su cuenta ha expirado"])
+    @include('emails.header', ['headerText' => 'Su cuenta ha expirado'])
 @endsection
-
 @section('content')
-    <center style="width: 100%; background-color: #F0F3F4;">
-        <div
-            style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all;font-family: Open Sans, Roboto, sans-serif;">
-        </div>
-        <div style="max-width: 600px; margin: 0 auto; background-color:#F0F3F4" class="email-container">
+    <tr>
+        <td align="center">
+
+            <div class="main-title" style="margin-top:16px;">
+                <span style="font-size:30px; font-weight:700;">Hola, {{ ucwords($user->first_name) }}</span>
+            </div>
+
+            <div class="description">
+                <table width="100%" height="91" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:16px;">
+                    <tr>
+
+                        <td align="center" valign="middle" style="padding:30px;">
+
+                            <div style="text-align:center;">
+                                Le notificamos que su cuenta en nuestra plataforma ha expirado, por lo cual hemos cancelado
+                                su suscripción, le recomendamos renovar su
+                                suscripción para continuar utilizando las características <b>premium</b> de la aplicación.
+                            </div>
 
 
-            <!-- BEGIN BODY -->
-            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-                style="margin-top:50px !important;">
-                <tr>
-
-                <tr>
-                    <td valign="middle" class="hero bg_white" style="padding: 1rem ;background: #F0F3F4;">
-                        <table>
-                            <tr>
-                                <td>
-                                    <div class="text">
-
-                                        <p
-                                            style="                                          
-                                          font-family: Open Sans, Roboto, sans-serif;                                                                               
-                                          font-style: normal;                                          
-                                          font-weight: 400;                                          
-                                          font-size: 22px;                                          
-                                          line-height: 29px;
-                                          max-width: 500px; 
-                                          text-align: center;">
-                                            Estimado cliente,Deseándole éxitos en sus labores,
-                                            Le agradecemos su preferencia y estamos a su disposición para cualquier duda
-                                            o sugerencia!.<br><br>
-                                            Le notificamos que su cuenta en nuestra plataforma ha expirado, por lo cual hemos cancelado su suscripción, le recomendamos renovar su 
-                                            suscripción para continuar utilizando las características <b>premium</b> de la aplicación.
-                                            
-                                            </p>
 
 
-                                        </p>
-                                    </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-                                         <a title="pagar" href="https://pestsy.castilloapp.com/home/suscripciones" 
-                                    style="                                       
-                                    font-family: Poppins, Roboto;                                       
-                                    font-style: normal;                                       
-                                    font-weight: 600;                                       
-                                    font-size: 24px;                                       
-                                    width: 500px;                                       
-                                    height: 50px;                                       
-                                    text-align: center;                                       
-                                    background: #006DB6;                                       
-                                    color:#FFFFFF;                                       
-                                    border-radius: 30px;                                       
-                                    text-decoration:none;                                       
-                                    text-underline:none;                                       
-                                    display: block;                                       
-                                    margin:auto;                                       
-                                    margin-bottom: 50px;                                       
-                                    line-height: 50px;"                                      
-                                    target="_blank">                                    
-                                 ¡Ingresa aquí para renovar! 
-                                 </a>                                    
-                                 <div style="                                       
-                                    max-width: 500px;                                       
-                                    margin: auto;                                       
-                                    text-align: center;                                       
-                                    font-family: Open Sans, Roboto, sans-serif;                                       
-                                    font-style: normal;                                       
-                                    font-weight: 400;                                       
-                                    font-size: 20px;                                       
-                                    line-height: 32px;                                       
-                                    text-align: center;                                       
-                                    color: #23272B;                                       
-                                    margin-bottom: 30px;                                       
-                                    ">
-                                    <p style="                                          
-                                       margin-bottom: 0px;  
-                                       font-family: Open Sans, Roboto, sans-serif;                                         
-                                       font-style: normal;                                          
-                                       font-weight: 400;                                           
-                                       ">                                         
-                                       Si presentas problemas al acceder, puedes copiar <br/>
-                                        y pegar el siguiente enlace en tu navegador: 
-                                    </p>
-                                    <p style="                                         
-                                       margin-top: 5px;                                          
-                                       color: #1A84B4;                                          
-                                       ">
-                                       https://pestsy.castilloapp.com/home/suscripciones
-                                    </p>
-                                    <p style="                                          
-                                       font-weight: 600;    
-                                       font-family: Open Sans, Roboto, sans-serif;                                       
-                                       ">
-                                       Recuerda tener a la mano tu usuario y <br/>
-                                        contraseña para realizar <br/>
-                                         la renovación.
-                                    </p>
-                                 </div>
+            <div class="transaction-status">
+                <table width="50%" height="52" cellpadding="0" cellspacing="0"
+                    style="background-color: #76D293; border-radius:10px; margin-top:20px;">
+                    <tr>
+                        <td align="center" valign="middle" style="font-weight: 700;">
+                            <a style="color:#FFF; text-decoration:none;"
+                                href="https://pestsy.castilloapp.com/home/suscripciones">Haz
+                                clic
+                                aquí para renovar</a>
 
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+    </tr>
 
-
-        </div>
-
-
-    </center>
 @endsection
-
 @section('footer')
     @include('emails.footer')
 @endsection

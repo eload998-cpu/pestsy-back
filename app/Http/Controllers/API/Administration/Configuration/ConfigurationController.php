@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\API\Administration\Configuration;
 
 use App\Http\Controllers\Controller;
+use App\Mail\DeleteAccountRequestEmail;
 use App\Models\Administration\Company;
 use App\Models\Administration\DeleteAccountRequest;
 use App\Models\Administration\DeletedAccount;
@@ -11,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\DeleteAccountRequestEmail;
 
 class ConfigurationController extends Controller
 {
@@ -94,7 +94,7 @@ class ConfigurationController extends Controller
             "reason"     => $request->reason,
         ]);
 
-        Mail::to($user->email)->send(new DeleteAccountRequestEmail);
+        Mail::to($user->email)->send(new DeleteAccountRequestEmail($user));
 
         return response()->json(['success' => true, 'message' => 'Solicitud recibida con exito']);
 

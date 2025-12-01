@@ -80,7 +80,7 @@ class ChangePasswordController extends Controller
                 );
 
                 Mail::to($request->email)
-                    ->send(new ChangePasswordMail($token));
+                    ->send(new ChangePasswordMail($token, $check_email->first_name));
             }
 
         }

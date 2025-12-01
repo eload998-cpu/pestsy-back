@@ -1,110 +1,109 @@
 @extends('layouts.emails')
-
 @section('title', 'Recibo de pago')
-
 @section('header')
     @include('emails.header', ['headerText' => 'Recibo de pago'])
 @endsection
-
 @section('content')
-    <center style="width: 100%; background-color: #F0F3F4;">
-        <div
-            style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all;font-family: Open Sans, Roboto, sans-serif;">
-        </div>
-        <div style="max-width: 600px; margin: 0 auto; background-color:#F0F3F4" class="email-container">
+    <tr>
+        <td align="center">
+
+            <div class="main-title" style="margin-top:16px;">
+                <span style="font-size:30px; font-weight:700;">Hola, {{ ucwords($user->first_name) }}</span>
+            </div>
+
+            <div class="description">
+                <table width="100%" height="91" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:16px;">
+                    <tr>
+
+                        <td align="center" valign="middle" style="padding:30px;">
+
+                            <div style="text-align:center;">
+                                <b>Deseandole exito en sus labores,</b> le notificamos que su pago
+                                ha sido exitoso
+                            </div>
 
 
-            <!-- BEGIN BODY -->
-            <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
-                style="margin-top:50px !important;">
-                <tr>
-
-                <tr>
-                    <td valign="middle" class="hero bg_white" style="padding: 1rem ;background: #F0F3F4;">
-                        <table>
-                            <tr>
-                                <td>
-                                    <div class="text">
-                                        <p
-                                            style="
-                                          font-family: Open Sans, Roboto, sans-serif;
-                                          font-style: normal;
-                                          font-weight: 400;
-                                          font-size: 22px;
-                                          line-height: 29px;
-                                          max-width: 500px;
-                                          text-align: center;">
-                                            Estimado cliente,
-                                            Deseandole exito en sus labores, le notificamos que su pago
-                                            ha sido exitoso
-                                        </p>
 
 
-                                    </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </td>
+    </tr>
 
-                                    <center>
-                                        <table
-                                            style="
-                                          font-family: Open Sans, Roboto, sans-serif;
-                                          font-style: normal;
-                                          font-weight: 400;
-                                          font-size: 22px;
-                                          line-height: 29px;
-                                          max-width: 500px;
-                                          text-align: center;">
+    <tr>
+        <td align="center">
 
-                                            <tr>
-                                                <td><b>Ref transacción: </b></td>
-                                                <td> {{ $transaction->bill_code }}
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-                                                <td><b>Plan: </b></td>
-                                                <td> {{ $plan->name }}
-                                                </td>
-
-                                            </tr>
-
-                                            <tr>
-                                                <td><b>Monto: </b></td>
-
-                                                @if($transaction->type=="bank_transfer")
-                                                <td> {{ $transactionAmount }} BS
-                                                </td>
-                                                @else
-                                                <td> ${{ $plan->price }}
-                                                </td>
-                                                @endif
-
-                                            </tr>
-
-                                            <tr>
-                                                <td><b>Fecha: </b></td>
-                                                <td> {{ $transaction->created_at->format('d/m/Y') }}
-                                                </td>
-
-                                            </tr>
-                                        </table>
-
-                                    </center>
+            <div class="commerce-details">
+                <table width="100%" height="42" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:20px;">
+                    <tr>
+                        <td align="center" valign="middle">
+                            <b>Detalles de la transacción</b>
+                        </td>
+                    </tr>
+                </table>
 
 
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
+                <table width="100%" height="42" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:10px;">
+                    <tr>
+                        <td width="50%" style="padding-left:16px;">
+                            <b>Referencia:</b>
+                        </td>
+                        <td width="50%" style="padding-left:16px;">
+                            {{ $transaction->bill_code }}
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" height="42" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:10px;">
+                    <tr>
+                        <td width="50%" style="padding-left:16px;">
+                            <b>Plan</b>
+                        </td>
+                        <td width="50%" style="padding-left:16px;">
+                            {{ $plan->name }}
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" height="42" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:10px;">
+                    <tr>
+                        <td width="50%" style="padding-left:16px;">
+                            <b>Monto</b>
+                        </td>
+                        <td width="50%" style="padding-left:16px;">
+                            @if ($transaction->type == 'bank_transfer')
+                                {{ $transactionAmount }} BS
+                            @else
+                                ${{ $plan->price }}
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+
+                <table width="100%" height="42" cellpadding="0" cellspacing="0"
+                    style="background-color:#F8F8F8; border-radius:10px; margin-top:10px;">
+                    <tr>
+                        <td width="50%" style="padding-left:16px;">
+                            <b>Fecha</b>
+                        </td>
+                        <td width="50%" style="padding-left:16px;">
+                            {{ $transaction->created_at->format('d/m/Y') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
 
-        </div>
-
-
-    </center>
+        </td>
+    </tr>
 @endsection
-
 @section('footer')
     @include('emails.footer')
 @endsection
