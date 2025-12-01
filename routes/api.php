@@ -108,6 +108,14 @@ Route::group([
     Route::resource('/aplicaciones', 'AplicationController');
     Route::resource('/metodos-de-desinfeccion', 'DesinfectionMethodController');
     Route::resource('/acciones-correctivas', 'CorrectiveActionController');
+    Route::resource('/condiciones-internas', 'InternalConditionController');
+    Route::resource('/condiciones-externas', 'ExternalConditionController');
+
+    Route::post('/condiciones-internas/cambiar-estado', 'InternalConditionController@changeStatus');
+    Route::post('/condiciones-externas/cambiar-estado', 'ExternalConditionController@changeStatus');
+
+    
+
     Route::resource('/elementos-afectados', 'AffectedElementController');
     Route::resource('/tipo-de-construcciones', 'ConstructionTypeController');
 
@@ -123,6 +131,8 @@ Route::group([
     Route::post('/orders/pendiente', 'OrderController@pending')->middleware('active-user');;
     Route::post('/listar-ordenes', 'OrderController@index');
     Route::post('/orders/daily-orders', 'OrderController@dailyOrders');
+    Route::post('/orders/condiciones-externas', 'ExternalConditionController@Orderstore');
+    Route::post('/orders/condiciones-internas', 'InternalConditionController@Orderstore');
 
     Route::resource('/fumigaciones', 'FumigationController');
     Route::resource('/lamparas', 'LampController');

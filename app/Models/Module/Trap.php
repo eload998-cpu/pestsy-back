@@ -24,6 +24,7 @@ class Trap extends Model
         "location_id",
         "within_critical_limits",
         "pheromones_state",
+        "infestation_level",
     ];
 
     public function worker()
@@ -49,6 +50,11 @@ class Trap extends Model
     public function correctiveActions()
     {
         return $this->hasMany(TrapCorrectiveAction::class, 'trap_id', 'id');
+    }
+
+    public function captures()
+    {
+        return $this->hasMany(TrapCapture::class, 'trap_id', 'id');
     }
 
 }

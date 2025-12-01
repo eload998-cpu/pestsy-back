@@ -6,9 +6,6 @@ use App\Http\Requests\Administration\Order\CreateOrderRequest;
 use App\Mail\OrderMail;
 use App\Models\Administration\Company;
 use App\Models\Module\Client;
-use App\Models\Module\ExternalCondition;
-use App\Models\Module\InfestationGrade;
-use App\Models\Module\InternalCondition;
 use App\Models\Module\Order;
 use App\Models\Module\Worker;
 use App\Models\Status;
@@ -348,68 +345,6 @@ class OrderController extends Controller
                     "company_id"   => Auth::user()->company_id,
                 ]);
 
-            if ($request->service_type == "General") {
-                $external_condition = ExternalCondition::updateOrCreate(
-                    [
-                        "order_id" => $order->id,
-                    ],
-                    [
-                        "obsolete_machinery" => $request->external_conditions["obsolete_machinery"],
-                        "sewer_system"       => $request->external_conditions["sewer_system"],
-                        "debris"             => $request->external_conditions["debris"],
-                        "containers"         => $request->external_conditions["containers"],
-                        "spotlights"         => $request->external_conditions["spotlights"],
-                        "green_areas"        => $request->external_conditions["green_areas"],
-                        "waste"              => $request->external_conditions["waste"],
-                        "nesting"            => $request->external_conditions["nesting"],
-                        "product_storage"    => $request->external_conditions["product_storage"],
-                    ]);
-
-                $internal_condition = InternalCondition::updateOrCreate(
-                    [
-                        "order_id" => $order->id,
-                    ],
-                    [
-                        "walls"            => $request->internal_conditions["walls"],
-                        "floors"           => $request->internal_conditions["floors"],
-                        "cleaning"         => $request->internal_conditions["cleaning"],
-                        "windows"          => $request->internal_conditions["windows"],
-                        "storage"          => $request->internal_conditions["storage"],
-                        "space"            => $request->internal_conditions["space"],
-                        "evidences"        => $request->internal_conditions["evidences"],
-                        "roofs"            => $request->internal_conditions["roofs"],
-                        "sealings"         => $request->internal_conditions["sealings"],
-                        "closed_doors"     => $request->internal_conditions["closed_doors"],
-                        "pests_facilities" => $request->internal_conditions["pests_facilities"],
-                        "garbage_cans"     => $request->internal_conditions["garbage_cans"],
-                        "equipment"        => $request->internal_conditions["equipment"],
-                        "ventilation"      => $request->internal_conditions["ventilation"],
-                        "clean_walls"      => $request->internal_conditions["clean_walls"],
-                        "ducts"            => $request->internal_conditions["ducts"],
-                    ]);
-
-                $infestation_grade = InfestationGrade::updateOrCreate(
-                    [
-                        "order_id" => $order->id,
-                    ],
-                    [
-                        "german_cockroaches"   => $request->pests["german_cockroaches"],
-                        "flies"                => $request->pests["flies"],
-                        "bees"                 => $request->pests["bees"],
-                        "fleas"                => $request->pests["fleas"],
-                        "moths"                => $request->pests["moths"],
-                        "weevils"              => $request->pests["weevils"],
-                        "american_cockroaches" => $request->pests["american_cockroaches"],
-                        "ants"                 => $request->pests["ants"],
-                        "termites"             => $request->pests["termites"],
-                        "spiders"              => $request->pests["spiders"],
-                        "rodents"              => $request->pests["rodents"],
-                        "fire_ants"            => $request->pests["fire_ants"],
-                        "stilt_walkers"        => $request->pests["stilt_walkers"],
-                        "others"               => $request->pests["others"],
-                    ]);
-            }
-
             return $order;
         });
 
@@ -439,9 +374,9 @@ class OrderController extends Controller
             abort(401);
         }
 
-        $order->load('externalCondition');
-        $order->load('internalCondition');
-        $order->load('infestationGrade');
+        $order->load('internalConditions');
+        $order->load('externalConditions');
+
         $last_order_number = $order->order_number;
 
         return response()->json(compact('clients', 'workers', 'order', 'last_order_number'), 200);
@@ -466,9 +401,9 @@ class OrderController extends Controller
         $order = $this->order->where(["status_id" => $status->id, "company_id" => $user->company_id, "user_id" => $user->id])->latest()->first();
 
         if (! empty($order)) {
-            $order->load('externalCondition');
-            $order->load('internalCondition');
-            $order->load('infestationGrade');
+
+            $order->load('internalConditions');
+            $order->load('externalConditions');
         }
 
         $last_order        = $this->order->where(["company_id" => $user->company_id])->latest()->first();

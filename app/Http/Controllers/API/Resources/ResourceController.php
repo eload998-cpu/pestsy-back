@@ -9,10 +9,15 @@ use App\Models\Module\ConstructionType;
 use App\Models\Module\CorrectiveAction;
 use App\Models\Module\DesinfectionMethod;
 use App\Models\Module\Device;
+use App\Models\Module\ExternalCondition;
+use App\Models\Module\InternalCondition;
+use App\Models\Module\Lamp;
 use App\Models\Module\Location;
 use App\Models\Module\Pest;
 use App\Models\Module\Product;
+use App\Models\Module\RodentControl;
 use App\Models\Module\SafetyControl;
+use App\Models\Module\Trap;
 use App\Models\Module\Worker;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,10 +48,32 @@ class ResourceController extends Controller
         $desinfection_methods = [];
         $workers              = [];
         $safety_controls      = [];
+        $internal_conditions  = [];
+        $external_conditions  = [];
 
         if ($request->workers) {
             $workers = Worker::where(function ($query) use ($user) {
                 $query->where('company_id', $user->company->id);
+            })
+                ->get();
+
+        }
+
+        if ($request->internal_conditions) {
+            $internal_conditions = InternalCondition::where('is_visible', true)->where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+
+            })
+                ->get();
+
+        }
+
+        if ($request->external_conditions) {
+            $external_conditions = ExternalCondition::where('is_visible', true)->where(function ($query) use ($user) {
+                $query->where('company_id', $user->company->id)
+                    ->orWhere('is_general', true);
+
             })
                 ->get();
 
@@ -150,7 +177,7 @@ class ResourceController extends Controller
 
         }
 
-        return response()->json(compact('safety_controls', 'workers', 'corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods'), 200);
+        return response()->json(compact('safety_controls', 'workers', 'corrective_actions', 'aplications', 'aplication_places', 'products', 'devices', 'locations', 'pests', 'applied_treatments', 'construction_types', 'affected_elements', 'desinfection_methods', 'internal_conditions', 'external_conditions'), 200);
 
     }
 
@@ -181,6 +208,34 @@ class ResourceController extends Controller
             return response()->json([]);
 
         }
+
+    }
+
+    public function generateStationNumber(Request $request)
+    {
+        $prefix   = "";
+        $iterator = 0;
+        switch ($request->type) {
+            case 'lamps':
+                $prefix   = "LT";
+                $iterator = Lamp::where('order_id', $request->order_id)->count() + 1;
+                break;
+
+            case 'traps':
+                $prefix   = "TR";
+                $iterator = Trap::where('order_id', $request->order_id)->count() + 1;
+
+                break;
+
+            case 'rodents':
+                $prefix   = "TR";
+                $iterator = RodentControl::where('order_id', $request->order_id)->count() + 1;
+
+                break;
+
+        }
+
+        return response()->json("{$prefix}-{$iterator}");
 
     }
 }
