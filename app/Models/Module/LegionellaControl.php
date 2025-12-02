@@ -17,7 +17,6 @@ class LegionellaControl extends Model
         "inspection_result",
         "last_treatment_date",
         "next_treatment_date",
-        "code",
         "sample_required",
         "water_temperature",
         "residual_chlorine_level",

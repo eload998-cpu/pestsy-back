@@ -15,9 +15,6 @@ return new class extends Migration
     {
         Schema::create("modules.control_of_legionella", function (Blueprint $table) {
             $table->id();
-
-            $table->string('code');
-
             $table->bigInteger('order_id');
             $table->foreign('order_id')->references('id')->on("modules.orders")->onUpdate('cascade')->onDelete('cascade');
             $table->bigInteger('location_id');

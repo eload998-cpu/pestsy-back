@@ -28,9 +28,8 @@
                 </tr>
 
                 <tr style="width=100%">
-                <td><b>Codigo: </b>{{$legionellaControl["code"]}}</td>
                 <td><b>Instalación evaluada: </b>{{$legionellaControl["location"]["name"]}}</td>
-                <td colspan="2"><b>Metodo aplicado: </b>{{$legionellaControl["application"]["name"]}}</td>
+                <td><b>Metodo aplicado: </b>{{$legionellaControl["application"]["name"]}}</td>
                 <td colspan="2"><b>Resultado de inspección: </b>{{$legionellaControl["inspection_result"]}}</td>
                 </tr>
 
