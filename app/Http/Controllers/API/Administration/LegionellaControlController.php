@@ -109,12 +109,6 @@ class LegionellaControlController extends Controller
                 $worker_id = $request->worker_id;
             }
 
-            if ($request->code == "") {
-                $code = $this->generarCodigoLegionela($request->order_id);
-            } else {
-                $code = $request->code;
-            }
-
             if (is_string($request->product_id)) {
                 $product_id = ProductService::add($request->product_id);
             } else {
@@ -128,7 +122,6 @@ class LegionellaControlController extends Controller
                     "inspection_result"       => $request->inspection_result,
                     "last_treatment_date"     => $request->last_treatment_date,
                     "next_treatment_date"     => $request->next_treatment_date,
-                    "code"                    => $code,
                     "sample_required"         => $request->sample_required,
                     "water_temperature"       => $request->water_temperature,
                     "residual_chlorine_level" => $request->residual_chlorine_level,
@@ -201,12 +194,6 @@ class LegionellaControlController extends Controller
                 $worker_id = $request->worker_id;
             }
 
-            if ($request->code == "") {
-                $code = $this->generarCodigoLegionela($request->order_id);
-            } else {
-                $code = $request->code;
-            }
-
             LegionellaControlCorrectiveAction::where('legionella_control_id', $id)->delete();
             foreach ($request->correctiveActions as $key => $value) {
                 if (is_string($value)) {
@@ -228,7 +215,6 @@ class LegionellaControlController extends Controller
                     "inspection_result"       => $request->inspection_result,
                     "last_treatment_date"     => $request->last_treatment_date,
                     "next_treatment_date"     => $request->next_treatment_date,
-                    "code"                    => $code,
                     "sample_required"         => $request->sample_required,
                     "water_temperature"       => $request->water_temperature,
                     "residual_chlorine_level" => $request->residual_chlorine_level,
