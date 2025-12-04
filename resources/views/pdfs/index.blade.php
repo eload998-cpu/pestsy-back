@@ -21,6 +21,8 @@
             border-bottom: 2px solid transparent !important;
         }
 
+
+
         .table th {
             text-align: center;
         }
@@ -345,8 +347,6 @@
 </head>
 
 <body>
-
-
     <div class="row clearfix" style="background-color:#76D292; color:White !important; border-radius:2px;">
         <div class="col-xs-1" style="margin-top:5px;">
 
@@ -358,232 +358,175 @@
                     style="display: block; width:50px; height:50px; border-radius:50%; margin-top:20px;">
             @endif
         </div>
+
         <div class="col-xs-5">
             <h1 style="font-size: 21px !important; margin-top: 30px; margin-bottom: 4%;">
-                {{ strtoupper($order['user']['company']['name']) }}</h1>
+                {{ ucwords($order['user']['company']['name']) }}</h1>
         </div>
+
         <div class="col-xs-4">
             <p class="text-right" style="font-size: 10px; margin-top: 5%;">
                 <b>Tel:</b> {{ $order['user']['company']['phone'] }}<br>
-                <b> E-mail: <b>{{ $order['user']['company']['email'] }}<br>
-                        <b class="eleven">Fecha:</b> {{ $order['parsed_date'] }}<br>
-                        @if(!empty($order['user']['company']['direction']))
-                        <b  class="eleven">Dirección:</b><br>
-                        {{$order['user']['company']['direction'] }}
-                        @else
-                        <br>
-                        @endif
+                <b>E-mail:</b> {{ $order['user']['company']['email'] }}<br>
+                <b class="eleven">Fecha:</b> {{ $order['parsed_date'] }}<br>
+                @if (!empty($order['user']['company']['direction']))
+                    <b class="eleven">Dirección:</b><br>
+                    {{ $order['user']['company']['direction'] }}
+                @else
+                    <br>
+                @endif
             </p>
         </div>
-
-
     </div>
-
-
 
     <div class="row clearfix mt-3" style="background-color:#76D292; color:White !important;">
         <div class="col-xs-12 mt-3">
-            <h6 class="text-center">BITACORA DE TRABAJO</h6>
+            <h6 class="text-center">Bitacora de trabajo</h6>
         </div>
     </div>
 
+    {{-- ===== ORDER / CLIENT INFO AS TABLE (with borders) ===== --}}
+    <table class="table mt-3">
+        <tbody>
+            <tr>
+                <td>
+                    <b>Cédula Física:</b>
+                    {{ $order['client']['identification_number'] }}
+                </td>
+                <td>
+                    <b>Cédula Jurídica:</b>
+                    {{ $order['client']['identification_number'] }}
+                </td>
+                <td>
+                    <b>Encargado:</b>
+                    {{ $order['worker']['full_name'] }}
+                </td>
+            </tr>
 
-    <div class="row clearfix mt-3">
-        <div class="col-xs-4 mt-2">
-            <span><b>Cedula Fisica:</b></span> {{ $order['client']['identification_number'] }}
-        </div>
+            <tr>
+                <td>
+                    <b>Cliente:</b>
+                    {{ $order['client']['full_name'] }}
+                </td>
+                <td>
+                    <b>Tipo de servicio:</b>
+                    @if (!empty($order['service_type']))
+                        {{ $order['service_type'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+                <td>
+                    <b>Orden de servicio:</b>
+                    {{ $order['order_number'] }}
+                </td>
+            </tr>
 
-        <div class="col-xs-4 mt-2">
-            <span><b>Cedula Juridica:</b></span>
-            {{ $order['client']['identification_number'] }}
-        </div>
+            <tr>
+                <td>
+                    <b>Hora de llegada:</b>
+                    @if (!empty($order['arrive_time']))
+                        {{ $order['parsed_arrive_time'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+                <td>
+                    <b>Hora de inicio:</b>
+                    @if (!empty($order['start_time']))
+                        {{ $order['parsed_start_time'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+                <td>
+                    <b>Hora de salida:</b>
+                    @if (!empty($order['end_time']))
+                        {{ $order['parsed_end_time'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+            </tr>
 
-        <div class="col-xs-4 mt-2">
-            <span><b>Encargado:</b></span>
-            {{ $order['worker']['full_name'] }}
-        </div>
-    </div>
-
-
-
-    <div class="row clearfix">
-        <div class="col-xs-4 mt-2">
-            <span><b>Cliente:</b></span> {{ $order['client']['full_name'] }}
-        </div>
-
-        <div class="col-xs-4 mt-2">
-            <span><b>Tipo de servicio:</b></span>
-            @if (!empty($order['service_type']))
-                {{ $order['service_type'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-
-        <div class="col-xs-4 mt-2">
-            <span><b>Orden de servicio:</b></span> {{ $order['order_number'] }}
-        </div>
-
-
-    </div>
-
-
-    <div class="row clearfix">
-        <div class="col-xs-4 mt-2">
-            <span><b>Hora de llegada:</b></span>
-            @if (!empty($order['arrive_time']))
-                {{ $order['parsed_arrive_time'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-
-        <div class="col-xs-4 mt-2">
-            <span><b>Hora de inicio:</b></span>
-            @if (!empty($order['start_time']))
-                {{ $order['parsed_start_time'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-
-        <div class="col-xs-4 mt-2">
-            <span><b>Hora de Salida:</b></span>
-            @if (!empty($order['end_time']))
-                {{ $order['parsed_end_time'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-    </div>
-
-
-    <div class="row clearfix">
-
-
-        <div class="col-xs-4 mt-2">
-            <span><b>Procedencia:</b></span>
-            @if (!empty($order['origin']))
-                {{ $order['origin'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-
-        <div class="col-xs-8 mt-2">
-            <span><b>Direccion:</b></span>
-            @if (!empty($order['direction']))
-                {{ $order['direction'] }}
-            @else
-                Ninguno
-            @endif
-        </div>
-
-
-    </div>
-
-
-
+            <tr>
+                <td>
+                    <b>Procedencia:</b>
+                    @if (!empty($order['origin']))
+                        {{ $order['origin'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+                <td colspan="2">
+                    <b>Dirección:</b>
+                    @if (!empty($order['direction']))
+                        {{ $order['direction'] }}
+                    @else
+                        Ninguno
+                    @endif
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {{-- ===== END TABLE ===== --}}
 
     <!--XYLOPHAGE-->
-
     @include('pdfs.xylophage.index')
-
     <!-- -->
 
     <!--LEGIONELLA-->
-
     @include('pdfs.legionella.index')
-
     <!-- -->
 
     <!--INTERNAL CONDITIONS-->
-
     @include('pdfs.internal-conditions.index')
-
     <!-- -->
 
     <!--EXTERNAL CONDITIONS-->
-
     @include('pdfs.external-conditions.index')
-
     <!-- -->
-
 
     <!--RODENT CONTROL-->
-
     @include('pdfs.rodent-control.index')
-
     <!-- -->
-
 
     <!--FUMIGATIONS-->
-
     @include('pdfs.fumigations.index')
-
     <!-- -->
-
 
     <!--LAMPS-->
-
     @include('pdfs.lamps.index')
-
     <!-- -->
-
 
     <!--TRAPS-->
-
     @include('pdfs.traps.index')
-
     <!-- -->
-
 
     <!--INFESTATION GRADES-->
-
     @include('pdfs.infestation-grades.index')
-
     <!-- -->
-
-
 
     <!--OBSERVATIONS-->
-
     @include('pdfs.observations.index')
-
     <!-- -->
 
-
-
-
-
     <!--PRODUCTS-->
-
     @include('pdfs.products.index')
-
     <!-- -->
 
     <!--TECHNICIAN INFO-->
-
     @include('pdfs.technician-info.index')
-
     <!-- -->
 
     <!--SIGNATURES-->
-
     @include('pdfs.signatures.index')
-
     <!-- -->
-
-
-
 
     <!--IMAGES-->
-
     @include('pdfs.images.index')
-
     <!-- -->
-
-
 </body>
+
 
 </html>

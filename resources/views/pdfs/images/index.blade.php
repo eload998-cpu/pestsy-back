@@ -1,7 +1,7 @@
 @if(isset ($order["images"]) && $order["images"])
 <div class="row clearfix block-header-row mt-3" style="background-color:#76D292; color:White !important;">
             <div class="col-xs-12 mt-3">
-                <h6 class="text-center" >IMAGENES ADJUNTAS</h6>
+                <h6 class="text-center" >Imagenes adjuntas</h6>
             </div>
   </div>
 
