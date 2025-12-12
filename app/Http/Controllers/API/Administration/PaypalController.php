@@ -502,10 +502,10 @@ class PaypalController extends Controller
 
             //CREATE THE SUBSCRIPTION HERE
 
-            $subscriptionResponse = $provider->addBillingPlanById($plan->paypal_id)
-                ->addProductById($plan->paypal_product_id)
+            $subscriptionResponse = $provider->addProductById($plan->paypal_product_id)
+                ->addBillingPlanById($plan->paypal_id)
+                ->setReturnAndCancelUrl(route('make.payment'), route('cancel.payment'))
                 ->setupSubscription($user->full_name, $user->email, Carbon::now()->addMinutes(1)->toISOString());
-
             $user->paypal_subscription_id     = $subscriptionResponse["id"];
             $user->verify_paypal_subscription = true;
 
