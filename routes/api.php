@@ -64,6 +64,8 @@ Route::group([
     //TUTORIAL
     Route::post('administracion/skip-tutorial', 'API\V1\AuthController@skipTutorial');
 
+    Route::post('/push/register', 'API\Administration\PushTokenController@register');
+
 });
 
 Route::group([
@@ -113,8 +115,6 @@ Route::group([
 
     Route::post('/condiciones-internas/cambiar-estado', 'InternalConditionController@changeStatus');
     Route::post('/condiciones-externas/cambiar-estado', 'ExternalConditionController@changeStatus');
-
-    
 
     Route::resource('/elementos-afectados', 'AffectedElementController');
     Route::resource('/tipo-de-construcciones', 'ConstructionTypeController');
