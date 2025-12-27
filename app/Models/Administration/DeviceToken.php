@@ -5,6 +5,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeviceToken extends Model
 {
+
+    protected $table = "administration.device_tokens";
+
     protected $fillable = [
         'user_id', 'token', 'platform', 'device_id', 'last_seen_at',
     ];
