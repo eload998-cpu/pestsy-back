@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\API\Administration;
 
+use App\Http\Controllers\Controller;
 use App\Models\Administration\DeviceToken;
 use App\Services\FirebaseService;
 use Illuminate\Http\Request;
@@ -38,6 +39,12 @@ class PushTokenController extends Controller
         } else {
             $firebase->unsubscribeFromTopic($topic, [$deviceToken->token]);
         }
+
+        \Log::info('FCM topic sync', [
+            'user_id'           => $user->id,
+            'token'             => substr($deviceToken->token, 0, 12) . '...',
+            'can_create_orders' => $canCreateOrders,
+        ]);
 
         return response()->json([
             'ok'         => true,
