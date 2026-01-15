@@ -364,6 +364,10 @@ class AuthController extends Controller
                         $company->name = $request->company_name;
                     }
 
+                    if ($request->license_number) {
+                        $company->license_number = $request->license_number;
+                    }
+
                     if ($request->company_phone) {
                         $company->phone = $request->company_phone;
                     }

@@ -37,7 +37,7 @@
                                 {{ !empty($product['expiration_date']) ? \Carbon\Carbon::parse($product['expiration_date'])->format('d/m/y') : 'N/A' }}
                             </td>
                             <td class="text-center">{{ !empty($product['batch']) ? $product['batch'] : 'N/A' }}</td>
-                            <td class="text-center">{{ !empty($product['code']) ? $product['code'] : 'N/A' }}</td>
+                            <td class="text-center">{{ !empty($product['registration_code']) ? $product['registration_code'] : 'N/A' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
