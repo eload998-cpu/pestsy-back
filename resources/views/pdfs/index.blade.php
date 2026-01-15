@@ -366,7 +366,7 @@
 
         <div class="col-xs-4">
             <p class="text-right" style="font-size: 10px; margin-top: 5%;">
-                <b>Licencia:</b> {{ $order['user']['company']['license_number'] }}<br>
+                <b>Licencia sanitaria:</b> {{ $order['user']['company']['license_number'] }}<br>
                 <b>Tel:</b> {{ $order['user']['company']['phone'] }}<br>
                 <b>E-mail:</b> {{ $order['user']['company']['email'] }}<br>
                 <b class="eleven">Fecha:</b> {{ $order['parsed_date'] }}<br>
