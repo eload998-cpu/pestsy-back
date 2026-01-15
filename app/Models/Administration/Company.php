@@ -20,6 +20,7 @@ class Company extends Model
         "email",
         "direction",
         "user_id",
+        "license_number",
     ];
 
     protected $appends = [
